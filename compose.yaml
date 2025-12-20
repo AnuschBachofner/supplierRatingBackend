@@ -1,0 +1,9 @@
+# This docker-compose file is used for local development.
+services:
+  backend:
+    build: .
+    container_name: backend
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env.development
