@@ -1,4 +1,4 @@
-package io.github.supplierratingsoftware.supplierratingbackend.dto.rpc;
+package io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.generic;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 

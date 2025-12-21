@@ -1,8 +1,8 @@
-package io.github.supplierratingsoftware.supplierratingbackend.service;
+package io.github.supplierratingsoftware.supplierratingbackend.integration.openbis;
 
 import io.github.supplierratingsoftware.supplierratingbackend.config.OpenBisProperties;
-import io.github.supplierratingsoftware.supplierratingbackend.dto.rpc.JsonRpcRequest;
-import io.github.supplierratingsoftware.supplierratingbackend.dto.rpc.JsonRpcResponse;
+import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.generic.JsonRpcRequest;
+import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.generic.JsonRpcResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.ParameterizedTypeReference;

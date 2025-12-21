@@ -1,6 +1,6 @@
 package io.github.supplierratingsoftware.supplierratingbackend;
 
-import io.github.supplierratingsoftware.supplierratingbackend.service.OpenBisClient;
+import io.github.supplierratingsoftware.supplierratingbackend.integration.openbis.OpenBisClient;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 

@@ -1,4 +1,4 @@
-package io.github.supplierratingsoftware.supplierratingbackend.dto.rpc;
+package io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.generic;
 
 import java.util.List;
 import java.util.UUID;
