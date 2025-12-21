@@ -3,16 +3,20 @@ info:
   title: Supplier Rating Software API
   description: |
     REST API interface for Supplier Rating Software (SRS).
-        The backend acts as a middleware to openBIS (via JSON-RPC).
-        The fields are based exactly on the openBIS "Object Types":
+    The backend acts as a middleware to openBIS (via JSON-RPC).
     
-        - LIEFERANT (Supplier)
-        - BESTELLUNG (Order)
-        - BESTELLBEWERTUNG (Rating)
-  version: 1.0.0
+    The data model strictly follows the openBIS Object Types defined in the excel exports:
+    - LIEFERANT (Supplier)
+    - BESTELLUNG (Order)
+    - BESTELLBEWERTUNG (Rating)
+    
+    IDs in paths refer to the openBIS **PermID** (stable technical identifier).
+    Codes in payloads refer to the openBIS **Code** (human readable business identifier).
+  version: 1.1.0
 servers:
   - url: http://localhost:8080/api/v1
     description: Local Development Server
+
 paths:
   # --------------------------------------------------------------------------
   # SUPPLIERS
@@ -20,7 +24,7 @@ paths:
   /suppliers:
     get:
       summary: Retrieve list of all suppliers
-      description: Returns a list of all suppliers for the dashboard (basic info & score).
+      description: Returns a list of all suppliers including their calculated aggregated statistics.
       operationId: getAllSuppliers
       responses:
         '200':
@@ -49,18 +53,18 @@ paths:
               schema:
                 $ref: '#/components/schemas/SupplierDetailDTO'
 
-  /suppliers/{code}:
+  /suppliers/{id}:
     get:
-      summary: Retrieve single supplier (with history)
+      summary: Retrieve single supplier
       description: |
-        Returns details for a supplier including cumulative ratings
-        and a list of all orders.
-      operationId: getSupplierByCode
+        Returns details for a supplier including cumulative rating stats
+        and a list of all associated orders.
+      operationId: getSupplierById
       parameters:
-        - name: code
+        - name: id
           in: path
           required: true
-          description: The openBIS code of the supplier (e.g., "LIEFERANT-1").
+          description: The openBIS PermID of the supplier.
           schema:
             type: string
       responses:
@@ -77,9 +81,10 @@ paths:
       description: Updates master data of a supplier.
       operationId: updateSupplier
       parameters:
-        - name: code
+        - name: id
           in: path
           required: true
+          description: The openBIS PermID.
           schema:
             type: string
       requestBody:
@@ -100,6 +105,26 @@ paths:
   # ORDERS
   # --------------------------------------------------------------------------
   /orders:
+    get:
+      summary: List orders
+      description: Get all orders, optionally filtered by supplier.
+      operationId: getOrders
+      parameters:
+        - name: supplierId
+          in: query
+          description: Filter by Supplier PermID
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of orders
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OrderSummaryDTO'
     post:
       summary: Record new order
       description: Creates a new order (Type BESTELLUNG) and assigns it to a supplier.
@@ -118,15 +143,16 @@ paths:
               schema:
                 $ref: '#/components/schemas/OrderDetailDTO'
 
-  /orders/{code}:
+  /orders/{id}:
     get:
       summary: Retrieve order
       description: Returns details of an order including reference to the rating (if available).
-      operationId: getOrderByCode
+      operationId: getOrderById
       parameters:
-        - name: code
+        - name: id
           in: path
           required: true
+          description: The openBIS PermID of the order.
           schema:
             type: string
       responses:
@@ -143,9 +169,10 @@ paths:
       description: Updates order data.
       operationId: updateOrder
       parameters:
-        - name: code
+        - name: id
           in: path
           required: true
+          description: The openBIS PermID.
           schema:
             type: string
       requestBody:
@@ -184,17 +211,16 @@ paths:
               schema:
                 $ref: '#/components/schemas/RatingDetailDTO'
 
-  /ratings/{code}:
+  /ratings/{id}:
     get:
       summary: Retrieve rating
-      description: |
-        Returns details of a rating. Contains references to order/supplier
-        and the cumulative stats of the supplier (for the view).
-      operationId: getRatingByCode
+      description: Returns details of a rating.
+      operationId: getRatingById
       parameters:
-        - name: code
+        - name: id
           in: path
           required: true
+          description: The openBIS PermID of the rating.
           schema:
             type: string
       responses:
@@ -211,9 +237,10 @@ paths:
       description: Updates rating criteria or comment.
       operationId: updateRating
       parameters:
-        - name: code
+        - name: id
           in: path
           required: true
+          description: The openBIS PermID.
           schema:
             type: string
       requestBody:
@@ -232,10 +259,10 @@ paths:
 
 components:
   schemas:
-    # --- COMMON ---
+    # --- COMMON STATS ---
     RatingStats:
       type: object
-      description: Calculated average values for a supplier based on the 4 criteria.
+      description: Calculated average values for a supplier based on the 4 criteria and total score.
       properties:
         avgQuality:
           type: number
@@ -257,17 +284,17 @@ components:
           format: float
           description: Average of VERFUEGBARKEIT
           example: 4.2
-        totalRatingCount:
-          type: integer
-          example: 12
-        overallScore:
+        avgTotal:
           type: number
           format: float
-          description: Weighted overall score (GESAMTBEWERTUNG Average)
+          description: Average of GESAMTBEWERTUNG
           example: 4.4
+        totalRatingCount:
+          type: integer
+          description: Number of ratings included in this calculation
+          example: 12
 
     # --- SUPPLIER DTOS ---
-    # Mapped to openBIS Sample Type: LIEFERANT
     SupplierBaseDTO:
       type: object
       required:
@@ -334,7 +361,7 @@ components:
           properties:
             code:
               type: string
-              description: Optional. If empty, openBIS generates a code.
+              description: Optional user defined code. If empty, openBIS generates one.
               example: "SUPPLIER-1"
 
     SupplierUpdateDTO:
@@ -345,28 +372,27 @@ components:
         - $ref: '#/components/schemas/SupplierBaseDTO'
         - type: object
           properties:
+            id:
+              type: string
+              description: OpenBIS PermID (Stable Identifier)
             code:
               type: string
-              description: OpenBIS Code/PermID
-            overallScore:
-              type: number
-              format: float
-              description: Calculated KPI for list view
+              description: OpenBIS Code (Business Identifier)
+            stats:
+              $ref: '#/components/schemas/RatingStats'
 
     SupplierDetailDTO:
       allOf:
         - $ref: '#/components/schemas/SupplierSummaryDTO'
         - type: object
           properties:
-            stats:
-              $ref: '#/components/schemas/RatingStats'
             orders:
               type: array
+              description: List of all orders belonging to this supplier
               items:
                 $ref: '#/components/schemas/OrderSummaryDTO'
 
     # --- ORDER DTOS ---
-    # Mapped to openBIS Sample Type: BESTELLUNG
     OrderBaseDTO:
       type: object
       properties:
@@ -428,12 +454,12 @@ components:
         - $ref: '#/components/schemas/OrderBaseDTO'
         - type: object
           required:
-            - supplierCode
+            - supplierId
           properties:
-            supplierCode:
+            supplierId:
               type: string
-              description: Reference to supplier (Code) - mandatory for assignment
-              example: "SUPPLIER-1"
+              description: Reference to supplier (PermID) - mandatory for assignment
+              example: "2023050512345"
             code:
               type: string
               description: Optional custom code, otherwise auto-generated
@@ -446,8 +472,12 @@ components:
         - $ref: '#/components/schemas/OrderBaseDTO'
         - type: object
           properties:
+            id:
+              type: string
+              description: OpenBIS PermID
             code:
               type: string
+              description: OpenBIS Code
             ratingStatus:
               type: string
               enum: [ RATED, PENDING ]
@@ -458,24 +488,25 @@ components:
         - $ref: '#/components/schemas/OrderSummaryDTO'
         - type: object
           properties:
-            supplierCode:
+            supplierId:
               type: string
+              description: PermID of the parent supplier
             supplierName:
               type: string
-            ratingCode:
+              description: Name of the parent supplier (for display)
+            ratingId:
               type: string
               nullable: true
-              description: Code of the linked rating (if exists), otherwise null.
+              description: PermID of the linked rating (if exists), otherwise null.
 
     # --- RATING DTOS ---
-    # Mapped to openBIS Sample Type: BESTELLBEWERTUNG
     RatingBaseDTO:
       type: object
       properties:
         quality:
           type: number
           format: float
-          description: Mapped to QUALITAET
+          description: Mapped to QUALITAET (1-5)
           example: 5.0
         qualityReason:
           type: string
@@ -483,28 +514,28 @@ components:
         cost:
           type: number
           format: float
-          description: Mapped to KOSTEN
+          description: Mapped to KOSTEN (1-5)
         costReason:
           type: string
           description: Mapped to KOSTEN_BEGRUENDUNG
         deadline:
           type: number
           format: float
-          description: Mapped to EINHALTUNG_TERMINE
+          description: Mapped to EINHALTUNG_TERMINE (1-5)
         deadlineReason:
           type: string
           description: Mapped to EINHALTUNG_TERMINE_GRUND
         availability:
           type: number
           format: float
-          description: Mapped to VERFUEGBARKEIT
+          description: Mapped to VERFUEGBARKEIT (1-5)
         availabilityReason:
           type: string
           description: Mapped to VERFUEGBARKEIT_BEGRUENDUNG
         totalScore:
           type: number
           format: float
-          description: Mapped to GESAMTBEWERTUNG (often calculated, but can be explicit)
+          description: Mapped to GESAMTBEWERTUNG
         comment:
           type: string
           description: Mapped to KOMMENTAR
@@ -514,11 +545,11 @@ components:
         - $ref: '#/components/schemas/RatingBaseDTO'
         - type: object
           required:
-            - orderCode
+            - orderId
           properties:
-            orderCode:
+            orderId:
               type: string
-              description: To which order does this rating belong?
+              description: PermID of the order this rating belongs to.
 
     RatingUpdateDTO:
       $ref: '#/components/schemas/RatingBaseDTO'
@@ -528,15 +559,17 @@ components:
         - $ref: '#/components/schemas/RatingBaseDTO'
         - type: object
           properties:
+            id:
+              type: string
+              description: PermID of the rating
             code:
               type: string
-            orderCode:
+              description: OpenBIS Code of the rating
+            orderId:
               type: string
-            supplierCode:
+              description: PermID of the order this rating belongs to.
+            supplierId:
               type: string
               description: For navigation to supplier
             supplierName:
               type: string
-            # To fulfill requirement 'cumulative rating visible' in rating view:
-            supplierStats:
-              $ref: '#/components/schemas/RatingStats'
