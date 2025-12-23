@@ -268,31 +268,37 @@ components:
           type: number
           format: float
           description: Average of QUALITAET
-          example: 4.5
+          examples:
+            - 4.5
         avgCost:
           type: number
           format: float
           description: Average of KOSTEN
-          example: 3.8
+          examples:
+            - 3.8
         avgDeadline:
           type: number
           format: float
           description: Average of EINHALTUNG_TERMINE
-          example: 5.0
+          examples:
+            - 5.0
         avgAvailability:
           type: number
           format: float
           description: Average of VERFUEGBARKEIT
-          example: 4.2
+          examples:
+            - 4.2
         avgTotal:
           type: number
           format: float
           description: Average of GESAMTBEWERTUNG
-          example: 4.4
+          examples:
+            - 4.4
         totalRatingCount:
           type: integer
           description: Number of ratings included in this calculation
-          example: 12
+          examples:
+            - 12
 
     # --- SUPPLIER DTOS ---
     SupplierBaseDTO:
@@ -306,38 +312,46 @@ components:
         name:
           type: string
           description: Mapped to $NAME
-          example: "Acme Corp"
+          examples:
+            - "Acme Corp"
         customerNumber:
           type: string
           description: Mapped to KUNDENNUMMER
-          example: "KD-1234"
+          examples:
+            - "KD-1234"
         addition:
           type: string
           description: Mapped to LIEFERANTEN_ZUSATZ
-          example: "Building B"
+          examples:
+            - "Building B"
         street:
           type: string
           description: Mapped to LIEFERANTEN_STRASSE
-          example: "Industrial Ave 5"
+          examples:
+            - "Industrial Ave 5"
         poBox:
           type: string
           description: Mapped to LIEFERANTEN_POSTFACH
         country:
           type: string
           description: Mapped to LIEFERANTEN_LAND (Vocabulary LIEFERANTEN_LAND)
-          example: "CH"
+          examples:
+            - "CH"
         zipCode:
           type: string
           description: Mapped to LIEFERANTEN_POSTLEITZAHL
-          example: "8005"
+          examples:
+            - "8005"
         city:
           type: string
           description: Mapped to LIEFERANTEN_ORT
-          example: "Zurich"
+          examples:
+            - "Zurich"
         website:
           type: string
           description: Mapped to LIEFERANTEN_WEBLINK
-          example: "https://acme.com"
+          examples:
+            - "https://acme.com"
         email:
           type: string
           description: Mapped to LIEFERANTEN_EMAIL
@@ -362,7 +376,8 @@ components:
             code:
               type: string
               description: Optional user defined code. If empty, openBIS generates one.
-              example: "SUPPLIER-1"
+              examples:
+                - "SUPPLIER-1"
 
     SupplierUpdateDTO:
       $ref: '#/components/schemas/SupplierBaseDTO'
@@ -371,6 +386,10 @@ components:
       allOf:
         - $ref: '#/components/schemas/SupplierBaseDTO'
         - type: object
+          required:
+            - id
+            - code
+            - stats
           properties:
             id:
               type: string
@@ -395,31 +414,39 @@ components:
     # --- ORDER DTOS ---
     OrderBaseDTO:
       type: object
+      required:
+        - name
       properties:
         name:
           type: string
           description: Mapped to NAME (Short description)
-          example: "Lab material Q1"
+          examples:
+            - "Lab material Q1"
         mainCategory:
           type: string
           description: Mapped to BESTELLUNG_HK (Vocabulary BESTELLUNGHK)
-          example: "BESCHAFFUNG"
+          examples:
+            - "BESCHAFFUNG"
         subCategory:
           type: string
           description: Mapped to BESTELLUNG_UK (Vocabulary BESTELLUNGFK)
-          example: "MESSMITTEL"
+          examples:
+            - "MESSMITTEL"
         details:
           type: string
           description: Mapped to BEZEICHNUNG
-          example: "50x Precision scales"
+          examples:
+            - "50x Precision scales"
         rhythm:
           type: string
           description: Mapped to RYTHMUS
-          example: "One-time"
+          examples:
+            - "One-time"
         contactPerson:
           type: string
           description: Mapped to ANSPRECHPERSON
-          example: "John Doe"
+          examples:
+            - "John Doe"
         contactEmail:
           type: string
           description: Mapped to ANSPRECHPERSON_EMAIL
@@ -432,7 +459,8 @@ components:
         orderMethod:
           type: string
           description: Mapped to BESTELLART
-          example: "Email"
+          examples:
+            - "Email"
         orderedBy:
           type: string
           description: Mapped to BESTELLER (Name of initiator)
@@ -440,7 +468,8 @@ components:
           type: string
           format: date
           description: Mapped to BESTELLDATUM
-          example: "2023-12-15"
+          examples:
+            - "2023-12-15"
         deliveryDate:
           type: string
           format: date
@@ -459,7 +488,8 @@ components:
             supplierId:
               type: string
               description: Reference to supplier (PermID) - mandatory for assignment
-              example: "2023050512345"
+              examples:
+                - "2023050512345"
             code:
               type: string
               description: Optional custom code, otherwise auto-generated
@@ -471,6 +501,9 @@ components:
       allOf:
         - $ref: '#/components/schemas/OrderBaseDTO'
         - type: object
+          required:
+            - id
+            - code
           properties:
             id:
               type: string
@@ -495,8 +528,7 @@ components:
               type: string
               description: Name of the parent supplier (for display)
             ratingId:
-              type: string
-              nullable: true
+              type: ["string", "null"]
               description: PermID of the linked rating (if exists), otherwise null.
 
     # --- RATING DTOS ---
@@ -507,7 +539,8 @@ components:
           type: number
           format: float
           description: Mapped to QUALITAET (1-5)
-          example: 5.0
+          examples:
+            - 5.0
         qualityReason:
           type: string
           description: Mapped to GRUND_QUALITAET
@@ -515,6 +548,8 @@ components:
           type: number
           format: float
           description: Mapped to KOSTEN (1-5)
+          examples:
+            - 3.0
         costReason:
           type: string
           description: Mapped to KOSTEN_BEGRUENDUNG
@@ -522,6 +557,8 @@ components:
           type: number
           format: float
           description: Mapped to EINHALTUNG_TERMINE (1-5)
+          examples:
+            - 5.0
         deadlineReason:
           type: string
           description: Mapped to EINHALTUNG_TERMINE_GRUND
@@ -529,6 +566,8 @@ components:
           type: number
           format: float
           description: Mapped to VERFUEGBARKEIT (1-5)
+          examples:
+            - 4.5
         availabilityReason:
           type: string
           description: Mapped to VERFUEGBARKEIT_BEGRUENDUNG
@@ -536,6 +575,8 @@ components:
           type: number
           format: float
           description: Mapped to GESAMTBEWERTUNG
+          examples:
+            - 4.4
         comment:
           type: string
           description: Mapped to KOMMENTAR
@@ -558,6 +599,10 @@ components:
       allOf:
         - $ref: '#/components/schemas/RatingBaseDTO'
         - type: object
+          required:
+            - id
+            - code
+            - orderId
           properties:
             id:
               type: string
