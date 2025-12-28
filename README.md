@@ -33,7 +33,7 @@ encapsulated within the application.
 
 ## 2. Package and File Structure
 
-The project structure reflects the layered architecture. Below is the planned
+The project structure reflects the layered architecture. Below is the current and planned
 layout with descriptions for each component.
 
 ```text
@@ -51,40 +51,39 @@ src/main/java/io/github/supplierratingsoftware/supplierratingbackend
 │   └── (C) RatingService.java                  // Logic for creating/fetching ratings
 ├── integration
 │   └── openbis
-│       ├── (C) OpenBisClient.java              // Low-level REST/JSON-RPC client
-│       └── (C) OpenBisService.java             // Abstraction for raw openBIS operations
+│       └── (C) OpenBisClient.java              // Low-level REST/JSON-RPC client
 ├── dto                                         // Data Transfer Objects
 │   ├── api                                     // Clean DTOs sent to the Frontend
 │   │   ├── (R) SupplierDto.java
 │   │   ├── (R) OrderDto.java
-│   │   └── (R) RatingDto.java
+│   │   ├── (R) RatingDto.java
+│   │   └── (R) RatingStatsDto.java
 │   └── openbis                                 // Technical DTOs for openBIS JSON-RPC
 │       ├── generic                             // JSON-RPC Envelopes (Request/Response)
 │       │   ├── (R) JsonRpcRequest.java
 │       │   └── (R) JsonRpcResponse.java
 │       ├── id                                  // Identifiers used to find/reference objects
-│       │   ├── (I) ObjectId.java               // Generic interface for identifiers
-│       │   ├── (R) SampleIdentifier.java
-│       │   ├── (R) PermId.java
+│       │   ├── (R) OpenBisPermId.java
 │       │   ├── (R) EntityTypePermId.java
-│       │   └── /* ... (e.g. SpacePermId) */
+│       │   └── (R) OpenBisEntityType.java
 │       ├── search                              // Object definitions for building queries
 │       │   ├── (I) SearchCriteria.java         // Generic interface for search criteria
-│       │   ├── (R) SampleSearchCriteria.java
-│       │   └── /* ... */
+│       │   ├── (C) AbstractCompositeSearchCriteria.java // Base class for composite logic
+│       │   ├── (C) SampleSearchCriteria.java   // Root search container
+│       │   ├── (C) SpaceSearchCriteria.java    // Space filter logic
+│       │   ├── (C) ProjectSearchCriteria.java  // Project filter logic
+│       │   └── (C) CodeSearchCriteria.java     // Leaf filter
 │       ├── fetchoptions                        // Control structures for lazy-loading
 │       │   ├── (R) SampleFetchOptions.java
 │       │   ├── (R) PropertyFetchOptions.java
-│       │   ├── (R) EmptyFetchOptions.java
-│       │   └── /* ... */
-│       ├── operation                           // Write operations (Create/Update)
-│       │   ├── (R) SampleCreation.java
-│       │   └── (R) SampleUpdate.java
-│       │   └── /* ... */
+│       │   └── (R) SampleTypeFetchOptions.java
 │       └── result                              // Generic containers for returned data
+│           ├── (R) OpenBisSearchResult.java
 │           └── (R) OpenBisSample.java
 └── mapper
-    └── (C) EntityMapper.java                   // Logic to map OpenBisSample -> ApiDto
+    ├── (C) SupplierMapper.java                 // Maps OpenBisSample -> SupplierDto
+    ├── (C) OrderMapper.java                    // Maps OpenBisSample -> OrderDto
+    └── (C) RatingMapper.java                   // Maps OpenBisSample -> RatingDto
 ```
 
 Legend:
@@ -174,7 +173,7 @@ the API contract from the data source implementation.
 
 ### 4.2. Entity Mapping
 
-An `EntityMapper` component is responsible for transforming data between the two
+Dedicated **Mapper components** (e.g., `SupplierMapper`) are responsible for transforming data between the two
 DTO layers.
 
 * **Inbound (API -> OpenBIS):** Converts simple fields from a `SupplierDto`
@@ -182,7 +181,7 @@ DTO layers.
   openBIS Sample creation/update.
 * **Outbound (OpenBIS -> API):** Extracts specific values from openBIS
   properties (e.g., `LIEFERANTEN_ORT`) and maps them to API fields
-  (e.g., `city`). Centralizing this logic prevents "magic strings" from
+  (e.g., `city`). Isolating this logic prevents "magic strings" from
   spreading throughout the service layer.
 
 ### 4.3. Fetch Options (Lazy Loading)
@@ -191,8 +190,8 @@ OpenBIS utilizes a "lazy loading" philosophy. By default, searching for a
 sample returns only its basic identifiers. To retrieve metadata (properties) or
 related objects (parents/children), **Fetch Options** must be explicitly defined.
 
-* **Mechanism:** The `OpenBisService` constructs specific `FetchOptions` objects
-  (e.g., `SampleFetchOptions.withProperties()`).
+* **Mechanism:** The Domain Services (e.g., `SupplierService`) construct specific
+  `FetchOptions` objects (e.g., `new SampleFetchOptions(..., new SampleTypeFetchOptions())`).
 * **Optimization:** We only fetch the data required for the specific use case.
     * *List View:* Fetches basic properties.
     * *Detail View:* Fetches properties, parent suppliers, and child ratings.
@@ -222,8 +221,9 @@ When the `OpenBisClient` receives data, it deserializes it into the generic
 ```java
 // Conceptual representation of a "Supplier" in the integration layer
 OpenBisSample genericSample = new OpenBisSample(
-                "20240505-123",         // permId
-                "LIEFERANT",            // type
+                new OpenBisPermId("20240505-123"),
+                new OpenBisEntityType("LIEFERANT"),
+                "LIEFERANT64",
                 Map.of(                 // properties map
                         "NAME", "Müller AG",
                         "LIEFERANTEN_ORT", "Zurich",
@@ -234,17 +234,24 @@ OpenBisSample genericSample = new OpenBisSample(
 
 **2. The "Domain" View (Inside Application / `dto.api`)**
 The application core and the Frontend require a type-safe, explicit structure.
-The `EntityMapper` is responsible for extracting values from the map keys and
+The `SupplierMapper` is responsible for extracting values from the map keys and
 injecting them into the named fields of the API DTO.
 
 ```java
-// Representation sent to the Frontend
-SupplierDto domainObject = new SupplierDto(
-                "20240505-123",         // mapped from permId
-                "Müller AG",            // mapped from properties.get("NAME")
-                "Zurich",               // mapped from properties.get("LIEFERANTEN_ORT")
-                "503572"                // mapped from properties.get("KUNDENNUMMER")
-        );
+// Logic inside SupplierMapper.java
+public SupplierDto toDto(OpenBisSample sample) {
+    Map<String, String> props = sample.properties();
+
+    return new SupplierDto(
+            props.get("NAME"),              // name
+            props.get("KUNDENNUMMER"),      // customerNumber
+            props.get("LIEFERANTEN_ZUSATZ"),// addition
+            // ... mapping other fields ...
+            sample.permId().permId(),       // id
+            sample.code(),                  // code
+            null                            // stats (calculated later)
+    );
+}
 ```
 
 **Architectural Benefit:**
@@ -279,10 +286,13 @@ graph TD
             S_Rate[RatingService]
         end
 
-        Mapper[EntityMapper]
+        subgraph "Mapping Layer"
+            M_Supp[SupplierMapper]
+            M_Ord[OrderMapper]
+            M_Rate[RatingMapper]
+        end
 
         subgraph "Integration Layer"
-            OBS[OpenBisService]
             Client[OpenBisClient]
         end
     end
@@ -297,40 +307,32 @@ graph TD
     C_Ord --> S_Ord
     C_Rate --> S_Rate
 %% Service Logic
-    S_Supp -->|Fetch & Aggregate| OBS
-    S_Ord -->|Fetch Orders| OBS
-    S_Rate -->|Create/Fetch Rating| OBS
+    S_Supp -->|Fetch & Aggregate Suppliers| Client
+    S_Ord -->|Fetch Orders| Client
+    S_Rate -->|Create/Fetch Rating| Client
 %% Integration
-    OBS --> Client
     Client -->|JSON - RPC| DB
-%% Mapping Dependencies
-    S_Supp -.->|Map DTO < - > Raw| Mapper
-    S_Ord -.->|Map DTO < - > Raw| Mapper
-    S_Rate -.->|Map DTO < - > Raw| Mapper
+%% Mapping Dependencies (Specific Mappers)
+    S_Supp -.->|Use| M_Supp
+    S_Ord -.->|Use| M_Ord
+    S_Rate -.->|Use| M_Rate
 ```
 
 ---
 
 ## 6. Design Decisions
 
-### Java Records for DTOs
+### Records vs. Classes for DTOs
 
-We utilize Java Records (introduced in Java 14/16) for all Data Transfer
-Objects.
+We utilize a hybrid approach for Data Transfer Objects:
 
-* **Immutability:** Records are immutable by default, ensuring thread safety
-  and preventing accidental modification of data during transit.
-* **Conciseness:** Records eliminate boilerplate code (getters, `toString`,
-  `equals`, `hashCode`), keeping the codebase clean and readable.
-* **Serialization:** Jackson (JSON library) handles Record serialization and
-  deserialization natively in modern Spring Boot versions.
-
-**Example:**
-
-```java
-public record SupplierDto(String id, String name, String city) {
-}
-```
+* **Java Records (Response/Data):** Used for API DTOs (`SupplierDto`) and openBIS Results
+  (`OpenBisSample`). Records provide immutability and conciseness for data carriers.
+* **Java Classes (Search Criteria):** Used for the openBIS Search Criteria hierarchy
+  (`SampleSearchCriteria`, `SpaceSearchCriteria`). We use **Classes** here to implement
+  the **Composite Pattern** via inheritance (`AbstractCompositeSearchCriteria`). This allows for
+  a fluent API (`.with(...)`) and shared logic for nested criteria lists, which is not
+  possible with Records.
 
 ### Native JSON-RPC Integration
 
@@ -339,14 +341,16 @@ Instead of relying on heavy, third-party libraries or the official Java V3 API
 implements a lightweight, native JSON-RPC client using `RestClient`.
 
 * **Control:** We have full control over the request structure.
-* **Performance:** No overhead from unused library features.
 * **Transparency:** The specific `JsonRpcRequest` and `JsonRpcResponse` wrappers
   make the communication protocol explicit and easy to debug.
 
-### OpenBIS Service vs. Client
+### Direct Service-to-Client Communication
 
-* **OpenBisClient:** Is strictly responsible for the *transport* layer (HTTP,
-  Authentication headers, JSON conversion).
-* **OpenBisService:** Is responsible for the *semantics* of openBIS (e.g.,
-  knowing that "searchSamples" is the correct method to find a supplier, or
-  formatting the search criteria maps correctly).
+In the initial design, an `OpenBisService` layer was planned to abstract the client.
+However, to reduce complexity and boilerplate, Domain Services (e.g., `SupplierService`)
+now interact directly with `OpenBisClient`.
+
+* **Responsibility:** The `SupplierService` constructs the domain-specific `SearchCriteria` (e.g., filtering by Space
+  and Project) and passes them to the generic `OpenBisClient`.
+* **Benefit:** This keeps the `OpenBisClient` purely technical (transport layer) while the business logic (which
+  Space/Project to search) resides in the Service Layer.
