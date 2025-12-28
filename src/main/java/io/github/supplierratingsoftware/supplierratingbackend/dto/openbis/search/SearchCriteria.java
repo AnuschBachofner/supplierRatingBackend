@@ -2,6 +2,7 @@ package io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.searc
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import io.github.supplierratingsoftware.supplierratingbackend.constant.openbis.OpenBisJsonConstants;
 
 /**
  * The root interface for all search criteria used in the openBIS V3 API.
@@ -46,7 +47,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
         include = JsonTypeInfo.As.PROPERTY,
-        property = "@type"
+        property = OpenBisJsonConstants.TYPE_JSON_PROPERTY_KEY
 )
 @JsonIgnoreProperties(ignoreUnknown = true)
 public interface SearchCriteria {

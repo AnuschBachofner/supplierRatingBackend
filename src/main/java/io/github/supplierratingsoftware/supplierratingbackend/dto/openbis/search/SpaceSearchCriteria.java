@@ -2,6 +2,7 @@ package io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.searc
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonTypeName;
+import io.github.supplierratingsoftware.supplierratingbackend.constant.openbis.OpenBisJsonConstants;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -14,7 +15,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-@JsonTypeName("as.dto.space.search.SpaceSearchCriteria")
+@JsonTypeName(OpenBisJsonConstants.SPACE_SEARCH_CRITERIA)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class SpaceSearchCriteria extends AbstractCompositeSearchCriteria {
 

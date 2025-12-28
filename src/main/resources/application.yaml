@@ -3,6 +3,12 @@ spring:
     name: supplierRatingBackend
 
 openbis:
+  # Connection Configuration
   api-url: ${OPENBIS_API_URL}
   user: ${OPENBIS_USER}
   password: ${OPENBIS_PASSWORD}
+
+  # Search Scope Configuration
+  search:
+    default-space: ${OPENBIS_SPACE:LIEFERANTENBEWERTUNG}
+    supplier-project: ${OPENBIS_PROJECT_SUPPLIER:LIEFERANTEN}

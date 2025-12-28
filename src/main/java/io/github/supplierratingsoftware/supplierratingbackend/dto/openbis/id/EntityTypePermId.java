@@ -3,6 +3,7 @@ package io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.id;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
+import io.github.supplierratingsoftware.supplierratingbackend.constant.openbis.OpenBisJsonConstants;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -28,8 +29,8 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@JsonTypeName("as.dto.entitytype.id.EntityTypePermId")
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "@type")
+@JsonTypeName(OpenBisJsonConstants.ENTITY_TYPE_PERM_ID)
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = OpenBisJsonConstants.TYPE_JSON_PROPERTY_KEY)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class EntityTypePermId {
     private String permId;

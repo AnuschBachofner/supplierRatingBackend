@@ -39,8 +39,13 @@ layout with descriptions for each component.
 ```text
 src/main/java/io/github/supplierratingsoftware/supplierratingbackend
 ├── config
-│   ├── (R) OpenBisProperties.java              // Configuration binding (URL, User, etc.)
+│   ├── (R) OpenBisProperties.java              // Configuration properties (URL, user, password, search scopes)
 │   └── (C) WebConfig.java                      // CORS and MVC configuration
+├── constant
+│   └── openbis
+│       ├── (C) ConfigurationConstants.java     // Configuration constants (YAML prefixes)
+│       ├── (C) OpenBisJsonConstants.java       // Technical JSON-RPC constants (@type, operators, etc.)
+│       └── (C) OpenBisSchemaConstants.java     // Business Schema constants (Property Codes like "LIEFERANTEN_ORT")
 ├── controller                                  // REST API Endpoints
 │   ├── (C) SupplierController.java             // Endpoints: /api/v1/suppliers
 │   ├── (C) OrderController.java                // Endpoints: /api/v1/orders

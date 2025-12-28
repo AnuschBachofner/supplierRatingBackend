@@ -1,5 +1,7 @@
 package io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.generic;
 
+import io.github.supplierratingsoftware.supplierratingbackend.constant.openbis.OpenBisJsonConstants;
+
 import java.util.List;
 import java.util.UUID;
 
@@ -27,12 +29,12 @@ import java.util.UUID;
  */
 public record JsonRpcRequest(String jsonrpc, String method, List<Object> params, String id) {
     /**
-     * Convenience Constructor that sets the jsonrpc version to 2.0
+     * Convenience constructor that sets the jsonrpc version to the default value.
      *
      * @param method The method to invoke on openBIS.
      * @param params The parameters to pass to the method.
      */
     public JsonRpcRequest(String method, List<Object> params) {
-        this("2.0", method, params, UUID.randomUUID().toString());
+        this(OpenBisJsonConstants.JSON_RPC_VERSION, method, params, UUID.randomUUID().toString());
     }
 }

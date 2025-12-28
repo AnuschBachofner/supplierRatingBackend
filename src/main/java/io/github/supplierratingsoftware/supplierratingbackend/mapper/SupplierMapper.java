@@ -1,5 +1,6 @@
 package io.github.supplierratingsoftware.supplierratingbackend.mapper;
 
+import io.github.supplierratingsoftware.supplierratingbackend.constant.openbis.OpenBisSchemaConstants;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.api.SupplierDto;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.result.OpenBisSample;
 import org.springframework.stereotype.Component;
@@ -30,20 +31,20 @@ public class SupplierMapper {
         if (props == null) props = Map.of();
 
         return new SupplierDto(
-                props.get("NAME"),
-                props.get("KUNDENNUMMER"),
-                props.get("LIEFERANTEN_ZUSATZ"),
-                props.get("LIEFERANTEN_STRASSE"),
-                props.get("LIEFERANTEN_POSTFACH"),
-                props.get("LIEFERANTEN_LAND"),
-                props.get("LIEFERANTEN_POSTLEITZAHL"),
-                props.get("LIEFERANTEN_ORT"),
-                props.get("LIEFERANTEN_WEBLINK"),
-                props.get("LIEFERANTEN_EMAIL"),
-                props.get("LIEFERANTEN_TELEFON"),
-                props.get("MWST"),
-                props.get("KONDITIONEN"),
-                props.get("KUNDENINFORMATION"),
+                props.get(OpenBisSchemaConstants.NAME_SUPPLIER_PROPERTY),
+                props.get(OpenBisSchemaConstants.CUSTOMER_NUMBER_SUPPLIER_PROPERTY),
+                props.get(OpenBisSchemaConstants.ADDITION_SUPPLIER_PROPERTY),
+                props.get(OpenBisSchemaConstants.STREET_SUPPLIER_PROPERTY),
+                props.get(OpenBisSchemaConstants.PO_BOX_SUPPLIER_PROPERTY),
+                props.get(OpenBisSchemaConstants.COUNTRY_SUPPLIER_PROPERTY),
+                props.get(OpenBisSchemaConstants.ZIP_CODE_SUPPLIER_PROPERTY),
+                props.get(OpenBisSchemaConstants.CITY_SUPPLIER_PROPERTY),
+                props.get(OpenBisSchemaConstants.WEBSITE_SUPPLIER_PROPERTY),
+                props.get(OpenBisSchemaConstants.EMAIL_SUPPLIER_PROPERTY),
+                props.get(OpenBisSchemaConstants.PHONE_NUMBER_SUPPLIER_PROPERTY),
+                props.get(OpenBisSchemaConstants.VAT_ID_SUPPLIER_PROPERTY),
+                props.get(OpenBisSchemaConstants.CONDITIONS_SUPPLIER_PROPERTY),
+                props.get(OpenBisSchemaConstants.CUSTOMER_INFO_SUPPLIER_PROPERTY),
                 sample.permId() != null ? sample.permId().permId() : null,
                 sample.code(),
                 null // TODO: implement SupplierStats, once it's available

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import io.github.supplierratingsoftware.supplierratingbackend.constant.openbis.OpenBisJsonConstants;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.id.OpenBisEntityType;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.id.OpenBisPermId;
 
@@ -33,7 +34,7 @@ import java.util.Map;
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-@JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class, property = "@id")
+@JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class, property = OpenBisJsonConstants.ID_JSON_PROPERTY_KEY)
 public record OpenBisSample(OpenBisPermId permId, OpenBisEntityType type, String code, Map<String, String> properties) {
 
     /**

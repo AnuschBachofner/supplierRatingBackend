@@ -1,6 +1,7 @@
 package io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.search;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import io.github.supplierratingsoftware.supplierratingbackend.constant.openbis.OpenBisJsonConstants;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -40,7 +41,7 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public abstract class AbstractCompositeSearchCriteria implements SearchCriteria {
 
-    private String operator = "AND";
+    private String operator = OpenBisJsonConstants.AND_OPERATOR;
     private List<SearchCriteria> criteria = new ArrayList<>();
 
     /**

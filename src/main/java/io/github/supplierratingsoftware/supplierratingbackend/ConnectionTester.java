@@ -1,5 +1,6 @@
 package io.github.supplierratingsoftware.supplierratingbackend;
 
+import io.github.supplierratingsoftware.supplierratingbackend.config.OpenBisProperties;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.fetchoptions.SampleTypeFetchOptions;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.fetchoptions.PropertyFetchOptions;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.fetchoptions.SampleFetchOptions;
@@ -17,23 +18,26 @@ import java.util.List;
 
 /**
  * NOTE: This class is not part of the application's business logic. Its only purpose is to showcase the OpenBIS connection process.
- *
+ * TODO: This class should be removed once the logic is implemented and unit tests are added.
+ * <p>
  * A class responsible for testing the connection to the OpenBIS system during application startup.
  * Implements the {@link CommandLineRunner} interface to execute connection testing when the application starts.
  * Leverages the {@link OpenBisClient} to manage the OpenBIS login functionality.
- *
+ * <p>
  * The {@code run} method logs an attempt to connect to the OpenBIS system, aiming to ensure that
  * the service is reachable and correctly configured. The login outcome is printed to the console.
- *
+ * <p>
  * This component is automatically recognized and executed by the Spring Framework due to the {@code @Component} annotation.
  */
 @Component
 public class ConnectionTester implements CommandLineRunner {
     private static final Logger logger = LoggerFactory.getLogger(ConnectionTester.class);
     private final OpenBisClient openBisClient;
+    private final OpenBisProperties properties;
 
-    public ConnectionTester(OpenBisClient openBisClient) {
+    public ConnectionTester(OpenBisClient openBisClient, OpenBisProperties properties) {
         this.openBisClient = openBisClient;
+        this.properties = properties;
     }
 
     @Override
@@ -55,15 +59,15 @@ public class ConnectionTester implements CommandLineRunner {
 
         try {
             SampleSearchCriteria criteria = SampleSearchCriteria.create()
-                    .with(SpaceSearchCriteria.withCode("LIEFERANTENBEWERTUNG"))
-                    .with(ProjectSearchCriteria.withCode("LIEFERANTEN"));
+                    .with(SpaceSearchCriteria.withCode(properties.search().defaultSpace()))
+                    .with(ProjectSearchCriteria.withCode(properties.search().supplierProject()));
 
             SampleFetchOptions fetchOptions = new SampleFetchOptions(
                     new PropertyFetchOptions(),
                     new SampleTypeFetchOptions()
             );
 
-            logger.info("Searching for samples in Project 'LIEFERANTEN' (Space: LIEFERANTENBEWERTUNG)...");
+            logger.info("Searching for samples in Project {} (Space: {})...", properties.search().supplierProject(), properties.search().defaultSpace());
 
             List<OpenBisSample> results = openBisClient.searchSamples(criteria, fetchOptions);
 

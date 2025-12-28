@@ -1,5 +1,6 @@
 package io.github.supplierratingsoftware.supplierratingbackend.service;
 
+import io.github.supplierratingsoftware.supplierratingbackend.config.OpenBisProperties;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.api.SupplierDto;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.fetchoptions.PropertyFetchOptions;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.fetchoptions.SampleFetchOptions;
@@ -27,18 +28,19 @@ import java.util.List;
 public class SupplierService {
     private final OpenBisClient openBisClient;
     private final SupplierMapper supplierMapper;
-    private static final String SPACE_CODE = "LIEFERANTENBEWERTUNG";
-    private static final String PROJECT_CODE = "LIEFERANTEN";
+    private final OpenBisProperties properties;
 
     /**
      * Constructor.
      *
      * @param openBisClient  The OpenBIS client for data retrieval.
      * @param supplierMapper The mapper for converting OpenBIS samples to API DTOs.
+     * @param properties     The OpenBIS configuration properties.
      */
-    public SupplierService(OpenBisClient openBisClient, SupplierMapper supplierMapper) {
+    public SupplierService(OpenBisClient openBisClient, SupplierMapper supplierMapper, OpenBisProperties properties) {
         this.openBisClient = openBisClient;
         this.supplierMapper = supplierMapper;
+        this.properties = properties;
     }
 
     /**
@@ -52,8 +54,8 @@ public class SupplierService {
      */
     public List<SupplierDto> getAllSuppliers() {
         SampleSearchCriteria criteria = SampleSearchCriteria.create()
-                .with(SpaceSearchCriteria.withCode(SPACE_CODE))
-                .with(ProjectSearchCriteria.withCode(PROJECT_CODE));
+                .with(SpaceSearchCriteria.withCode(properties.search().defaultSpace()))
+                .with(ProjectSearchCriteria.withCode(properties.search().supplierProject()));
         SampleFetchOptions fetchOptions = new SampleFetchOptions(new PropertyFetchOptions(), new SampleTypeFetchOptions());
         List<OpenBisSample> rawSamples = openBisClient.searchSamples(criteria, fetchOptions);
         return rawSamples.stream().map(supplierMapper::toDto).toList();

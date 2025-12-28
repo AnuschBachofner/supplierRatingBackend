@@ -2,6 +2,7 @@ package io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.searc
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonTypeName;
+import io.github.supplierratingsoftware.supplierratingbackend.constant.openbis.OpenBisJsonConstants;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -25,7 +26,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@JsonTypeName("as.dto.sample.search.SampleTypeSearchCriteria")
+@JsonTypeName(OpenBisJsonConstants.SAMPLE_TYPE_SEARCH_CRITERIA)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class SampleTypeSearchCriteria implements SearchCriteria {
 

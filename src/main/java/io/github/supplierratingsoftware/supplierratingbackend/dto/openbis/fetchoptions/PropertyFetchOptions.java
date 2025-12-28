@@ -2,6 +2,7 @@ package io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.fetch
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
+import io.github.supplierratingsoftware.supplierratingbackend.constant.openbis.OpenBisJsonConstants;
 
 /**
  * Representation of fetch options for properties in OpenBIS V3 API.
@@ -20,7 +21,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
  *
  * @see SampleFetchOptions
  */
-@JsonTypeName("as.dto.property.fetchoptions.PropertyFetchOptions")
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "@type")
+@JsonTypeName(OpenBisJsonConstants.PROPERTY_FETCH_OPTIONS)
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = OpenBisJsonConstants.TYPE_JSON_PROPERTY_KEY)
 public record PropertyFetchOptions() {
 }

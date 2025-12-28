@@ -2,6 +2,7 @@ package io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.searc
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonTypeName;
+import io.github.supplierratingsoftware.supplierratingbackend.constant.openbis.OpenBisJsonConstants;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -27,7 +28,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-@JsonTypeName("as.dto.common.search.CodeSearchCriteria")
+@JsonTypeName(OpenBisJsonConstants.CODE_SEARCH_CRITERIA)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class CodeSearchCriteria implements SearchCriteria {
     private StringEqualToValue fieldValue;

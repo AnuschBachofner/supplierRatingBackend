@@ -1,6 +1,7 @@
 package io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.search;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
+import io.github.supplierratingsoftware.supplierratingbackend.constant.openbis.OpenBisJsonConstants;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -27,7 +28,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-@JsonTypeName("as.dto.sample.search.SampleSearchCriteria")
+@JsonTypeName(OpenBisJsonConstants.SAMPLE_SEARCH_CRITERIA)
 public class SampleSearchCriteria extends AbstractCompositeSearchCriteria {
 
     /**

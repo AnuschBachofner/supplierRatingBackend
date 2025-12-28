@@ -1,6 +1,7 @@
 package io.github.supplierratingsoftware.supplierratingbackend.integration.openbis;
 
 import io.github.supplierratingsoftware.supplierratingbackend.config.OpenBisProperties;
+import io.github.supplierratingsoftware.supplierratingbackend.constant.openbis.OpenBisJsonConstants;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.fetchoptions.SampleFetchOptions;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.generic.JsonRpcRequest;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.generic.JsonRpcResponse;
@@ -55,7 +56,7 @@ public class OpenBisClient {
         // OpenBIS sends "application/json-rpc" responses instead of "application/json"
         // This custom Jackson-Converter handles this case by adding "application/json-rpc" to the list of supported media types
         JacksonJsonHttpMessageConverter converter = new JacksonJsonHttpMessageConverter();
-        converter.setSupportedMediaTypes(List.of(MediaType.APPLICATION_JSON, MediaType.parseMediaType("application/json-rpc")));
+        converter.setSupportedMediaTypes(List.of(MediaType.APPLICATION_JSON, MediaType.parseMediaType(OpenBisJsonConstants.SUPPORTED_MEDIA_TYPE)));
 
         // Build the RestClient with the custom Jackson-Converter
         this.restClient = RestClient.builder()
@@ -77,7 +78,7 @@ public class OpenBisClient {
 
         // NOTE: The logic of getting the username and password will be changed once the final login/token process is implemented.
         // Create the login request with the configured username and password
-        JsonRpcRequest request = new JsonRpcRequest("login", List.of(properties.user(), properties.password()));
+        JsonRpcRequest request = new JsonRpcRequest(OpenBisJsonConstants.LOGIN_METHOD_NAME, List.of(properties.user(), properties.password()));
 
         // Create a ParameterizedTypeReference for the response type
         // This is needed because the response type is generic
@@ -112,7 +113,7 @@ public class OpenBisClient {
 
         // Create the search request payload
         // Order of parameters in V3 API: [sessionToken, criteria, fetchOptions]
-        JsonRpcRequest request = new JsonRpcRequest("searchSamples", List.of(sessionToken, criteria, fetchOptions));
+        JsonRpcRequest request = new JsonRpcRequest(OpenBisJsonConstants.SEARCH_SAMPLES_METHOD_NAME, List.of(sessionToken, criteria, fetchOptions));
 
         // Define the return type of the search request
         // We expect a JsonRpcResponse<OpenBisSearchResult<OpenBisSample>>

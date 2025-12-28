@@ -3,6 +3,7 @@ package io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.fetch
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
+import io.github.supplierratingsoftware.supplierratingbackend.constant.openbis.OpenBisJsonConstants;
 
 /**
  * Represents fetch options for samples in OpenBIS V3 API.
@@ -27,7 +28,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
  * @see SampleTypeFetchOptions
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonTypeName("as.dto.sample.fetchoptions.SampleFetchOptions")
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "@type")
+@JsonTypeName(OpenBisJsonConstants.SAMPLE_FETCH_OPTIONS)
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = OpenBisJsonConstants.TYPE_JSON_PROPERTY_KEY)
 public record SampleFetchOptions(PropertyFetchOptions properties, SampleTypeFetchOptions type) {
 }
