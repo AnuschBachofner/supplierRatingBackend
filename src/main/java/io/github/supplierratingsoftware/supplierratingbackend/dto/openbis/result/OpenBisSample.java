@@ -8,6 +8,7 @@ import io.github.supplierratingsoftware.supplierratingbackend.constant.openbis.O
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.id.OpenBisEntityType;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.id.OpenBisPermId;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -21,6 +22,7 @@ import java.util.Map;
  *         "type": { ... },
  *         "code": "SAMPLE_CODE",
  *         "properties": { ... }
+ *         "parents": [ ... ]
  *     }
  * </pre>
  * <p>
@@ -31,11 +33,18 @@ import java.util.Map;
  * @param type       The type of the sample.
  * @param code       The code of the sample.
  * @param properties The properties (payload) of the sample.
+ * @param parents    The parent samples of the current sample (used for hierarchical data retrieval).
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class, property = OpenBisJsonConstants.ID_JSON_PROPERTY_KEY)
-public record OpenBisSample(OpenBisPermId permId, OpenBisEntityType type, String code, Map<String, String> properties) {
+public record OpenBisSample(
+        OpenBisPermId permId,
+        OpenBisEntityType type,
+        String code,
+        Map<String, String> properties,
+        List<OpenBisSample> parents
+) {
 
     /**
      * Safely retrieves a property from the sample's properties map.

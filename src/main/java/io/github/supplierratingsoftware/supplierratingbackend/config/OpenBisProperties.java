@@ -14,12 +14,14 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  */
 @ConfigurationProperties(prefix = ConfigurationConstants.OPENBIS_YAML_CONFIG_PREFIX)
 public record OpenBisProperties(String apiUrl, String user, String password, SearchConfig search) {
+
     /**
      * Nested configuration for search scopes.
      *
      * @param defaultSpace    The default Space to search in (e.g. "LIEFERANTENBEWERTUNG").
      * @param supplierProject The Project code for suppliers (e.g. "LIEFERANTEN").
+     * @param orderProject    The Project code for orders (e.g. "BESTELLUNGEN").
      */
-    public record SearchConfig(String defaultSpace, String supplierProject) {
+    public record SearchConfig(String defaultSpace, String supplierProject, String orderProject) {
     }
 }

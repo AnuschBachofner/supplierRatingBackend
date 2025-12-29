@@ -23,6 +23,22 @@ public final class OpenBisSchemaConstants {
     public static final String CONDITIONS_SUPPLIER_PROPERTY = "KONDITIONEN";
     public static final String CUSTOMER_INFO_SUPPLIER_PROPERTY = "KUNDENINFORMATION";
 
+    // - Order
+    public static final String NAME_ORDER_PROPERTY = "NAME";
+    public static final String MAIN_CATEGORY_ORDER_PROPERTY = "BESTELLUNG_HK";
+    public static final String SUB_CATEGORY_ORDER_PROPERTY = "BESTELLUNG_UK";
+    public static final String DESCRIPTION_ORDER_PROPERTY = "BEZEICHNUNG";
+    public static final String FREQUENCY_ORDER_PROPERTY = "RYTHMUS";
+    public static final String CONTACT_NAME_ORDER_PROPERTY = "ANSPRECHPERSON";
+    public static final String CONTACT_EMAIL_ORDER_PROPERTY = "ANSPRECHPERSON_EMAIL";
+    public static final String CONTACT_PHONE_ORDER_PROPERTY = "ANSPRECHPERSON_TELEFON";
+    public static final String ORDER_REASON_ORDER_PROPERTY = "BESCHAFFUNGSGRUND";
+    public static final String ORDER_METHOD_ORDER_PROPERTY = "BESTELLART";
+    public static final String PURCHASER_ORDER_PROPERTY = "BESTELLER";
+    public static final String ORDER_DATE_ORDER_PROPERTY = "BESTELLDATUM";
+    public static final String DELIVERY_DATE_ORDER_PROPERTY = "LIEFERDATUM";
+    public static final String COMMENT_ORDER_PROPERTY = "KOMMENTAR";
+
     /**
      * Private constructor to prevent instantiation of utility class.
      */

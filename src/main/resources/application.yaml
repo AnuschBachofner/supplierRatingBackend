@@ -12,3 +12,4 @@ openbis:
   search:
     default-space: ${OPENBIS_SPACE:LIEFERANTENBEWERTUNG}
     supplier-project: ${OPENBIS_PROJECT_SUPPLIER:LIEFERANTEN}
+    order-project: ${OPENBIS_PROJECT_ORDER:BESTELLUNGEN}

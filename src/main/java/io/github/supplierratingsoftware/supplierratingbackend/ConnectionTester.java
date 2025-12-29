@@ -54,7 +54,7 @@ public class ConnectionTester implements CommandLineRunner {
         }
 
         logger.info("-------------------------------------------------------------");
-        logger.info("                 Start openBIS search test...                ");
+        logger.info("                 Start openBIS SUPPLIER search test...                ");
         logger.info("-------------------------------------------------------------");
 
         try {
@@ -64,7 +64,8 @@ public class ConnectionTester implements CommandLineRunner {
 
             SampleFetchOptions fetchOptions = new SampleFetchOptions(
                     new PropertyFetchOptions(),
-                    new SampleTypeFetchOptions()
+                    new SampleTypeFetchOptions(),
+                    null
             );
 
             logger.info("Searching for samples in Project {} (Space: {})...", properties.search().supplierProject(), properties.search().defaultSpace());
@@ -80,6 +81,47 @@ public class ConnectionTester implements CommandLineRunner {
         } catch (Exception e) {
             logger.error("Failed to search", e);
         }
+
+        logger.info("-------------------------------------------------------------");
+        logger.info("                 Start openBIS ORDER search test...          ");
+        logger.info("-------------------------------------------------------------");
+
+        SampleSearchCriteria orderCriteria = SampleSearchCriteria.create()
+                .with(SpaceSearchCriteria.withCode(properties.search().defaultSpace()))
+                .with(ProjectSearchCriteria.withCode(properties.search().orderProject()));
+
+        // Fetch Options for Orders (including parents/supplier)
+        SampleFetchOptions parentOptions = new SampleFetchOptions(
+                null, // No properties needed for parent
+                null, // No type information needed for parent
+                null // Stop recursion after parent
+        );
+
+        SampleFetchOptions orderFetchOptions = new SampleFetchOptions(
+                new PropertyFetchOptions(),
+                new SampleTypeFetchOptions(),
+                parentOptions // Fetch parent information
+        );
+
+        logger.info("Searching for samples in Project '{}' (Space: {})...",
+                properties.search().orderProject(),
+                properties.search().defaultSpace());
+
+        List<OpenBisSample> orderResults = openBisClient.searchSamples(orderCriteria, orderFetchOptions);
+
+        logger.info("Found {} orders directly from server.", orderResults.size());
+
+        orderResults.forEach(sample -> {
+            String supplierId = "N/A";
+            if (sample.parents() != null && !sample.parents().isEmpty()) {
+                OpenBisSample parent = sample.parents().get(0);
+                if (parent != null && parent.permId() != null && parent.permId().permId() != null) {
+                    supplierId = parent.permId().permId();
+                }
+            }
+            logger.info(" - Order: {} (Type: {}) -> SupplierID: {}", sample.code(), (sample.type() != null ? sample.type().code() : "?"), supplierId);
+        });
+
 
         logger.info("-------------------------------------------------------------");
         logger.info("                 OpenBIS connection test completed!             ");

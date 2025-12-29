@@ -2,6 +2,7 @@ package io.github.supplierratingsoftware.supplierratingbackend.controller;
 
 import io.github.supplierratingsoftware.supplierratingbackend.dto.api.SupplierDto;
 import io.github.supplierratingsoftware.supplierratingbackend.service.SupplierService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -16,17 +17,9 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/api/v1/suppliers")
+@RequiredArgsConstructor
 public class SupplierController {
     private final SupplierService supplierService;
-
-    /**
-     * Constructor.
-     *
-     * @param supplierService The service to use for data retrieval.
-     */
-    public SupplierController(SupplierService supplierService) {
-        this.supplierService = supplierService;
-    }
 
     /**
      * Retrieves a list of all registered suppliers.

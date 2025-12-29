@@ -30,5 +30,5 @@ import io.github.supplierratingsoftware.supplierratingbackend.constant.openbis.O
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonTypeName(OpenBisJsonConstants.SAMPLE_FETCH_OPTIONS)
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = OpenBisJsonConstants.TYPE_JSON_PROPERTY_KEY)
-public record SampleFetchOptions(PropertyFetchOptions properties, SampleTypeFetchOptions type) {
+public record SampleFetchOptions(PropertyFetchOptions properties, SampleTypeFetchOptions type, SampleFetchOptions parents) {
 }
