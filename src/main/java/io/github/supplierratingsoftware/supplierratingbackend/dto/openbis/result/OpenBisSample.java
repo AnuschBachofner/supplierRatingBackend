@@ -22,7 +22,8 @@ import java.util.Map;
  *         "type": { ... },
  *         "code": "SAMPLE_CODE",
  *         "properties": { ... }
- *         "parents": [ ... ]
+ *         "parents": [ ... ],
+ *         "children": [ ... ]
  *     }
  * </pre>
  * <p>
@@ -34,6 +35,7 @@ import java.util.Map;
  * @param code       The code of the sample.
  * @param properties The properties (payload) of the sample.
  * @param parents    The parent samples of the current sample (used for hierarchical data retrieval).
+ * @param children   The child samples of the current sample (used for hierarchical data retrieval).
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -43,7 +45,8 @@ public record OpenBisSample(
         OpenBisEntityType type,
         String code,
         Map<String, String> properties,
-        List<OpenBisSample> parents
+        List<OpenBisSample> parents,
+        List<OpenBisSample> children
 ) {
 
     /**

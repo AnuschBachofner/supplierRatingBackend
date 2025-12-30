@@ -51,12 +51,14 @@ public class OrderService {
         SampleFetchOptions parentOptions = new SampleFetchOptions(
                 null, // No properties needed for parent
                 null, // No type information needed for parent
-                null // Stop recursion after parent
+                null, // Stop recursion after parent
+                null // No children needed for parent
         );
         SampleFetchOptions fetchOptions = new SampleFetchOptions(
                 new PropertyFetchOptions(), // Fetch properties of the order
                 new SampleTypeFetchOptions(), // Fetch type information of the order
-                parentOptions // Fetch parent information
+                parentOptions, // Fetch parent information
+                null // No children needed for orders
         );
         List<OpenBisSample> rawSamples = openBisClient.searchSamples(criteria, fetchOptions);
         return rawSamples.stream().map(orderMapper::toDto).toList();

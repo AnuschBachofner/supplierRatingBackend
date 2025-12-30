@@ -3,8 +3,7 @@ package io.github.supplierratingsoftware.supplierratingbackend.mapper;
 import io.github.supplierratingsoftware.supplierratingbackend.constant.openbis.OpenBisSchemaConstants;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.api.RatingDto;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.result.OpenBisSample;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.github.supplierratingsoftware.supplierratingbackend.util.OpenBisParseUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -19,8 +18,6 @@ import java.util.Map;
  */
 @Component
 public class RatingMapper {
-
-    private static final Logger log = LoggerFactory.getLogger(RatingMapper.class);
 
     /**
      * Converts a generic {@link OpenBisSample} into a {@link RatingDto}.
@@ -49,19 +46,39 @@ public class RatingMapper {
         }
 
         return new RatingDto(
-                getDoubleProperty(properties, OpenBisSchemaConstants.QUALITY_RATING_PROPERTY),
+                OpenBisParseUtils.parseDoubleOrNull(
+                        properties.get(OpenBisSchemaConstants.QUALITY_RATING_PROPERTY),
+                        OpenBisSchemaConstants.QUALITY_RATING_PROPERTY,
+                        sample.code()
+                ),
                 properties.get(OpenBisSchemaConstants.QUALITY_REASON_RATING_PROPERTY),
 
-                getDoubleProperty(properties, OpenBisSchemaConstants.COST_RATING_PROPERTY),
+                OpenBisParseUtils.parseDoubleOrNull(
+                        properties.get(OpenBisSchemaConstants.COST_RATING_PROPERTY),
+                        OpenBisSchemaConstants.COST_RATING_PROPERTY,
+                        sample.code()
+                ),
                 properties.get(OpenBisSchemaConstants.COST_REASON_RATING_PROPERTY),
 
-                getDoubleProperty(properties, OpenBisSchemaConstants.RELIABILITY_RATING_PROPERTY),
+                OpenBisParseUtils.parseDoubleOrNull(
+                        properties.get(OpenBisSchemaConstants.RELIABILITY_RATING_PROPERTY),
+                        OpenBisSchemaConstants.RELIABILITY_RATING_PROPERTY,
+                        sample.code()
+                ),
                 properties.get(OpenBisSchemaConstants.RELIABILITY_REASON_RATING_PROPERTY),
 
-                getDoubleProperty(properties, OpenBisSchemaConstants.AVAILABILITY_RATING_PROPERTY),
+                OpenBisParseUtils.parseDoubleOrNull(
+                        properties.get(OpenBisSchemaConstants.AVAILABILITY_RATING_PROPERTY),
+                        OpenBisSchemaConstants.AVAILABILITY_RATING_PROPERTY,
+                        sample.code()
+                ),
                 properties.get(OpenBisSchemaConstants.AVAILABILITY_REASON_RATING_PROPERTY),
 
-                getDoubleProperty(properties, OpenBisSchemaConstants.TOTAL_SCORE_RATING_PROPERTY),
+                OpenBisParseUtils.parseDoubleOrNull(
+                        properties.get(OpenBisSchemaConstants.TOTAL_SCORE_RATING_PROPERTY),
+                        OpenBisSchemaConstants.TOTAL_SCORE_RATING_PROPERTY,
+                        sample.code()
+                ),
 
                 properties.get(OpenBisSchemaConstants.RATING_COMMENT_RATING_PROPERTY),
 
@@ -71,31 +88,5 @@ public class RatingMapper {
                 null, //TODO: populate supplierId, once supplier reference is available
                 null //TODO: populate supplierName, once supplier reference is available
         );
-    }
-
-    /**
-     * Helper method to safely extract and parse a Double property.
-     * Logs a warning if the value exists but is not a valid number.
-     *
-     * @param properties The property map.
-     * @param key        The key of the property to extract.
-     * @return The parsed Double, or null if missing or invalid.
-     */
-    private Double getDoubleProperty(Map<String, String> properties, String key) {
-        if (properties == null || key == null) {
-            return null;
-        }
-
-        String value = properties.get(key);
-        if (value == null || value.isBlank()) {
-            return null;
-        }
-
-        try {
-            return Double.valueOf(value);
-        } catch (NumberFormatException e) {
-            log.warn("Data Quality Issue: Failed to parse property '{}' with value '{}' to Double. Returning null.", key, value);
-            return null;
-        }
     }
 }

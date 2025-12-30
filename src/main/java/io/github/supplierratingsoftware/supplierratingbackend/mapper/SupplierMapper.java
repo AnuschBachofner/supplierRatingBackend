@@ -1,6 +1,7 @@
 package io.github.supplierratingsoftware.supplierratingbackend.mapper;
 
 import io.github.supplierratingsoftware.supplierratingbackend.constant.openbis.OpenBisSchemaConstants;
+import io.github.supplierratingsoftware.supplierratingbackend.dto.api.RatingStatsDto;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.api.SupplierDto;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.result.OpenBisSample;
 import org.springframework.stereotype.Component;
@@ -21,9 +22,10 @@ public class SupplierMapper {
      * Converts a generic {@link OpenBisSample} into a {@link SupplierDto}.
      *
      * @param sample The raw sample object from OpenBIS. Can be null.
+     * @param stats  The rating statistics for the supplier, can be null.
      * @return The mapped {@link SupplierDto}, or {@code null} if the input sample was null.
      */
-    public SupplierDto toDto(OpenBisSample sample) {
+    public SupplierDto toDto(OpenBisSample sample, RatingStatsDto stats) {
         if (sample == null) return null;
 
         Map<String, String> props = sample.properties(); // Access the Map at the record.
@@ -47,7 +49,7 @@ public class SupplierMapper {
                 props.get(OpenBisSchemaConstants.CUSTOMER_INFO_SUPPLIER_PROPERTY),
                 sample.permId() != null ? sample.permId().permId() : null,
                 sample.code(),
-                null // TODO: implement SupplierStats, once it's available
+                stats
         );
     }
 }

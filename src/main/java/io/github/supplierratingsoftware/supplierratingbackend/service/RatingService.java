@@ -61,8 +61,10 @@ public class RatingService {
                 new SampleFetchOptions(         // PARENTS FETCHING (The Order)
                         null,                   // No properties needed for Order here
                         null,
-                        null                    // Stop recursion
-                )
+                        null,                    // Stop recursion
+                        null                    // No children needed for Orders
+                ),
+                null                    // No children needed for Ratings
         );
 
         // 3. Execute Search

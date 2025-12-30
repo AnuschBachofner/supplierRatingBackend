@@ -9,14 +9,16 @@ import io.github.supplierratingsoftware.supplierratingbackend.constant.openbis.O
  * Represents fetch options for samples in OpenBIS V3 API.
  *
  * <p><strong>Purpose:</strong><br>
- * Tells openBIS to fetch a sample along with its properties and type information.
+ * Tells openBIS to fetch a sample along with its properties, type information, and related samples.
  *
  * <p><strong>JSON Example:</strong></p>
  * <pre>
  *     {
  *         "@type": "as.dto.sample.fetchoptions.SampleFetchOptions",
  *         "properties": { ... },
- *         "type": { ... }
+ *         "type": { ... },
+ *         "parents": { ... },
+ *         "children": { ... }
  *     }
  *
  * Fields with a {@code null} value are ignored during serialization.
@@ -24,11 +26,18 @@ import io.github.supplierratingsoftware.supplierratingbackend.constant.openbis.O
  *
  * @param properties The fetch options for sample properties
  * @param type The fetch options for sample type
+ * @param parents The fetch options for parent samples
+ * @param children The fetch options for child samples
  * @see PropertyFetchOptions
  * @see SampleTypeFetchOptions
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonTypeName(OpenBisJsonConstants.SAMPLE_FETCH_OPTIONS)
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = OpenBisJsonConstants.TYPE_JSON_PROPERTY_KEY)
-public record SampleFetchOptions(PropertyFetchOptions properties, SampleTypeFetchOptions type, SampleFetchOptions parents) {
+public record SampleFetchOptions(
+        PropertyFetchOptions properties,
+        SampleTypeFetchOptions type,
+        SampleFetchOptions parents,
+        SampleFetchOptions children
+) {
 }

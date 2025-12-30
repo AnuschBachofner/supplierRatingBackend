@@ -65,6 +65,7 @@ public class ConnectionTester implements CommandLineRunner {
             SampleFetchOptions fetchOptions = new SampleFetchOptions(
                     new PropertyFetchOptions(),
                     new SampleTypeFetchOptions(),
+                    null,
                     null
             );
 
@@ -94,13 +95,15 @@ public class ConnectionTester implements CommandLineRunner {
         SampleFetchOptions parentOptions = new SampleFetchOptions(
                 null, // No properties needed for parent
                 null, // No type information needed for parent
-                null // Stop recursion after parent
+                null, // Stop recursion after parent
+                null
         );
 
         SampleFetchOptions orderFetchOptions = new SampleFetchOptions(
                 new PropertyFetchOptions(),
                 new SampleTypeFetchOptions(),
-                parentOptions // Fetch parent information
+                parentOptions, // Fetch parent information
+                null
         );
 
         logger.info("Searching for samples in Project '{}' (Space: {})...",

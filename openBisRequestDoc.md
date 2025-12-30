@@ -61,7 +61,9 @@ in these requests strictly adheres to a fixed structure containing exactly **thr
     {                             // 3. Fetch Options (Depth)
       "@type": "as.dto.sample.fetchoptions.SampleFetchOptions",
       "properties": { ... },
-      "type": { ... }
+      "type": { ... },
+      "parents": { ... },
+      "children": { ... }
     }
   ]
 }
@@ -290,26 +292,30 @@ params.add(searchCriteria);
 params.add(fetchOptions);
 ```
 
-### 4.2. Retrieving Suppliers (Root Entities)
+### 4.2. Retrieving Suppliers (Root Entities & Aggregation)
 
 **Context:**
-Suppliers are the root entities in the hierarchy. They have no parents in this context but serve as parents to Orders.
+Suppliers are the root entities. To calculate rating statistics (Quality, Reliability, etc.)
+directly in the backend without causing an "N+1 Select" performance issue, the application
+utilizes a **Deep Fetch Strategy**. A single API call retrieves the Supplier, all associated
+Orders (Children), and all associated Ratings (Grandchildren).
 
 * **Responsible Service:** `SupplierService`
 * **Search Scope:** Space + Project + Type
+* **Hierarchy Requirement:** Must fetch `children` (Orders) and `children.children` (Ratings) to perform aggregation.
 
 **Filtering Logic:**
 1.  **Space:** Configured Default Space (e.g., `LIEFERANTENBEWERTUNG`)
 2.  **Project:** Configured Supplier Project (e.g., `LIEFERANTEN`)
 3.  **Type:** Configured Supplier Type (e.g., `LIEFERANT`)
 
-**Reference JSON Payload:**
+**Reference JSON Payload (Recursive / Deep Fetch):**
 
 ```json
 {
   "jsonrpc": "2.0",
   "method": "searchSamples",
-  "id": "req-supplier-01",
+  "id": "req-supplier-agg-01",
   "params": [
     "SESSION_TOKEN",
     {
@@ -364,6 +370,28 @@ Suppliers are the root entities in the hierarchy. They have no parents in this c
       },
       "type": {
         "@type": "as.dto.sample.fetchoptions.SampleTypeFetchOptions"
+      },
+      "parents": null,
+      "children": {  // LEVEL 1: Fetch Orders
+        "@type": "as.dto.sample.fetchoptions.SampleFetchOptions",
+        "properties": {
+          "@type": "as.dto.property.fetchoptions.PropertyFetchOptions"
+        },
+        "type": {
+          "@type": "as.dto.sample.fetchoptions.SampleTypeFetchOptions"
+        },
+        "parents": null,
+        "children": { // LEVEL 2: Fetch Ratings
+          "@type": "as.dto.sample.fetchoptions.SampleFetchOptions",
+          "properties": {
+            "@type": "as.dto.property.fetchoptions.PropertyFetchOptions"
+          },
+          "type": {
+            "@type": "as.dto.sample.fetchoptions.SampleTypeFetchOptions"
+          },
+          "parents": null,
+          "children": null
+        }
       }
     }
   ]
@@ -600,6 +628,18 @@ we do *not* need the parent's properties, only its Identity (PermId).
 We strictly limit the fetch depth. For a Rating, we only fetch `parents` (Order). We do not fetch
 `parents.parents` (Supplier), as the API design usually requires only the immediate foreign key
 (`orderId`) to link objects.
+
+**Example: Top-Down Aggregation (Supplier -> Order -> Rating)**
+
+For the Supplier list view, we need to show average ratings. Instead of iterating over every
+supplier and firing a separate request for its orders, we request the entire tree structure in the
+initial fetch options.
+
+* **Level 0 (Root):** Supplier (Load Properties & Type)
+* **Level 1 (Children):** Order (Load Properties & Type)
+* **Level 2 (Grandchildren):** Rating (Load Properties & Type - essential for calculation)
+
+This approach ensures strict O(1) network performance (one request regardless of the number of suppliers).
 
 ### 5.3. Response Structure & Mapping
 
