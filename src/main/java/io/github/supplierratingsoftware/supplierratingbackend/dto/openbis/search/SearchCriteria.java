@@ -1,6 +1,7 @@
 package io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.search;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import io.github.supplierratingsoftware.supplierratingbackend.constant.openbis.OpenBisJsonConstants;
 
@@ -34,21 +35,42 @@ import io.github.supplierratingsoftware.supplierratingbackend.constant.openbis.O
  *          "criteria": [
  *              {
  *                  "@type": "as.dto.sample.search.SampleTypeSearchCriteria",
- *                  "permId": "LIEFERANT"
+ *                  "operator": "AND",
+ *                  "criteria": [
+ *                      {
+ *                          "@type": "as.dto.common.search.CodeSearchCriteria",
+ *                          "fieldValue": { "value": "LIEFERANT", ... }
+ *                      }
+ *                  ]
  *              }
  *          ]
  *      }
  * </pre>
  *
+ * <p><strong>Allowed JSON Sub Types known by Jackson:</strong><br>
+ * <ul>
+ *     <li>{@link SampleSearchCriteria}</li>
+ *     <li>{@link SpaceSearchCriteria}</li>
+ *     <li>{@link ProjectSearchCriteria}</li>
+ *     <li>{@link CodeSearchCriteria}</li>
+ *     <li>{@link SampleTypeSearchCriteria}</li>
+ * </ul>
+ * </p>
+ *
  * @see AbstractCompositeSearchCriteria
- * @see SampleSearchCriteria
- * @see SampleTypeSearchCriteria
  */
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
         include = JsonTypeInfo.As.PROPERTY,
         property = OpenBisJsonConstants.TYPE_JSON_PROPERTY_KEY
 )
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = SampleSearchCriteria.class, name = OpenBisJsonConstants.SAMPLE_SEARCH_CRITERIA),
+        @JsonSubTypes.Type(value = SpaceSearchCriteria.class, name = OpenBisJsonConstants.SPACE_SEARCH_CRITERIA),
+        @JsonSubTypes.Type(value = ProjectSearchCriteria.class, name = OpenBisJsonConstants.PROJECT_SEARCH_CRITERIA),
+        @JsonSubTypes.Type(value = CodeSearchCriteria.class, name = OpenBisJsonConstants.CODE_SEARCH_CRITERIA),
+        @JsonSubTypes.Type(value = SampleTypeSearchCriteria.class, name = OpenBisJsonConstants.SAMPLE_TYPE_SEARCH_CRITERIA)
+})
 @JsonIgnoreProperties(ignoreUnknown = true)
 public interface SearchCriteria {
     // Marker Interface

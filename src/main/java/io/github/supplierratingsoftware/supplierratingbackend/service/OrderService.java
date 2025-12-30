@@ -8,6 +8,7 @@ import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.fetcho
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.result.OpenBisSample;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.search.ProjectSearchCriteria;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.search.SampleSearchCriteria;
+import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.search.SampleTypeSearchCriteria;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.search.SpaceSearchCriteria;
 import io.github.supplierratingsoftware.supplierratingbackend.integration.openbis.OpenBisClient;
 import io.github.supplierratingsoftware.supplierratingbackend.mapper.OrderMapper;
@@ -36,8 +37,8 @@ public class OrderService {
      * Retrieves all orders from OpenBIS.
      * <p>
      * Executes a server-side filtered search for samples located in the configured
-     * space and project. It fetches only the necessary properties and types for the orders.
-     * This includes also the order's parent sample (if any).
+     * space, project, and matching the configured sample type. It fetches only the necessary
+     * properties and types for the orders. This includes also the order's parent sample (if any).
      * </p>
      *
      * @return A list of {@link OrderDto} objects representing all orders.
@@ -45,7 +46,8 @@ public class OrderService {
     public List<OrderDto> getAllOrders() {
         SampleSearchCriteria criteria = SampleSearchCriteria.create()
                 .with(SpaceSearchCriteria.withCode(properties.search().defaultSpace()))
-                .with(ProjectSearchCriteria.withCode(properties.search().orderProject()));
+                .with(ProjectSearchCriteria.withCode(properties.search().orderProject()))
+                .with(SampleTypeSearchCriteria.withCode(properties.search().orderType()));
         SampleFetchOptions parentOptions = new SampleFetchOptions(
                 null, // No properties needed for parent
                 null, // No type information needed for parent

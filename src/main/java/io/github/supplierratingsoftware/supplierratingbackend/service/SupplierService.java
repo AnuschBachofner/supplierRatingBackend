@@ -8,6 +8,7 @@ import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.fetcho
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.result.OpenBisSample;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.search.ProjectSearchCriteria;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.search.SampleSearchCriteria;
+import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.search.SampleTypeSearchCriteria;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.search.SpaceSearchCriteria;
 import io.github.supplierratingsoftware.supplierratingbackend.integration.openbis.OpenBisClient;
 import io.github.supplierratingsoftware.supplierratingbackend.mapper.SupplierMapper;
@@ -36,7 +37,7 @@ public class SupplierService {
      * Retrieves all suppliers from OpenBIS.
      * <p>
      * Executes a server-side filtered search for samples located in the configured
-     * space and project.
+     * space, project, and matching the configured sample type.
      * </p>
      *
      * @return A list of {@link SupplierDto} objects representing all available suppliers.
@@ -44,7 +45,8 @@ public class SupplierService {
     public List<SupplierDto> getAllSuppliers() {
         SampleSearchCriteria criteria = SampleSearchCriteria.create()
                 .with(SpaceSearchCriteria.withCode(properties.search().defaultSpace()))
-                .with(ProjectSearchCriteria.withCode(properties.search().supplierProject()));
+                .with(ProjectSearchCriteria.withCode(properties.search().supplierProject()))
+                .with(SampleTypeSearchCriteria.withCode(properties.search().supplierType()));
         SampleFetchOptions fetchOptions = new SampleFetchOptions(new PropertyFetchOptions(), new SampleTypeFetchOptions(), null);
         List<OpenBisSample> rawSamples = openBisClient.searchSamples(criteria, fetchOptions);
         return rawSamples.stream().map(supplierMapper::toDto).toList();

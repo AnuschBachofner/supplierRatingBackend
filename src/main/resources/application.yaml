@@ -10,6 +10,13 @@ openbis:
 
   # Search Scope Configuration
   search:
-    default-space: ${OPENBIS_SPACE:LIEFERANTENBEWERTUNG}
-    supplier-project: ${OPENBIS_PROJECT_SUPPLIER:LIEFERANTEN}
-    order-project: ${OPENBIS_PROJECT_ORDER:BESTELLUNGEN}
+    # Space
+    default-space: ${OPENBIS_SPACE}
+
+    # Supplier
+    supplier-project: ${OPENBIS_PROJECT_SUPPLIER}
+    supplier-type: ${OPENBIS_TYPE_SUPPLIER}
+
+    # Order
+    order-project: ${OPENBIS_PROJECT_ORDER}
+    order-type: ${OPENBIS_TYPE_ORDER}
