@@ -252,7 +252,7 @@ components:
           description: Average of KOSTEN
           examples:
             - 3.8
-        avgDeadline:
+        avgReliability:
           type: number
           format: float
           description: Average of EINHALTUNG_TERMINE
