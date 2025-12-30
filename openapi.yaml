@@ -12,7 +12,7 @@ info:
     
     IDs in paths refer to the openBIS **PermID** (stable technical identifier).
     Codes in payloads refer to the openBIS **Code** (human readable business identifier).
-  version: 1.1.0
+  version: 1.2.0
 servers:
   - url: http://localhost:8080/api/v1
     description: Local Development Server
@@ -232,30 +232,6 @@ paths:
                 $ref: '#/components/schemas/RatingDetailDTO'
         '404':
           description: Rating not found
-    put:
-      summary: Edit rating
-      description: Updates rating criteria or comment.
-      operationId: updateRating
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: The openBIS PermID.
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/RatingUpdateDTO'
-      responses:
-        '200':
-          description: Update successful
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RatingDetailDTO'
 
 components:
   schemas:
@@ -437,9 +413,9 @@ components:
           description: Mapped to BEZEICHNUNG
           examples:
             - "50x Precision scales"
-        rhythm:
+        frequency:
           type: string
-          description: Mapped to RYTHMUS
+          description: Mapped to RYTHMUS [sic!]
           examples:
             - "One-time"
         contactPerson:
@@ -474,7 +450,7 @@ components:
           type: string
           format: date
           description: Mapped to LIEFERDATUM
-        comment:
+        orderComment:
           type: string
           description: Mapped to KOMMENTAR (General comment)
 
@@ -553,13 +529,13 @@ components:
         costReason:
           type: string
           description: Mapped to KOSTEN_BEGRUENDUNG
-        deadline:
+        reliability:
           type: number
           format: float
           description: Mapped to EINHALTUNG_TERMINE (1-5)
           examples:
             - 5.0
-        deadlineReason:
+        reliabilityReason:
           type: string
           description: Mapped to EINHALTUNG_TERMINE_GRUND
         availability:
@@ -577,7 +553,7 @@ components:
           description: Mapped to GESAMTBEWERTUNG
           examples:
             - 4.4
-        comment:
+        ratingComment:
           type: string
           description: Mapped to KOMMENTAR
 
@@ -591,9 +567,6 @@ components:
             orderId:
               type: string
               description: PermID of the order this rating belongs to.
-
-    RatingUpdateDTO:
-      $ref: '#/components/schemas/RatingBaseDTO'
 
     RatingDetailDTO:
       allOf:
