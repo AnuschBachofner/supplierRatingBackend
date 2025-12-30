@@ -25,7 +25,7 @@ package io.github.supplierratingsoftware.supplierratingbackend.dto.api;
  *     "stats": {
  *       "avgQuality": 4.5,
  *       "avgCost": 3.8,
- *       "avgDeadline": 5,
+ *       "avgReliability": 5,
  *       "avgAvailability": 4.2,
  *       "avgTotal": 4.4,
  *       "totalRatingCount": 12

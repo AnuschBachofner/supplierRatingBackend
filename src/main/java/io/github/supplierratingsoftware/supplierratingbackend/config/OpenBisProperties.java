@@ -54,7 +54,13 @@ public record OpenBisProperties(
             String orderProject,
 
             @NotBlank(message = "The order Sample Type must not be blank.")
-            String orderType
+            String orderType,
+
+            @NotBlank(message = "The rating Project must not be blank.")
+            String ratingProject,
+
+            @NotBlank(message = "The rating Sample Type must not be blank.")
+            String ratingType
     ) {
     }
 }

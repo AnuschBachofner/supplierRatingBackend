@@ -20,3 +20,7 @@ openbis:
     # Order
     order-project: ${OPENBIS_PROJECT_ORDER}
     order-type: ${OPENBIS_TYPE_ORDER}
+
+    # Rating
+    rating-project: ${OPENBIS_PROJECT_RATING}
+    rating-type: ${OPENBIS_TYPE_RATING}

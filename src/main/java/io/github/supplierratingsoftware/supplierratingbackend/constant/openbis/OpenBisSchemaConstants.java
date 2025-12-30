@@ -28,7 +28,7 @@ public final class OpenBisSchemaConstants {
     public static final String MAIN_CATEGORY_ORDER_PROPERTY = "BESTELLUNG_HK";
     public static final String SUB_CATEGORY_ORDER_PROPERTY = "BESTELLUNG_UK";
     public static final String DESCRIPTION_ORDER_PROPERTY = "BEZEICHNUNG";
-    public static final String FREQUENCY_ORDER_PROPERTY = "RYTHMUS";
+    public static final String FREQUENCY_ORDER_PROPERTY = "RYTHMUS"; // Mapped to misspelled "RYTHMUS" [sic!] in openBIS
     public static final String CONTACT_NAME_ORDER_PROPERTY = "ANSPRECHPERSON";
     public static final String CONTACT_EMAIL_ORDER_PROPERTY = "ANSPRECHPERSON_EMAIL";
     public static final String CONTACT_PHONE_ORDER_PROPERTY = "ANSPRECHPERSON_TELEFON";
@@ -37,7 +37,19 @@ public final class OpenBisSchemaConstants {
     public static final String PURCHASER_ORDER_PROPERTY = "BESTELLER";
     public static final String ORDER_DATE_ORDER_PROPERTY = "BESTELLDATUM";
     public static final String DELIVERY_DATE_ORDER_PROPERTY = "LIEFERDATUM";
-    public static final String COMMENT_ORDER_PROPERTY = "KOMMENTAR";
+    public static final String ORDER_COMMENT_ORDER_PROPERTY = "KOMMENTAR";
+
+    // - Rating
+    public static final String QUALITY_RATING_PROPERTY = "QUALITAET";
+    public static final String QUALITY_REASON_RATING_PROPERTY = "GRUND_QUALITAET";
+    public static final String COST_RATING_PROPERTY = "KOSTEN";
+    public static final String COST_REASON_RATING_PROPERTY = "KOSTEN_BEGRUENDUNG";
+    public static final String RELIABILITY_RATING_PROPERTY = "EINHALTUNG_TERMINE";
+    public static final String RELIABILITY_REASON_RATING_PROPERTY = "EINHALTUNG_TERMINE_GRUND";
+    public static final String AVAILABILITY_RATING_PROPERTY = "VERFUEGBARKEIT";
+    public static final String AVAILABILITY_REASON_RATING_PROPERTY = "VERFUEGBARKEIT_BEGRUENDUNG";
+    public static final String TOTAL_SCORE_RATING_PROPERTY = "GESAMTBEWERTUNG";
+    public static final String RATING_COMMENT_RATING_PROPERTY = "KOMMENTAR";
 
     /**
      * Private constructor to prevent instantiation of utility class.

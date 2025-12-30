@@ -27,7 +27,8 @@ encapsulated within the application.
 3. **Integration Layer (OpenBIS Integration):**
    Responsible for the low-level communication with the openBIS JSON-RPC API.
    It handles authentication, session management, and the raw mapping of JSON
-   responses.
+   responses. (See [Protocol & Request Specification](openBisRequestDoc.md)
+   for details).
 
 ---
 
@@ -39,7 +40,7 @@ layout with descriptions for each component.
 ```text
 src/main/java/io/github/supplierratingsoftware/supplierratingbackend
 ├── config
-│   ├── (R) OpenBisProperties.java              // Configuration properties (URL, user, password, search scopes)
+│   ├── (R) OpenBisProperties.java              // Config properties (validated via Jakarta Validation)
 │   └── (C) WebConfig.java                      // CORS and MVC configuration
 ├── constant
 │   └── openbis
@@ -77,6 +78,7 @@ src/main/java/io/github/supplierratingsoftware/supplierratingbackend
 │       │   ├── (C) SampleSearchCriteria.java   // Root search container
 │       │   ├── (C) SpaceSearchCriteria.java    // Space filter logic
 │       │   ├── (C) ProjectSearchCriteria.java  // Project filter logic
+│       │   ├── (C) SampleTypeSearchCriteria.java // Strict Type filter logic (KEY COMPONENT)
 │       │   └── (C) CodeSearchCriteria.java     // Leaf filter
 │       ├── fetchoptions                        // Control structures for lazy-loading
 │       │   ├── (R) SampleFetchOptions.java
@@ -85,10 +87,11 @@ src/main/java/io/github/supplierratingsoftware/supplierratingbackend
 │       └── result                              // Generic containers for returned data
 │           ├── (R) OpenBisSearchResult.java
 │           └── (R) OpenBisSample.java
-└── mapper
-    ├── (C) SupplierMapper.java                 // Maps OpenBisSample -> SupplierDto
-    ├── (C) OrderMapper.java                    // Maps OpenBisSample -> OrderDto
-    └── (C) RatingMapper.java                   // Maps OpenBisSample -> RatingDto
+├── mapper
+│   ├── (C) SupplierMapper.java                 // Maps OpenBisSample -> SupplierDto
+│   ├── (C) OrderMapper.java                    // Maps OpenBisSample -> OrderDto
+│   └── (C) RatingMapper.java                   // Maps OpenBisSample -> RatingDto
+└── openBisRequestDoc.md                        // Detailed JSON-RPC Protocol Documentation
 ```
 
 Legend:
@@ -348,6 +351,9 @@ implements a lightweight, native JSON-RPC client using `RestClient`.
 * **Control:** We have full control over the request structure.
 * **Transparency:** The specific `JsonRpcRequest` and `JsonRpcResponse` wrappers
   make the communication protocol explicit and easy to debug.
+
+> **Documentation:** For a detailed reference of the implemented JSON-RPC payloads, filtering strategies, and strict
+> typing rules, please refer to the [OpenBIS Request Documentation](openBisRequestDoc.md).
 
 ### Direct Service-to-Client Communication
 

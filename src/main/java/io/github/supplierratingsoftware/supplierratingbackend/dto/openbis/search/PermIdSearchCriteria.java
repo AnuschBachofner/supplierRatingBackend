@@ -8,8 +8,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * NOTE: file is not in use yet. But will be used in the future, when we build other Endpoints, such as {@code GET /suppliers/{id}}
- * TODO: implement PermIdSearchCriteria or remove it.
  * Criterion to search for an entity by its PermId.
  * Used inside SampleTypeSearchCriteria instead of CodeSearchCriteria.
  *
@@ -37,10 +35,22 @@ public class PermIdSearchCriteria implements SearchCriteria {
 
     private StringEqualToValue fieldValue;
 
+    /**
+     * Constructor.
+     * Creates a PermIdSearchCriteria with the given PermID.
+     *
+     * @param value The PermID to search for.
+     */
     public PermIdSearchCriteria(String value) {
         this.fieldValue = new StringEqualToValue(value);
     }
 
+    /**
+     * Factory method to create a PermIdSearchCriteria with the given PermID.
+     *
+     * @param id The PermID to search for.
+     * @return A PermIdSearchCriteria instance.
+     */
     public static PermIdSearchCriteria withId(String id) {
         return new PermIdSearchCriteria(id);
     }

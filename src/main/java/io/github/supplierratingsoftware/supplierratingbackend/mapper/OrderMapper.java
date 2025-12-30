@@ -52,7 +52,7 @@ public class OrderMapper {
                 props.get(OpenBisSchemaConstants.PURCHASER_ORDER_PROPERTY),
                 props.get(OpenBisSchemaConstants.ORDER_DATE_ORDER_PROPERTY),
                 props.get(OpenBisSchemaConstants.DELIVERY_DATE_ORDER_PROPERTY),
-                props.get(OpenBisSchemaConstants.COMMENT_ORDER_PROPERTY),
+                props.get(OpenBisSchemaConstants.ORDER_COMMENT_ORDER_PROPERTY),
                 sample.permId() != null ? sample.permId().permId() : null,
                 sample.code(),
                 null, //TODO: to be implemented by business logic (if there is any rating, then ...)
