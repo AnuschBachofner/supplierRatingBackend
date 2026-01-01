@@ -12,7 +12,7 @@ info:
     
     IDs in paths refer to the openBIS **PermID** (stable technical identifier).
     Codes in payloads refer to the openBIS **Code** (human readable business identifier).
-  version: 1.2.0
+  version: 1.3.0
 servers:
   - url: http://localhost:8080/api/v1
     description: Local Development Server
@@ -37,7 +37,7 @@ paths:
                   $ref: '#/components/schemas/SupplierSummaryDTO'
     post:
       summary: Create new supplier
-      description: Creates a new supplier (Type LIEFERANT) in openBIS.
+      description: Creates a new supplier (Type LIEFERANT) in openBIS. The code is generated automatically.
       operationId: createSupplier
       requestBody:
         required: true
@@ -127,7 +127,7 @@ paths:
                   $ref: '#/components/schemas/OrderSummaryDTO'
     post:
       summary: Record new order
-      description: Creates a new order (Type BESTELLUNG) and assigns it to a supplier.
+      description: Creates a new order (Type BESTELLUNG) and assigns it to a supplier. The code is generated automatically.
       operationId: createOrder
       requestBody:
         required: true
@@ -195,7 +195,9 @@ paths:
   /ratings:
     post:
       summary: Submit rating
-      description: Creates a rating (Type BESTELLBEWERTUNG) for an existing order.
+      description: |
+        Creates a rating (Type BESTELLBEWERTUNG) for an existing order.
+        Calculates the total score automatically.
       operationId: createRating
       requestBody:
         required: true
@@ -347,13 +349,6 @@ components:
     SupplierCreateDTO:
       allOf:
         - $ref: '#/components/schemas/SupplierBaseDTO'
-        - type: object
-          properties:
-            code:
-              type: string
-              description: Optional user defined code. If empty, openBIS generates one.
-              examples:
-                - "SUPPLIER-1"
 
     SupplierUpdateDTO:
       $ref: '#/components/schemas/SupplierBaseDTO'
@@ -466,9 +461,6 @@ components:
               description: Reference to supplier (PermID) - mandatory for assignment
               examples:
                 - "2023050512345"
-            code:
-              type: string
-              description: Optional custom code, otherwise auto-generated
 
     OrderUpdateDTO:
       $ref: '#/components/schemas/OrderBaseDTO'
@@ -547,12 +539,6 @@ components:
         availabilityReason:
           type: string
           description: Mapped to VERFUEGBARKEIT_BEGRUENDUNG
-        totalScore:
-          type: number
-          format: float
-          description: Mapped to GESAMTBEWERTUNG
-          examples:
-            - 4.4
         ratingComment:
           type: string
           description: Mapped to KOMMENTAR
@@ -563,6 +549,12 @@ components:
         - type: object
           required:
             - orderId
+            - quality
+            - qualityReason
+            - cost
+            - costReason
+            - reliability
+            - reliabilityReason
           properties:
             orderId:
               type: string
@@ -576,6 +568,7 @@ components:
             - id
             - code
             - orderId
+            - totalScore
           properties:
             id:
               type: string
@@ -586,6 +579,12 @@ components:
             orderId:
               type: string
               description: PermID of the order this rating belongs to.
+            totalScore:
+              type: number
+              format: float
+              description: Mapped to GESAMTBEWERTUNG (Calculated by Backend)
+              examples:
+                - 4.4
             supplierId:
               type: string
               description: For navigation to supplier
