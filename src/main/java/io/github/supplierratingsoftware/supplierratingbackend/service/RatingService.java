@@ -52,7 +52,7 @@ public class RatingService {
         // This prevents returning objects of other types (e.g. Orders) even if the ID exists.
         SampleSearchCriteria criteria = SampleSearchCriteria.create()
                 .with(PermIdSearchCriteria.withId(permId))
-                .with(SampleTypeSearchCriteria.withCode(properties.search().ratingType()));
+                .with(SampleTypeSearchCriteria.withCode(properties.rating().typeCode()));
 
         // 2. Fetch Options: Load Properties, Type, and Parent (Order)
         SampleFetchOptions fetchOptions = new SampleFetchOptions(
@@ -75,6 +75,6 @@ public class RatingService {
         }
 
         // 4. Map & Return
-        return Optional.ofNullable(ratingMapper.toDto(samples.get(0)));
+        return Optional.ofNullable(ratingMapper.toApiDto(samples.get(0)));
     }
 }

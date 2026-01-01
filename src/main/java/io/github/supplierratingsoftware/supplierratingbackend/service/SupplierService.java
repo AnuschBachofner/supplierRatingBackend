@@ -3,19 +3,22 @@ package io.github.supplierratingsoftware.supplierratingbackend.service;
 import io.github.supplierratingsoftware.supplierratingbackend.config.OpenBisProperties;
 import io.github.supplierratingsoftware.supplierratingbackend.constant.openbis.OpenBisSchemaConstants;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.api.RatingStatsDto;
+import io.github.supplierratingsoftware.supplierratingbackend.dto.api.SupplierCreationDto;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.api.SupplierDto;
+import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.creation.SampleCreation;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.fetchoptions.PropertyFetchOptions;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.fetchoptions.SampleFetchOptions;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.fetchoptions.SampleTypeFetchOptions;
+import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.id.SamplePermId;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.result.OpenBisSample;
-import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.search.ProjectSearchCriteria;
-import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.search.SampleSearchCriteria;
-import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.search.SampleTypeSearchCriteria;
-import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.search.SpaceSearchCriteria;
+import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.search.*;
+import io.github.supplierratingsoftware.supplierratingbackend.exception.OpenBisIntegrationException;
 import io.github.supplierratingsoftware.supplierratingbackend.integration.openbis.OpenBisClient;
 import io.github.supplierratingsoftware.supplierratingbackend.mapper.SupplierMapper;
-import io.github.supplierratingsoftware.supplierratingbackend.util.OpenBisParseUtils;
+import io.github.supplierratingsoftware.supplierratingbackend.util.OpenBisUtils;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -32,6 +35,8 @@ import java.util.Objects;
 @Service
 @RequiredArgsConstructor
 public class SupplierService {
+
+    private static final Logger log = LoggerFactory.getLogger(SupplierService.class);
 
     private final OpenBisClient openBisClient;
     private final SupplierMapper supplierMapper;
@@ -77,9 +82,9 @@ public class SupplierService {
 
         // 2. Define Search Criteria
         SampleSearchCriteria criteria = SampleSearchCriteria.create()
-                .with(SpaceSearchCriteria.withCode(properties.search().defaultSpace()))
-                .with(ProjectSearchCriteria.withCode(properties.search().supplierProject()))
-                .with(SampleTypeSearchCriteria.withCode(properties.search().supplierType()));
+                .with(SpaceSearchCriteria.withCode(properties.defaultSpace()))
+                .with(ProjectSearchCriteria.withCode(properties.supplier().projectCode()))
+                .with(SampleTypeSearchCriteria.withCode(properties.supplier().typeCode()));
 
         // 3. Execute Search
         List<OpenBisSample> rawSamples = openBisClient.searchSamples(criteria, supplierFetchOptions);
@@ -88,9 +93,32 @@ public class SupplierService {
         return rawSamples.stream()
                 .map(supplier -> {
                     RatingStatsDto stats = calculateStats(supplier);
-                    return supplierMapper.toDto(supplier, stats);
+                    return supplierMapper.toApiDto(supplier, stats);
                 })
                 .toList();
+    }
+
+    /**
+     * Creates a new supplier in openBIS based on the provided data.
+     *
+     * @param creationDto The data for the new supplier.
+     * @return The DTO of the newly created supplier (fetched fresh from openBIS to ensure consistency).
+     */
+    public SupplierDto createSupplier(SupplierCreationDto creationDto) {
+        log.info("Creating a new supplier {}", creationDto.name());
+
+        // Map API DTO to openBIS Creation DTO
+        SampleCreation creation = supplierMapper.toOpenBisCreation(creationDto);
+
+        // Execute Creation via Client
+        List<SamplePermId> createdIds = openBisClient.createSamples(List.of(creation));
+
+        if (createdIds.isEmpty()) throw new OpenBisIntegrationException("Creation failed: No PermID returned from openBIS");
+        SamplePermId permId = createdIds.getFirst();
+        log.info("Successfully created supplier with PermID: {}", permId.permId());
+
+        // Fetch the newly created supplier to return full details
+        return fetchSupplierMetadataByPermId(permId.permId());
     }
 
     /**
@@ -117,8 +145,8 @@ public class SupplierService {
                 .flatMap(List::stream)                  // Convert Stream<List<Sample>> to Stream<Sample>
                 .filter(child -> child.type() != null  // Handle null type gracefully
                         && properties // If the child type is defined
-                        .search()
-                        .ratingType()
+                        .rating()
+                        .typeCode()
                         .equals(child.type().code()))   // Ensure strict type safety
                 .toList();
 
@@ -137,23 +165,23 @@ public class SupplierService {
         for (OpenBisSample rating : ratings) {
             String code = rating.code();
 
-            qualityAcc.add(OpenBisParseUtils.parseDoubleOrNull(
+            qualityAcc.add(OpenBisUtils.parseDoubleOrNull(
                     rating.getProperty(OpenBisSchemaConstants.QUALITY_RATING_PROPERTY),
                     OpenBisSchemaConstants.QUALITY_RATING_PROPERTY, code));
 
-            costAcc.add(OpenBisParseUtils.parseDoubleOrNull(
+            costAcc.add(OpenBisUtils.parseDoubleOrNull(
                     rating.getProperty(OpenBisSchemaConstants.COST_RATING_PROPERTY),
                     OpenBisSchemaConstants.COST_RATING_PROPERTY, code));
 
-            reliabilityAcc.add(OpenBisParseUtils.parseDoubleOrNull(
+            reliabilityAcc.add(OpenBisUtils.parseDoubleOrNull(
                     rating.getProperty(OpenBisSchemaConstants.RELIABILITY_RATING_PROPERTY),
                     OpenBisSchemaConstants.RELIABILITY_RATING_PROPERTY, code));
 
-            availabilityAcc.add(OpenBisParseUtils.parseDoubleOrNull(
+            availabilityAcc.add(OpenBisUtils.parseDoubleOrNull(
                     rating.getProperty(OpenBisSchemaConstants.AVAILABILITY_RATING_PROPERTY),
                     OpenBisSchemaConstants.AVAILABILITY_RATING_PROPERTY, code));
 
-            totalAcc.add(OpenBisParseUtils.parseDoubleOrNull(
+            totalAcc.add(OpenBisUtils.parseDoubleOrNull(
                     rating.getProperty(OpenBisSchemaConstants.TOTAL_SCORE_RATING_PROPERTY),
                     OpenBisSchemaConstants.TOTAL_SCORE_RATING_PROPERTY, code));
         }
@@ -207,5 +235,35 @@ public class SupplierService {
             }
             return Math.round((sum / count) * 100.0) / 100.0;
         }
+    }
+
+    /**
+     * Optimized fetch for a newly created supplier.
+     * <p>
+     * This method performs a "Shallow Fetch". It loads properties
+     * but explicitly excludes children (Orders/Ratings), as a fresh supplier cannot have history yet.
+     * Do NOT use this method for a general "Get By ID" endpoint where statistics are required.
+     * </p>
+     *
+     * @param permId The PermID of the supplier to fetch.
+     * @return The mapped SupplierDto with null stats.
+     */
+    private SupplierDto fetchSupplierMetadataByPermId(String permId) {
+        SampleSearchCriteria criteria = SampleSearchCriteria.create().with(PermIdSearchCriteria.withId(permId));
+
+        // Optimized Fetch Options: Properties & Type only. No hierarchy.
+        SampleFetchOptions fetchOptions = new SampleFetchOptions(
+                new PropertyFetchOptions(),
+                new SampleTypeFetchOptions(),
+                null,
+                null
+        );
+        List<OpenBisSample> results = openBisClient.searchSamples(criteria, fetchOptions);
+
+        if (results.isEmpty()) {
+            throw new OpenBisIntegrationException("Critical Error: Created supplier with PermID " + permId + " could not be retrieved immediately after creation.");
+        }
+
+        return supplierMapper.toApiDto(results.getFirst(), null);
     }
 }

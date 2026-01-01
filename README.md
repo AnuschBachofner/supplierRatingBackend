@@ -88,9 +88,9 @@ src/main/java/io/github/supplierratingsoftware/supplierratingbackend
 │           ├── (R) OpenBisSearchResult.java
 │           └── (R) OpenBisSample.java
 ├── mapper
-│   ├── (C) SupplierMapper.java                 // Maps OpenBisSample -> SupplierDto
-│   ├── (C) OrderMapper.java                    // Maps OpenBisSample -> OrderDto
-│   └── (C) RatingMapper.java                   // Maps OpenBisSample -> RatingDto
+│   ├── SupplierMapper.java                     // Maps DTOs in both directions toApiDto() & toOpenBisCreation()
+│   ├── OrderMapper.java                        // Maps DTOs in both directions toApiDto() & toOpenBisCreation()
+│   └── RatingMapper.java                       // Maps DTOs in both directions toApiDto() & toOpenBisCreation()
 └── openBisRequestDoc.md                        // Detailed JSON-RPC Protocol Documentation
 ```
 

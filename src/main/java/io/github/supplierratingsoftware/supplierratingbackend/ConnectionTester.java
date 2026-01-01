@@ -59,8 +59,8 @@ public class ConnectionTester implements CommandLineRunner {
 
         try {
             SampleSearchCriteria criteria = SampleSearchCriteria.create()
-                    .with(SpaceSearchCriteria.withCode(properties.search().defaultSpace()))
-                    .with(ProjectSearchCriteria.withCode(properties.search().supplierProject()));
+                    .with(SpaceSearchCriteria.withCode(properties.defaultSpace()))
+                    .with(ProjectSearchCriteria.withCode(properties.supplier().projectCode()));
 
             SampleFetchOptions fetchOptions = new SampleFetchOptions(
                     new PropertyFetchOptions(),
@@ -69,7 +69,7 @@ public class ConnectionTester implements CommandLineRunner {
                     null
             );
 
-            logger.info("Searching for samples in Project {} (Space: {})...", properties.search().supplierProject(), properties.search().defaultSpace());
+            logger.info("Searching for samples in Project {} (Space: {})...", properties.supplier().projectCode(), properties.defaultSpace());
 
             List<OpenBisSample> results = openBisClient.searchSamples(criteria, fetchOptions);
 
@@ -88,8 +88,8 @@ public class ConnectionTester implements CommandLineRunner {
         logger.info("-------------------------------------------------------------");
 
         SampleSearchCriteria orderCriteria = SampleSearchCriteria.create()
-                .with(SpaceSearchCriteria.withCode(properties.search().defaultSpace()))
-                .with(ProjectSearchCriteria.withCode(properties.search().orderProject()));
+                .with(SpaceSearchCriteria.withCode(properties.defaultSpace()))
+                .with(ProjectSearchCriteria.withCode(properties.order().projectCode()));
 
         // Fetch Options for Orders (including parents/supplier)
         SampleFetchOptions parentOptions = new SampleFetchOptions(
@@ -107,8 +107,8 @@ public class ConnectionTester implements CommandLineRunner {
         );
 
         logger.info("Searching for samples in Project '{}' (Space: {})...",
-                properties.search().orderProject(),
-                properties.search().defaultSpace());
+                properties.order().projectCode(),
+                properties.defaultSpace());
 
         List<OpenBisSample> orderResults = openBisClient.searchSamples(orderCriteria, orderFetchOptions);
 

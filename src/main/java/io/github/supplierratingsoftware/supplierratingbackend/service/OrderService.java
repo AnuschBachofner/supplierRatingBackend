@@ -45,9 +45,9 @@ public class OrderService {
      */
     public List<OrderDto> getAllOrders() {
         SampleSearchCriteria criteria = SampleSearchCriteria.create()
-                .with(SpaceSearchCriteria.withCode(properties.search().defaultSpace()))
-                .with(ProjectSearchCriteria.withCode(properties.search().orderProject()))
-                .with(SampleTypeSearchCriteria.withCode(properties.search().orderType()));
+                .with(SpaceSearchCriteria.withCode(properties.defaultSpace()))
+                .with(ProjectSearchCriteria.withCode(properties.order().projectCode()))
+                .with(SampleTypeSearchCriteria.withCode(properties.order().typeCode()));
         SampleFetchOptions parentOptions = new SampleFetchOptions(
                 null, // No properties needed for parent
                 null, // No type information needed for parent
@@ -61,6 +61,6 @@ public class OrderService {
                 null // No children needed for orders
         );
         List<OpenBisSample> rawSamples = openBisClient.searchSamples(criteria, fetchOptions);
-        return rawSamples.stream().map(orderMapper::toDto).toList();
+        return rawSamples.stream().map(orderMapper::toApiDto).toList();
     }
 }

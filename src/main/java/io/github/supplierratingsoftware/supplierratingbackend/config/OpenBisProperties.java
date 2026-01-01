@@ -7,13 +7,15 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.validation.annotation.Validated;
 
 /**
- * Configuration properties for OpenBIS connection and search defaults.
- * Maps to prefix "openbis" in application.yaml.
+ * Configuration properties for OpenBIS connection and entity defaults.
+ * Maps to the prefix "openbis" in application.yaml.
  *
  * @param apiUrl   The URL of the OpenBIS JSON-RPC API (v3).
  * @param user     The OpenBIS username.
  * @param password The OpenBIS password.
- * @param search   Configuration for search scopes (Space/Projects).
+ * @param supplier Configuration for supplier entities.
+ * @param order    Configuration for order entities.
+ * @param rating   Configuration for rating entities.
  */
 @Validated
 @ConfigurationProperties(prefix = ConfigurationConstants.OPENBIS_YAML_CONFIG_PREFIX)
@@ -27,40 +29,37 @@ public record OpenBisProperties(
         @NotBlank(message = "The OpenBIS password must not be blank.")
         String password,
 
+        @NotBlank(message = "The default Space must not be blank.")
+        String defaultSpace,
+
         @Valid
-        SearchConfig search
-) {
+        OpenBisProperties.EntityConfig supplier,
+
+        @Valid
+        OpenBisProperties.EntityConfig order,
+
+        @Valid
+        OpenBisProperties.EntityConfig rating
+        ) {
 
     /**
-     * Nested configuration for search scopes.
+     * Nested configuration for entity-related settings.
+     * This configuration includes details like the project, sample type, and collection codes.
      *
-     * @param defaultSpace    The default Space to search in (e.g. "LIEFERANTENBEWERTUNG").
-     * @param supplierProject The Project code for suppliers (e.g. "LIEFERANTEN").
-     * @param supplierType    The Sample Type code for suppliers (e.g. "LIEFERANT").
-     * @param orderProject    The Project code for orders (e.g. "BESTELLUNGEN").
-     * @param orderType       The Sample Type code for orders (e.g. "BESTELLUNG").
+     * @param projectCode The project code in openBIS.
+     * @param typeCode The sample type code in openBIS.
+     * @param collectionCode The collection code in openBIS.
      */
-    public record SearchConfig(
-            @NotBlank(message = "The default Space must not be blank.")
-            String defaultSpace,
+    public record EntityConfig(
+            @NotBlank(message = "The project code must not be blank.")
+            String projectCode,
 
-            @NotBlank(message = "The supplier Project must not be blank.")
-            String supplierProject,
+            @NotBlank(message = "The sample type code must not be blank.")
+            String typeCode,
 
-            @NotBlank(message = "The supplier Sample Type must not be blank.")
-            String supplierType,
-
-            @NotBlank(message = "The order Project must not be blank.")
-            String orderProject,
-
-            @NotBlank(message = "The order Sample Type must not be blank.")
-            String orderType,
-
-            @NotBlank(message = "The rating Project must not be blank.")
-            String ratingProject,
-
-            @NotBlank(message = "The rating Sample Type must not be blank.")
-            String ratingType
+            //TODO: set `@NotBlank()` annotation as soon as the write functionality is implemented for all entities.
+            //@NotBlank(message = "The collection code must not be blank.")
+            String collectionCode
     ) {
     }
 }

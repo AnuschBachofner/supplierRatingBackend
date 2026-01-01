@@ -1,11 +1,13 @@
 package io.github.supplierratingsoftware.supplierratingbackend.controller;
 
+import io.github.supplierratingsoftware.supplierratingbackend.dto.api.SupplierCreationDto;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.api.SupplierDto;
 import io.github.supplierratingsoftware.supplierratingbackend.service.SupplierService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -29,6 +31,21 @@ public class SupplierController {
     @GetMapping
     public List<SupplierDto> getAllSuppliers() {
         return supplierService.getAllSuppliers();
+    }
+
+    /**
+     * Creates a new supplier.
+     * Validates the input DTO and ensures the necessary properties are set.
+     *
+     * @param creationDto The payload containing the new supplier's details.
+     * @return The created {@link SupplierDto} wrapped in a ResponseEntity with HTTP 201 Created.
+     */
+    @PostMapping
+    public ResponseEntity<SupplierDto> createSupplier(@RequestBody @Valid SupplierCreationDto creationDto) {
+        SupplierDto createdSupplier = supplierService.createSupplier(creationDto);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(createdSupplier);
     }
 
 }

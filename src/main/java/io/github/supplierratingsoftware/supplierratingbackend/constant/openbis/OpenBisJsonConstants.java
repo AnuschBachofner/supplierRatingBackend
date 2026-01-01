@@ -28,6 +28,13 @@ public final class OpenBisJsonConstants {
     public static final String SPACE_SEARCH_CRITERIA = "as.dto.space.search.SpaceSearchCriteria";
     public static final String STRING_EQUAL_TO_VALUE = "as.dto.common.search.StringEqualToValue";
 
+    // - Creation Types
+    public static final String SAMPLE_CREATION = "as.dto.sample.create.SampleCreation";
+    public static final String SPACE_PERM_ID = "as.dto.space.id.SpacePermId";
+    public static final String PROJECT_IDENTIFIER = "as.dto.project.id.ProjectIdentifier";
+    public static final String EXPERIMENT_IDENTIFIER = "as.dto.experiment.id.ExperimentIdentifier";
+    public static final String SAMPLE_PERM_ID = "as.dto.sample.id.SamplePermId"; // For responses
+
     // JSON Property Keys
     public static final String TYPE_JSON_PROPERTY_KEY = "@type";
     public static final String ID_JSON_PROPERTY_KEY = "@id";
@@ -38,6 +45,7 @@ public final class OpenBisJsonConstants {
     // Method Names
     public static final String LOGIN_METHOD_NAME = "login";
     public static final String SEARCH_SAMPLES_METHOD_NAME = "searchSamples";
+    public static final String CREATE_SAMPLE_METHOD_NAME = "createSamples";
 
     /**
      * Private constructor to prevent instantiation of utility class.

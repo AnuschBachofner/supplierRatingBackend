@@ -13,12 +13,9 @@ import java.util.UUID;
  * <pre>
  *     {
  *          "jsonrpc": "2.0",
- *          "method": "login",
- *          "params": [
- *              "username",
- *              "password"
- *          ]
- *          "id": "123"
+ *          "method": "methodName",
+ *          "params": []
+ *          "id": "1234567890"
  *     }
  * </pre>
  *

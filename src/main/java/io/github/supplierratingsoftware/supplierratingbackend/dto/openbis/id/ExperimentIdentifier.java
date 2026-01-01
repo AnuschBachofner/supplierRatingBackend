@@ -1,30 +1,28 @@
 package io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.id;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import io.github.supplierratingsoftware.supplierratingbackend.constant.openbis.OpenBisJsonConstants;
 
 /**
- * Represents the permanent identifier of an entity type in OpenBIS.
- * Used to reference types like "LIEFERANT" or "ORDER".
+ * Represents an experiment identifier from the openBIS V3 API.
+ * Experiments in openBIS are also called collections.
  *
  * <p><strong>JSON Example:</strong></p>
  * <pre>
- *      {
- *          "@type": "as.dto.entitytype.id.EntityTypePermId",
- *          "permId": "LIEFERANT"
- *      }
+ *     {
+ *         "@type": "as.dto.experiment.id.ExperimentIdentifier",
+ *         "identifier": "/SPACE/PROJECT/COLLECTION"
+ *     }
  * </pre>
  *
  * Fields with a {@code null} value are ignored during serialization.
- * Unknown fields (such as {@code @type} or {@code @id} are ignored during deserialization.)
  *
+ * @param identifier The experiment identifier.
  */
-@JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonTypeName(OpenBisJsonConstants.ENTITY_TYPE_PERM_ID)
+@JsonTypeName(OpenBisJsonConstants.EXPERIMENT_IDENTIFIER)
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = OpenBisJsonConstants.TYPE_JSON_PROPERTY_KEY)
-public record EntityTypePermId(String permId) {
+public record ExperimentIdentifier(String identifier) {
 }

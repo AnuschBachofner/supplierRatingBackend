@@ -135,6 +135,22 @@ The inclusion of `SampleTypeSearchCriteria` is the result of specific architectu
   business properties (e.g., missing `Name` or `Address`).
 * **Performance:** Narrowing the search scope on the server side reduces the payload size and serialization overhead.
 
+### 2.4. Data Organization Strategy (Projects vs. Collections)
+
+To ensure long-term scalability (e.g., yearly archiving), the application distinguishes between
+the **Read Scope** and the **Write Target**.
+
+* **Collections (Experiments):** Used as containers for organization (e.g., `ORDERS_2024`, `ORDERS_2025`).
+* **Projects:** The fixed parent container (e.g., `BESTELLUNGEN`).
+
+**The Strategy:**
+1.  **Reading (Search):** We always search at the **Project Level**. This automatically retrieves
+    samples from *all* contained Collections/Experiments. This ensures that historical data (e.g.,
+    from last year's collection) remains visible without changing the code.
+2.  **Writing (Creation):** New entities must be assigned to a specific, **active Collection**
+    (configurable via environment variables) to ensure they appear correctly in the openBIS GUI
+    inventory tree.
+
 ## 3. Java DTO Architecture & Request Composition
 
 ### 3.1. The Composite Pattern in Search Criteria
@@ -401,7 +417,8 @@ Orders (Children), and all associated Ratings (Grandchildren).
 ### 4.3. Retrieving Orders (Child Entities)
 
 **Context:**
-Orders represent the second level of the hierarchy. They are children of Suppliers. To reconstruct this relationship in the application, the request must explicitly fetch the parent objects.
+Orders represent the second level of the hierarchy. They are children of Suppliers. To reconstruct
+this relationship in the application, the request must explicitly fetch the parent objects.
 
 * **Responsible Service:** `OrderService`
 * **Search Scope:** Space + Project + Type
@@ -706,5 +723,112 @@ public RatingDto mapToDto(OpenBisSample sample) {
     }
 
     return new RatingDto(..., orderId, ...);
+}
+```
+
+## 6. Entity Creation
+
+### 6.1. Creating Suppliers
+
+**Context:**
+Creating a new supplier involves the `createSamples` JSON-RPC method.
+To ensure the new supplier appears in the default openBIS GUI ("Collections" view), it **must** be
+assigned to a specific Experiment (Collection).
+
+* **Method:** `createSamples`
+* **DTO:** `SampleCreation`
+* **Mandatory Identifiers:** Space, Project, Experiment (Collection), Type.
+* **Code Generation Strategy:** The backend automatically generates the `code` field using the pattern:
+  `LIEFERANT-<UUID>` (e.g., `LIEFERANT-d290f1ee-6c54...`) to ensure global uniqueness.
+
+**Assignment Strategy:**
+* **Space:** Configured Default Space (e.g. `LIEFERANTENBEWERTUNG`)
+* **Project:** Configured Supplier Project (e.g. `LIEFERANTEN`)
+* **Experiment:** **Configurable Collection** (e.g. `/LIEFERANTENBEWERTUNG/LIEFERANTEN/LIEFERANTEN`). This allows the
+  customer to change the target collection (e.g. for yearly rollover) via environment variables without code changes.
+
+**Property Mapping & Validation Strategy:**
+
+| API DTO Field    | openBIS Property Code      | Mandatory (Business Rule) |
+|:-----------------|:---------------------------|:--------------------------|
+| `name`           | `NAME`                     | **Yes**                   |
+| `customerNumber` | `KUNDENNUMMER`             | **Yes**                   |
+| `addition`       | `LIEFERANTEN_ZUSATZ`       | No                        |
+| `street`         | `LIEFERANTEN_STRASSE`      | **Yes**                   |
+| `poBox`          | `LIEFERANTEN_POSTFACH`     | No                        |
+| `country`        | `LIEFERANTEN_LAND`         | **Yes**                   |
+| `zipCode`        | `LIEFERANTEN_POSTLEITZAHL` | **Yes**                   |
+| `city`           | `LIEFERANTEN_ORT`          | **Yes**                   |
+| `website`        | `LIEFERANTEN_WEBLINK`      | No                        |
+| `email`          | `LIEFERANTEN_EMAIL`        | No                        |
+| `phoneNumber`    | `LIEFERANTEN_TELEFON`      | No                        |
+| `vatId`          | `MWST`                     | **Yes**                   |
+| `conditions`     | `KONDITIONEN`              | **Yes**                   |
+| `customerInfo`   | `KUNDENINFORMATION`        | No                        |
+
+**Reference JSON Payload (Full Example):**
+
+```json
+{
+  "jsonrpc": "2.0",
+  "method": "createSamples",
+  "id": "req-create-supplier-final-01",
+  "params": [
+    "SESSION_TOKEN",
+    [
+      {
+        "@type": "as.dto.sample.create.SampleCreation",
+        "spaceId": {
+          "@type": "as.dto.space.id.SpacePermId",
+          "permId": "LIEFERANTENBEWERTUNG"
+        },
+        "projectId": {
+          "@type": "as.dto.project.id.ProjectIdentifier",
+          "identifier": "/LIEFERANTENBEWERTUNG/LIEFERANTEN"
+        },
+        "experimentId": {
+          "@type": "as.dto.experiment.id.ExperimentIdentifier",
+          "identifier": "/LIEFERANTENBEWERTUNG/LIEFERANTEN/LIEFERANTEN"
+        },
+        "typeId": {
+          "@type": "as.dto.entitytype.id.EntityTypePermId",
+          "permId": "LIEFERANT"
+        },
+        "code": "LIEFERANT-550e8400-e29b-41d4-a716-446655440000",
+        "properties": {
+          "NAME": "Acme Corp",
+          "KUNDENNUMMER": "100-200",
+          "LIEFERANTEN_ZUSATZ": "Building B",
+          "LIEFERANTEN_STRASSE": "Industrial Way 1",
+          "LIEFERANTEN_POSTFACH": "PO Box 22",
+          "LIEFERANTEN_LAND": "CH",
+          "LIEFERANTEN_POSTLEITZAHL": "9000",
+          "LIEFERANTEN_ORT": "Zurich",
+          "LIEFERANTEN_WEBLINK": "https://acme.com",
+          "LIEFERANTEN_EMAIL": "contact@acme.com",
+          "LIEFERANTEN_TELEFON": "+41 44 123 45 67",
+          "MWST": "CHE-123.456.789",
+          "KONDITIONEN": "30 days net",
+          "KUNDENINFORMATION": "Key supplier for Q1"
+        }
+      }
+    ]
+  ]
+}
+```
+
+**Response Handling:**
+On success, the API returns a list of identifiers for the created samples.
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": "req-create-supplier-final-01",
+  "result": [
+    {
+      "@type": "as.dto.sample.id.SamplePermId",
+      "permId": "20251231103114886-315"
+    }
+  ]
 }
 ```

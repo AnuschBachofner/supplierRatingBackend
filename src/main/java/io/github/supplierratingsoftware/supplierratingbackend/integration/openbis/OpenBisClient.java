@@ -2,12 +2,15 @@ package io.github.supplierratingsoftware.supplierratingbackend.integration.openb
 
 import io.github.supplierratingsoftware.supplierratingbackend.config.OpenBisProperties;
 import io.github.supplierratingsoftware.supplierratingbackend.constant.openbis.OpenBisJsonConstants;
+import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.creation.SampleCreation;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.fetchoptions.SampleFetchOptions;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.generic.JsonRpcRequest;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.generic.JsonRpcResponse;
+import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.id.SamplePermId;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.result.OpenBisSample;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.result.OpenBisSearchResult;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.search.SampleSearchCriteria;
+import io.github.supplierratingsoftware.supplierratingbackend.exception.OpenBisIntegrationException;
 import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -133,6 +136,47 @@ public class OpenBisClient {
         } else {
             logResponseErrors("Failed to search for samples", response);
             throw new RuntimeException("Failed to search for samples");
+        }
+    }
+
+    /**
+     * Creates new samples in openBIS.
+     *
+     * @param samples The list of samples to create.
+     * @return A list of permIds of the created samples.
+     * @throws RuntimeException if the creation fails.
+     */
+    public List<SamplePermId> createSamples(List<SampleCreation> samples) {
+
+        // Safety check: Ensure we have samples to create
+        if (samples == null || samples.isEmpty()) {
+            return List.of();
+        }
+
+        // Safety check: Ensure we are logged in
+        String currentToken = (this.sessionToken == null) ? login() : this.sessionToken;
+
+        // Prepare Request
+        List<Object> params = List.of(currentToken, samples);
+        JsonRpcRequest request = new JsonRpcRequest(OpenBisJsonConstants.CREATE_SAMPLE_METHOD_NAME, params);
+
+        // Define Response Type
+        ParameterizedTypeReference<JsonRpcResponse<List<SamplePermId>>> responseType =
+                new ParameterizedTypeReference<>() {};
+
+        // Execute Request
+        JsonRpcResponse<List<SamplePermId>> response = restClient.post()
+                .body(request)
+                .retrieve()
+                .body(responseType);
+
+        // Handle Response
+        if (response != null && !response.hasError() && response.result() != null) {
+            return response.result();
+        } else {
+            logResponseErrors("Failed to create samples", response);
+            String errorDetail = (response != null && response.error() != null) ? response.error().toString() : "Unknown Error";
+            throw new OpenBisIntegrationException("Failed to create samples in openBIS: Details: " + errorDetail);
         }
     }
 

@@ -8,10 +8,13 @@ import org.springframework.stereotype.Component;
 import java.util.Map;
 
 /**
- * Component responsible for mapping technical OpenBIS samples to the domain-specific {@link OrderDto}.
+ * Component responsible for mapping technical OpenBIS samples to the domain-specific {@link OrderDto} and vice versa.
  * <p>
- * It handles the extraction of property values from the generic string-map (e.g. "BESTELLUNG_HK" -> "mainCategory")
- * and ensures null-safety during the transformation. It also links the order to their parent supplier.
+ * Handles both directions:
+ * <ul>
+ *     <li>READ: {@link OpenBisSample} -> {@link OrderDto}</li>
+ *     <li>WRITE: TODO: implement WRITE later</li>
+ * </ul>
  * </p>
  */
 @Component
@@ -19,11 +22,12 @@ public class OrderMapper {
 
     /**
      * Converts a generic {@link OpenBisSample} into a {@link OrderDto}.
+     * (READ direction)
      *
      * @param sample The raw sample object from OpenBIS. Can be null.
      * @return The DTO representation of the order, or null if the sample is null.
      */
-    public OrderDto toDto(OpenBisSample sample) {
+    public OrderDto toApiDto(OpenBisSample sample) {
         if (sample == null) return null;
 
         Map<String, String> props = sample.properties();

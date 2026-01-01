@@ -9,9 +9,9 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
  * <pre>
  *     {
  *         "jsonrpc": "2.0",
- *         "result": "session-token-123",
+ *         "result": { ... },
  *         "error": null,
- *         "id": "123"
+ *         "id": "1234567890"
  *     }
  * </pre>
  *
@@ -20,11 +20,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
  *     {
  *         "jsonrpc": "2.0",
  *         "result": null,
- *         "error": {
- *             "code": -32602,
- *             "message": "Invalid params"
- *         },
- *         "id": "345"
+ *         "error": { ... },
+ *         "id": "3456789012"
  *     }
  * </pre>
  *
