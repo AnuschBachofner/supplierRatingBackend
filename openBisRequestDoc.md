@@ -832,3 +832,106 @@ On success, the API returns a list of identifiers for the created samples.
   ]
 }
 ```
+
+### 6.2. Creating Orders (With Hierarchy Linking)
+
+**Context:**
+Creating an Order differs from creating a Supplier because it involves **Hierarchy Linking**.
+Every Order must be assigned to exactly one parent Supplier.
+
+* **Method:** `createSamples`
+* **DTO:** `SampleCreation`
+* **Mandatory Identifiers:** Space, Project, Experiment, Type.
+* **Code Generation Strategy:** `BESTELLUNG-<UUID>` (e.g. `BESTELLUNG-98a76s...`).
+
+**Assignment Strategy:**
+* **Space:** Configured Default Space
+* **Project:** Configured Order Project (e.g. `BESTELLUNGEN`)
+* **Experiment:** **Configurable Collection** (e.g. `/LIEFERANTENBEWERTUNG/BESTELLUNGEN/BESTELLUNGEN`).
+  Controlled via `OPENBIS_ORDER_COLLECTION`.
+
+**Parent Linking Strategy (Critical):**
+To link the Order to a Supplier, the `parentIds` list in the JSON payload must contain the
+`SamplePermId` of the target Supplier.
+
+**Property Mapping:**
+
+| API DTO Field   | openBIS Property Code    | Mandatory |
+|:----------------|:-------------------------|:----------|
+| `name`          | `NAME`                   | **Yes**   |
+| `mainCategory`  | `BESTELLUNG_HK`          | No        |
+| `subCategory`   | `BESTELLUNG_UK`          | No        |
+| `details`       | `BEZEICHNUNG`            | No        |
+| `frequency`     | `RYTHMUS`                | No        |
+| `contactPerson` | `ANSPRECHPERSON`         | No        |
+| `contactEmail`  | `ANSPRECHPERSON_EMAIL`   | No        |
+| `contactPhone`  | `ANSPRECHPERSON_TELEFON` | No        |
+| `reason`        | `BESCHAFFUNGSGRUND`      | No        |
+| `orderMethod`   | `BESTELLART`             | No        |
+| `orderedBy`     | `BESTELLER`              | No        |
+| `orderDate`     | `BESTELLDATUM`           | No        |
+| `deliveryDate`  | `LIEFERDATUM`            | No        |
+| `orderComment`  | `KOMMENTAR`              | No        |
+
+**Note about the `supplierId` field:**
+The `supplierId` field in `OrderCreationDto` is also **mandatory**, but it is not listed in the table above
+because it does not map to an openBIS property. Instead, it is used to construct the `parentIds` array in the
+`createSamples` request, linking the created order sample to its parent supplier sample (see the `parentIds`
+example in the JSON payload below).
+
+**Reference JSON Payload:**
+
+```json
+{
+  "jsonrpc": "2.0",
+  "method": "createSamples",
+  "id": "req-create-order-01",
+  "params": [
+    "SESSION_TOKEN",
+    [
+      {
+        "@type": "as.dto.sample.create.SampleCreation",
+        "spaceId": {
+          "@type": "as.dto.space.id.SpacePermId",
+          "permId": "LIEFERANTENBEWERTUNG"
+        },
+        "projectId": {
+          "@type": "as.dto.project.id.ProjectIdentifier",
+          "identifier": "/LIEFERANTENBEWERTUNG/BESTELLUNGEN"
+        },
+        "experimentId": {
+          "@type": "as.dto.experiment.id.ExperimentIdentifier",
+          "identifier": "/LIEFERANTENBEWERTUNG/BESTELLUNGEN/BESTELLUNGEN"
+        },
+        "typeId": {
+          "@type": "as.dto.entitytype.id.EntityTypePermId",
+          "permId": "BESTELLUNG"
+        },
+        "code": "BESTELLUNG-a1b2c3d4-e5f6-...",
+        "parentIds": [
+           {
+             "@type": "as.dto.sample.id.SamplePermId",
+             "permId": "20251215211254413-254"  // <--- LINK TO SUPPLIER
+           }
+        ],
+        "properties": {
+          "NAME": "Lab material Q1",
+          "BESTELLUNG_HK": "BESCHAFFUNG",
+          "BESTELLUNG_UK": "MESSMITTEL",
+          "BEZEICHNUNG": "50x Precision scales",
+          "RYTHMUS": "One-time",
+          "ANSPRECHPERSON": "John Doe",
+          "ANSPRECHPERSON_EMAIL": "john.doe@example.com",
+          "ANSPRECHPERSON_TELEFON": "+1234567890",
+          "BESCHAFFUNGSGRUND": "New project requirements",
+          "BESTELLART": "Online",
+          "BESTELLER": "Jane Smith",
+          "BESTELLDATUM": "2023-01-01",
+          "LIEFERDATUM": "2023-01-15",
+          "KOMMENTAR": "Please ship to warehouse A"
+        }
+      }
+    ]
+  ]
+}
+```

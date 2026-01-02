@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import io.github.supplierratingsoftware.supplierratingbackend.constant.openbis.OpenBisJsonConstants;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.id.*;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -20,7 +21,8 @@ import java.util.Map;
  *         "experimentId": { ... },
  *         "typeId": { ... },
  *         "code": "SAMPLE_CODE",
- *         "properties": { ... }
+ *         "properties": { ... },
+ *         "parentIds": [ ... ]
  *     }
  * </pre>
  *
@@ -30,6 +32,7 @@ import java.util.Map;
  * @param typeId The type of the sample.
  * @param code The code of the sample.
  * @param properties Additional properties for the sample.
+ * @param parentIds The parent sample identifiers for the sample.
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonTypeName(OpenBisJsonConstants.SAMPLE_CREATION)
@@ -40,6 +43,7 @@ public record SampleCreation(
         ExperimentIdentifier experimentId,
         EntityTypePermId typeId,
         String code,
-        Map<String, String> properties
+        Map<String, String> properties,
+        List<SamplePermId> parentIds
 ) {
 }

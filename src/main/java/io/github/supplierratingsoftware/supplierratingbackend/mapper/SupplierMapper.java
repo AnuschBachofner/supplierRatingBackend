@@ -132,7 +132,8 @@ public class SupplierMapper {
                 experimentId,
                 typeId,
                 code,
-                props
+                props,
+                null // No parent samples needed for suppliers
         );
     }
 }

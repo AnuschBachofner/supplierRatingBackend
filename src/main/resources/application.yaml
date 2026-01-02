@@ -17,6 +17,7 @@ openbis:
   order:
     project-code: ${OPENBIS_ORDER_PROJECT}
     type-code: ${OPENBIS_ORDER_TYPE}
+    collection-code: ${OPENBIS_ORDER_COLLECTION}
 
   rating:
     project-code: ${OPENBIS_RATING_PROJECT}

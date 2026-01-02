@@ -1,11 +1,21 @@
 package io.github.supplierratingsoftware.supplierratingbackend.mapper;
 
+import io.github.supplierratingsoftware.supplierratingbackend.config.OpenBisProperties;
 import io.github.supplierratingsoftware.supplierratingbackend.constant.openbis.OpenBisSchemaConstants;
+import io.github.supplierratingsoftware.supplierratingbackend.dto.api.OrderCreationDto;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.api.OrderDto;
+import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.creation.SampleCreation;
+import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.id.*;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.result.OpenBisSample;
+import io.github.supplierratingsoftware.supplierratingbackend.exception.OpenBisIntegrationException;
+import io.github.supplierratingsoftware.supplierratingbackend.util.OpenBisUtils;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * Component responsible for mapping technical OpenBIS samples to the domain-specific {@link OrderDto} and vice versa.
@@ -13,12 +23,15 @@ import java.util.Map;
  * Handles both directions:
  * <ul>
  *     <li>READ: {@link OpenBisSample} -> {@link OrderDto}</li>
- *     <li>WRITE: TODO: implement WRITE later</li>
+ *     <li>WRITE: {@link OrderCreationDto} -> {@link SampleCreation}</li>
  * </ul>
  * </p>
  */
 @Component
+@RequiredArgsConstructor
 public class OrderMapper {
+
+    private final OpenBisProperties properties;
 
     /**
      * Converts a generic {@link OpenBisSample} into a {@link OrderDto}.
@@ -63,6 +76,78 @@ public class OrderMapper {
                 supplierId,
                 null, //TODO: to be implemented, when search for single supplier is implemented
                 null //TODO: to be implemented, when rating logic is implemented
+        );
+    }
+
+    /**
+     * Converts an {@link OrderCreationDto} into an openBIS {@link SampleCreation} object.
+     * (WRITE Direction)
+     * <p>
+     * Generates a unique code: BESTELLUNG-<UUID>
+     * Assigns technical identifiers (Space, Project, Experiment).
+     * <strong>Crucial:</strong> Links the order to its parent supplier via {@code parentIds}.
+     * </p>
+     *
+     * @param dto The creation request from the API.
+     * @return The openBIS creation payload.
+     */
+    public SampleCreation toOpenBisCreation(OrderCreationDto dto) {
+        // Generate unique code: BESTELLUNG-<UUID>
+        String code = properties.order().typeCode() + "-" + UUID.randomUUID();
+
+        // Prepare Identifiers
+        EntityTypePermId typeId = new EntityTypePermId(properties.order().typeCode());
+        SpacePermId spaceId = new SpacePermId(properties.defaultSpace());
+
+        ProjectIdentifier projectId = new ProjectIdentifier(
+                OpenBisUtils.buildIdentifier(properties.defaultSpace(), properties.order().projectCode())
+        );
+
+        // TODO: When Rating Write is implemented, I will activate the `@NotBlank(message = "The collection code must not be blank.")` Annotation in `OpenBisProperties`
+        // and replace this safety check with the annotation validation
+        // Safety check for collection code (Configuration Validation)
+        String collectionCode = properties.order().collectionCode();
+        if (collectionCode == null || collectionCode.isBlank()) {
+            throw new OpenBisIntegrationException("Order collection must be configured in environment variables (OPENBIS_ORDER_COLLECTION) to create new orders.");
+        }
+
+        ExperimentIdentifier experimentId = new ExperimentIdentifier(
+                OpenBisUtils.buildIdentifier(properties.defaultSpace(), properties.order().projectCode(), collectionCode)
+        );
+
+        // Map Properties
+        Map<String, String> props = new HashMap<>();
+
+        // Mandatory
+        props.put(OpenBisSchemaConstants.NAME_ORDER_PROPERTY, dto.name());
+
+        // Optional
+        OpenBisUtils.putIfNotNull(props, OpenBisSchemaConstants.MAIN_CATEGORY_ORDER_PROPERTY, dto.mainCategory());
+        OpenBisUtils.putIfNotNull(props, OpenBisSchemaConstants.SUB_CATEGORY_ORDER_PROPERTY, dto.subCategory());
+        OpenBisUtils.putIfNotNull(props, OpenBisSchemaConstants.DESCRIPTION_ORDER_PROPERTY, dto.details());
+        OpenBisUtils.putIfNotNull(props, OpenBisSchemaConstants.FREQUENCY_ORDER_PROPERTY, dto.frequency());
+        OpenBisUtils.putIfNotNull(props, OpenBisSchemaConstants.CONTACT_NAME_ORDER_PROPERTY, dto.contactPerson());
+        OpenBisUtils.putIfNotNull(props, OpenBisSchemaConstants.CONTACT_EMAIL_ORDER_PROPERTY, dto.contactEmail());
+        OpenBisUtils.putIfNotNull(props, OpenBisSchemaConstants.CONTACT_PHONE_ORDER_PROPERTY, dto.contactPhone());
+        OpenBisUtils.putIfNotNull(props, OpenBisSchemaConstants.ORDER_REASON_ORDER_PROPERTY, dto.reason());
+        OpenBisUtils.putIfNotNull(props, OpenBisSchemaConstants.ORDER_METHOD_ORDER_PROPERTY, dto.orderMethod());
+        OpenBisUtils.putIfNotNull(props, OpenBisSchemaConstants.PURCHASER_ORDER_PROPERTY, dto.orderedBy());
+        OpenBisUtils.putIfNotNull(props, OpenBisSchemaConstants.ORDER_DATE_ORDER_PROPERTY, dto.orderDate());
+        OpenBisUtils.putIfNotNull(props, OpenBisSchemaConstants.DELIVERY_DATE_ORDER_PROPERTY, dto.deliveryDate());
+        OpenBisUtils.putIfNotNull(props, OpenBisSchemaConstants.ORDER_COMMENT_ORDER_PROPERTY, dto.orderComment());
+
+        // Link Parent (Supplier)
+        List<SamplePermId> parentIds = null;
+        parentIds = List.of(new SamplePermId(dto.supplierId()));
+
+        return new SampleCreation(
+                spaceId,
+                projectId,
+                experimentId,
+                typeId,
+                code,
+                props,
+                parentIds // <-- Linked Supplier
         );
     }
 }

@@ -26,11 +26,11 @@ public class SupplierController {
     /**
      * Retrieves a list of all registered suppliers.
      *
-     * @return A list of {@link SupplierDto} objects.
+     * @return ResponseEntity containing a list of SupplierDto objects.
      */
     @GetMapping
-    public List<SupplierDto> getAllSuppliers() {
-        return supplierService.getAllSuppliers();
+    public ResponseEntity<List<SupplierDto>> getAllSuppliers() {
+        return ResponseEntity.ok(supplierService.getAllSuppliers());
     }
 
     /**

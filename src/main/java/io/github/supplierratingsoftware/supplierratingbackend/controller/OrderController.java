@@ -1,11 +1,13 @@
 package io.github.supplierratingsoftware.supplierratingbackend.controller;
 
+import io.github.supplierratingsoftware.supplierratingbackend.dto.api.OrderCreationDto;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.api.OrderDto;
 import io.github.supplierratingsoftware.supplierratingbackend.service.OrderService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -23,11 +25,27 @@ public class OrderController {
 
     /**
      * Retrieves a list of all orders from OpenBIS.
+     * Optionally filters for orders belonging to a specific supplier.
      *
-     * @return List of OrderDto objects representing all orders.
+     * @param supplierId (Optional) The suppliers PermID to filter for, or null to retrieve all orders.
+     * @return ResponseEntity containing a list of OrderDto objects representing all orders.
      */
     @GetMapping
-    public List<OrderDto> getAllOrders() {
-        return orderService.getAllOrders();
+    public ResponseEntity<List<OrderDto>> getAllOrders(@RequestParam(required = false) String supplierId) {
+        return ResponseEntity.ok(orderService.getAllOrders(supplierId));
+    }
+
+    /**
+     * Creates a new order.
+     *
+     * @param creationDto The payload containing the new order details.
+     * @return The created {@link OrderDto} wrapped in a ResponseEntity with HTTP 201 Created.
+     */
+    @PostMapping
+    public ResponseEntity<OrderDto> createOrder(@RequestBody @Valid OrderCreationDto creationDto) {
+        OrderDto createdOrder = orderService.createOrder(creationDto);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(createdOrder);
     }
 }
