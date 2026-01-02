@@ -11,7 +11,7 @@ import io.github.supplierratingsoftware.supplierratingbackend.constant.openbis.O
  * <p><strong>Purpose:</strong><br>
  * This interface enables <b>polymorphic serialization/deserialization</b> via Jackson.
  * OpenBIS search requests often require nested criteria, where a list
- * can contain various types of criteria (e.g., searching by Code, by Type, or by Property).
+ * can contain various types of criteria (e.g., searching by Code, by Type, by Property, or by Parent).
  * </p>
  *
  * <p><strong>Mechanism:</strong><br>
@@ -54,6 +54,7 @@ import io.github.supplierratingsoftware.supplierratingbackend.constant.openbis.O
  *     <li>{@link ProjectSearchCriteria}</li>
  *     <li>{@link CodeSearchCriteria}</li>
  *     <li>{@link SampleTypeSearchCriteria}</li>
+ *     <li>{@link SampleParentsSearchCriteria}</li>
  * </ul>
  * </p>
  *
@@ -69,7 +70,8 @@ import io.github.supplierratingsoftware.supplierratingbackend.constant.openbis.O
         @JsonSubTypes.Type(value = SpaceSearchCriteria.class, name = OpenBisJsonConstants.SPACE_SEARCH_CRITERIA),
         @JsonSubTypes.Type(value = ProjectSearchCriteria.class, name = OpenBisJsonConstants.PROJECT_SEARCH_CRITERIA),
         @JsonSubTypes.Type(value = CodeSearchCriteria.class, name = OpenBisJsonConstants.CODE_SEARCH_CRITERIA),
-        @JsonSubTypes.Type(value = SampleTypeSearchCriteria.class, name = OpenBisJsonConstants.SAMPLE_TYPE_SEARCH_CRITERIA)
+        @JsonSubTypes.Type(value = SampleTypeSearchCriteria.class, name = OpenBisJsonConstants.SAMPLE_TYPE_SEARCH_CRITERIA),
+        @JsonSubTypes.Type(value = SampleParentsSearchCriteria.class, name = OpenBisJsonConstants.SAMPLE_PARENTS_SEARCH_CRITERIA)
 })
 @JsonIgnoreProperties(ignoreUnknown = true)
 public interface SearchCriteria {

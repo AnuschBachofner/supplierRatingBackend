@@ -27,6 +27,7 @@ public final class OpenBisJsonConstants {
     public static final String SAMPLE_TYPE_SEARCH_CRITERIA = "as.dto.sample.search.SampleTypeSearchCriteria";
     public static final String SPACE_SEARCH_CRITERIA = "as.dto.space.search.SpaceSearchCriteria";
     public static final String STRING_EQUAL_TO_VALUE = "as.dto.common.search.StringEqualToValue";
+    public static final String SAMPLE_PARENTS_SEARCH_CRITERIA = "as.dto.sample.search.SampleParentsSearchCriteria";
 
     // - Creation Types
     public static final String SAMPLE_CREATION = "as.dto.sample.create.SampleCreation";

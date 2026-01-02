@@ -11,6 +11,7 @@ import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.id.Sam
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.result.OpenBisSample;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.search.PermIdSearchCriteria;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.search.ProjectSearchCriteria;
+import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.search.SampleParentsSearchCriteria;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.search.SampleSearchCriteria;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.search.SampleTypeSearchCriteria;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.search.SpaceSearchCriteria;
@@ -60,29 +61,20 @@ public class OrderService {
                 .with(SpaceSearchCriteria.withCode(properties.defaultSpace()))
                 .with(ProjectSearchCriteria.withCode(properties.order().projectCode()))
                 .with(SampleTypeSearchCriteria.withCode(properties.order().typeCode()));
-        SampleFetchOptions parentOptions = new SampleFetchOptions(
-                null, // No properties needed for parent
-                null, // No type information needed for parent
-                null, // Stop recursion after parent
-                null // No children needed for parent
-        );
+
+        if (supplierId != null && !supplierId.isBlank()) criteria.with(SampleParentsSearchCriteria.withParentId(supplierId));
+
         SampleFetchOptions fetchOptions = new SampleFetchOptions(
                 new PropertyFetchOptions(), // Fetch properties of the order
                 new SampleTypeFetchOptions(), // Fetch type information of the order
-                parentOptions, // Fetch parent information
+                new SampleFetchOptions(null, null, null, null),
                 null // No children needed for orders
         );
         List<OpenBisSample> rawSamples = openBisClient.searchSamples(criteria, fetchOptions);
 
-        // Map to DTOs and filter if a supplier ID was provided
+        // Map to DTOs
         return rawSamples.stream()
                 .map(orderMapper::toApiDto)
-                .filter(order -> {
-                    // Case: No filter requested -> Include all orders
-                    if (supplierId == null || supplierId.isBlank()) return true;
-                    // Case: Filter requested -> Include only orders for the given supplier
-                    return supplierId.equals(order.supplierId());
-                })
                 .toList();
     }
 

@@ -151,6 +151,38 @@ the **Read Scope** and the **Write Target**.
     (configurable via environment variables) to ensure they appear correctly in the openBIS GUI
     inventory tree.
 
+### 2.5. Filtering by Parent (Hierarchy Search)
+
+To efficiently retrieve child entities (e.g., "All Orders for Supplier X"), the backend utilizes
+the **`SampleParentsSearchCriteria`**. This delegates the filtering logic to the openBIS database engine,
+avoiding inefficient in-memory filtering of large datasets.
+
+**Criteria Composition:**
+The search request combines the standard Location/Type filters with a Parent filter:
+
+1. Space: `LIEFERANTENBEWERTUNG`
+2. Project: `BESTELLUNGEN`
+3. Type: `BESTELLUNG`
+4. **Parent:** `SampleParentsSearchCriteria` containing the `PermId` of the parent Supplier.
+
+**Reference JSON Snippet:**
+
+```json
+{
+  "@type": "as.dto.sample.search.SampleParentsSearchCriteria",
+  "operator": "AND",
+  "criteria": [
+    {
+      "@type": "as.dto.common.search.PermIdSearchCriteria",
+      "fieldValue": {
+        "@type": "as.dto.common.search.StringEqualToValue",
+        "value": "TARGET_SUPPLIER_PERMID"
+      }
+    }
+  ]
+}
+```
+
 ## 3. Java DTO Architecture & Request Composition
 
 ### 3.1. The Composite Pattern in Search Criteria
@@ -477,6 +509,107 @@ this relationship in the application, the request must explicitly fetch the pare
               "fieldValue": {
                 "@type": "as.dto.common.search.StringEqualToValue",
                 "value": "BESTELLUNG"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "@type": "as.dto.sample.fetchoptions.SampleFetchOptions",
+      "properties": {
+        "@type": "as.dto.property.fetchoptions.PropertyFetchOptions"
+      },
+      "type": {
+        "@type": "as.dto.sample.fetchoptions.SampleTypeFetchOptions"
+      },
+      "parents": {
+        "@type": "as.dto.sample.fetchoptions.SampleFetchOptions",
+        "properties": null,
+        "type": null,
+        "parents": null
+      }
+    }
+  ]
+}
+```
+
+### 4.3.1. Filtering Orders by Supplier (Server-Side)
+
+**Context:**
+To optimize performance and reduce payload size, the API supports filtering orders by their parent
+Supplier directly on the server. This avoids fetching all orders when only a specific subset is needed.
+
+**Mechanism:**
+We use the `SampleParentsSearchCriteria` composite criteria. This criteria restricts the result set
+to samples that are children of a specific parent sample (identified by PermID).
+
+**Structure:**
+* **Root:** `SampleSearchCriteria` (AND)
+* **Filter 1:** Space/Project/Type (Standard Location Filter)
+* **Filter 2:** `SampleParentsSearchCriteria` -> contains `PermIdSearchCriteria` (Target Supplier ID)
+
+**Reference JSON Payload (Filtered by Supplier):**
+
+```json
+{
+  "jsonrpc": "2.0",
+  "method": "searchSamples",
+  "id": "req-orders-filtered-01",
+  "params": [
+    "SESSION_TOKEN",
+    {
+      "@type": "as.dto.sample.search.SampleSearchCriteria",
+      "operator": "AND",
+      "criteria": [
+        {
+          "@type": "as.dto.space.search.SpaceSearchCriteria",
+          "operator": "AND",
+          "criteria": [
+            {
+              "@type": "as.dto.common.search.CodeSearchCriteria",
+              "fieldValue": {
+                "@type": "as.dto.common.search.StringEqualToValue",
+                "value": "LIEFERANTENBEWERTUNG"
+              }
+            }
+          ]
+        },
+        {
+          "@type": "as.dto.project.search.ProjectSearchCriteria",
+          "operator": "AND",
+          "criteria": [
+            {
+              "@type": "as.dto.common.search.CodeSearchCriteria",
+              "fieldValue": {
+                "@type": "as.dto.common.search.StringEqualToValue",
+                "value": "BESTELLUNGEN"
+              }
+            }
+          ]
+        },
+        {
+          "@type": "as.dto.sample.search.SampleTypeSearchCriteria",
+          "operator": "AND",
+          "criteria": [
+            {
+              "@type": "as.dto.common.search.CodeSearchCriteria",
+              "fieldValue": {
+                "@type": "as.dto.common.search.StringEqualToValue",
+                "value": "BESTELLUNG"
+              }
+            }
+          ]
+        },
+        {
+          "@type": "as.dto.sample.search.SampleParentsSearchCriteria",
+          "operator": "AND",
+          "criteria": [
+            {
+              "@type": "as.dto.common.search.PermIdSearchCriteria",
+              "fieldValue": {
+                "@type": "as.dto.common.search.StringEqualToValue",
+                "value": "TARGET_SUPPLIER_PERMID"
               }
             }
           ]
