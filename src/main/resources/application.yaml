@@ -22,3 +22,4 @@ openbis:
   rating:
     project-code: ${OPENBIS_RATING_PROJECT}
     type-code: ${OPENBIS_RATING_TYPE}
+    collection-code: ${OPENBIS_RATING_COLLECTION}

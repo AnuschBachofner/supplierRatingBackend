@@ -94,15 +94,13 @@ public class SupplierMapper {
                 OpenBisUtils.buildIdentifier(properties.defaultSpace(), properties.supplier().projectCode())
         );
 
-        // Safety check for collection code
-        String collectionCode = properties.supplier().collectionCode();
-        if (collectionCode == null || collectionCode.isBlank()) {
-            throw new IllegalArgumentException("Supplier collection must be configured in environment variables (OPENBIS_SUPPLIER_COLLECTION) to create new suppliers.");
-        }
-
         // Experiment Identifier
         ExperimentIdentifier experimentId = new ExperimentIdentifier(
-                OpenBisUtils.buildIdentifier(properties.defaultSpace(), properties.supplier().projectCode(), properties.supplier().collectionCode())
+                OpenBisUtils.buildIdentifier(
+                        properties.defaultSpace(),
+                        properties.supplier().projectCode(),
+                        properties.supplier().collectionCode()
+                )
         );
 
         // Map Properties

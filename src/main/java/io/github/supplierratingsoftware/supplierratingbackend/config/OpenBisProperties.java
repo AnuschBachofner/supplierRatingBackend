@@ -57,8 +57,7 @@ public record OpenBisProperties(
             @NotBlank(message = "The sample type code must not be blank.")
             String typeCode,
 
-            //TODO: set `@NotBlank()` annotation as soon as the write functionality is implemented for all entities.
-            //@NotBlank(message = "The collection code must not be blank.")
+            @NotBlank(message = "The collection code must not be blank.")
             String collectionCode
     ) {
     }

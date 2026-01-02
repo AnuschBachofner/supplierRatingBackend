@@ -103,16 +103,12 @@ public class OrderMapper {
                 OpenBisUtils.buildIdentifier(properties.defaultSpace(), properties.order().projectCode())
         );
 
-        // TODO: When Rating Write is implemented, I will activate the `@NotBlank(message = "The collection code must not be blank.")` Annotation in `OpenBisProperties`
-        // and replace this safety check with the annotation validation
-        // Safety check for collection code (Configuration Validation)
-        String collectionCode = properties.order().collectionCode();
-        if (collectionCode == null || collectionCode.isBlank()) {
-            throw new OpenBisIntegrationException("Order collection must be configured in environment variables (OPENBIS_ORDER_COLLECTION) to create new orders.");
-        }
-
         ExperimentIdentifier experimentId = new ExperimentIdentifier(
-                OpenBisUtils.buildIdentifier(properties.defaultSpace(), properties.order().projectCode(), collectionCode)
+                OpenBisUtils.buildIdentifier(
+                        properties.defaultSpace(),
+                        properties.order().projectCode(),
+                        properties.order().collectionCode()
+                )
         );
 
         // Map Properties

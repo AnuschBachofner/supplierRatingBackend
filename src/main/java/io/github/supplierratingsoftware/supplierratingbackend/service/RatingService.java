@@ -1,14 +1,22 @@
 package io.github.supplierratingsoftware.supplierratingbackend.service;
 
 import io.github.supplierratingsoftware.supplierratingbackend.config.OpenBisProperties;
+import io.github.supplierratingsoftware.supplierratingbackend.dto.api.RatingCreationDto;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.api.RatingDto;
+import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.creation.SampleCreation;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.fetchoptions.PropertyFetchOptions;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.fetchoptions.SampleFetchOptions;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.fetchoptions.SampleTypeFetchOptions;
+import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.id.SamplePermId;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.result.OpenBisSample;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.search.PermIdSearchCriteria;
+import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.search.ProjectSearchCriteria;
+import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.search.SampleParentsSearchCriteria;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.search.SampleSearchCriteria;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.search.SampleTypeSearchCriteria;
+import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.search.SpaceSearchCriteria;
+import io.github.supplierratingsoftware.supplierratingbackend.exception.OpenBisIntegrationException;
+import io.github.supplierratingsoftware.supplierratingbackend.exception.OpenBisResourceNotFoundException;
 import io.github.supplierratingsoftware.supplierratingbackend.integration.openbis.OpenBisClient;
 import io.github.supplierratingsoftware.supplierratingbackend.mapper.RatingMapper;
 import lombok.RequiredArgsConstructor;
@@ -76,5 +84,96 @@ public class RatingService {
 
         // 4. Map & Return
         return Optional.ofNullable(ratingMapper.toApiDto(samples.get(0)));
+    }
+
+    /**
+     * Creates a new rating in OpenBIS based on the provided data.
+     *
+     * @param creationDto The data for the new rating.
+     * @return The created rating DTO (fetched fresh from openBIS to ensure consistency).
+     */
+    public RatingDto createRating(RatingCreationDto creationDto) {
+        log.info("Creating rating for order: {}", creationDto.orderId());
+
+        // Check if Order Exists
+        validateOrderExists(creationDto.orderId());
+
+        // Check 1:1 Rule (Does a rating already exist for this order?)
+        validateNoExistingRating(creationDto.orderId());
+
+        // Create Rating in OpenBIS
+        SampleCreation creation = ratingMapper.toOpenBisCreation(creationDto);
+        List<SamplePermId> createdIds = openBisClient.createSamples(List.of(creation));
+
+        if (createdIds.isEmpty()) throw new OpenBisIntegrationException("Rating creation failed: No PermID returned from openBIS");
+
+        SamplePermId permId = createdIds.getFirst();
+        log.info("Successfully created rating with PermID: {}", permId.permId());
+
+        // Fetch the fresh rating from OpenBIS to ensure consistency and return
+        return fetchFreshRating(permId.permId());
+    }
+
+    /**
+     * Helper method to validate that the given order ID exists in openBIS and that it actually is an Order.
+     *
+     * @param orderId The order ID to validate.
+     * @throws OpenBisResourceNotFoundException if the order does not exist.
+     */
+    private void validateOrderExists(String orderId) {
+        // Validate ID AND Type (must be an Order)
+        SampleSearchCriteria criteria = SampleSearchCriteria.create()
+                .with(PermIdSearchCriteria.withId(orderId))
+                .with(SampleTypeSearchCriteria.withCode(properties.order().typeCode()));
+        SampleFetchOptions fetchOptions = new SampleFetchOptions(
+                new PropertyFetchOptions(),
+                new SampleTypeFetchOptions(),
+                null,
+                null);
+        List<OpenBisSample> results = openBisClient.searchSamples(criteria, fetchOptions);
+        if (results.isEmpty()) throw new OpenBisResourceNotFoundException("Order with PermID " + orderId + " not found.");
+    }
+
+    /**
+     * Helper method to validate that no rating already exists for the given order ID.
+     * Ensures 1:1 rule for rating to order relationship.
+     *
+     * @param orderId The order ID to validate if a rating already exists for.
+     * @throws IllegalArgumentException if a rating already exists for the given order ID.
+     */
+    private void validateNoExistingRating(String orderId) {
+        SampleSearchCriteria criteria = SampleSearchCriteria.create()
+                .with(SpaceSearchCriteria.withCode(properties.defaultSpace()))
+                .with(ProjectSearchCriteria.withCode(properties.rating().projectCode()))
+                .with(SampleTypeSearchCriteria.withCode(properties.rating().typeCode()))
+                .with(SampleParentsSearchCriteria.withParentId(orderId));
+        SampleFetchOptions fetchOptions = new SampleFetchOptions(
+                new PropertyFetchOptions(),
+                new SampleTypeFetchOptions(),
+                null,
+                null
+        );
+        List<OpenBisSample> results = openBisClient.searchSamples(criteria, fetchOptions);
+        if (!results.isEmpty()) throw new IllegalArgumentException("Order " + orderId + " is already rated. Cannot create duplicate rating.");
+    }
+
+    /**
+     * Optimized fetch of fresh rating from OpenBIS using the provided PermID.
+     *
+     * @param permId The PermID of the rating to fetch.
+     * @return The fetched rating DTO.
+     * @throws OpenBisResourceNotFoundException if the rating with the given PermID is not found.
+     */
+    private RatingDto fetchFreshRating(String permId) {
+        SampleSearchCriteria criteria = SampleSearchCriteria.create().with(PermIdSearchCriteria.withId(permId));
+        SampleFetchOptions parentOptions = new SampleFetchOptions(null, null, null, null);
+        SampleFetchOptions fetchOptions = new SampleFetchOptions(
+                new PropertyFetchOptions(),
+                new SampleTypeFetchOptions(),
+                parentOptions,
+                null);
+        List<OpenBisSample> results = openBisClient.searchSamples(criteria, fetchOptions);
+        if (results.isEmpty()) throw new OpenBisResourceNotFoundException("Critical Error: Rating created but could not be retrieved immediately. PermID: " + permId);
+        return ratingMapper.toApiDto(results.getFirst());
     }
 }

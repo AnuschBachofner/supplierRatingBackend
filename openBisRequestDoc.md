@@ -1068,3 +1068,94 @@ example in the JSON payload below).
   ]
 }
 ```
+
+### 6.3. Creating Ratings (Grandchild Entities)
+
+**Context:**
+Ratings represent the leaf nodes of the hierarchy (`Supplier` &rarr; `Order` &rarr; `Rating`).
+Creating a rating involves linking it to a parent **Order**.
+
+* **Method:** `createSamples`
+* **DTO:** `SampleCreation`
+* **Mandatory Identifiers:** Space, Project, Experiment, Type.
+* **Code Generation Strategy:** `BEWERTUNG-<UUID>` (e.g. `BEWERTUNG-7f8e9d...`).
+
+**Assignment Strategy:**
+* **Space:** Configured Default Space
+* **Project:** Configured Rating Project (e.g. `BEWERTUNGEN`)
+* **Experiment:** **Configurable Collection** (e.g. `/LIEFERANTENBEWERTUNG/BEWERTUNGEN/BEWERTUNGEN`).
+  Controlled via `OPENBIS_RATING_COLLECTION`.
+
+**Logic & Calculation:**
+1.  **Hierarchy:** The `parentIds` list must contain the `SamplePermId` of the target Order.
+2.  **Calculated Field:** The `GESAMTBEWERTUNG` (Total Score) is **not** provided by the frontend.
+    The Backend calculates the average of the provided scores (Quality, Cost, Reliability, Availability)
+    and maps it to this property before sending the request to openBIS.
+
+**Property Mapping:**
+
+| API DTO Field        | openBIS Property Code        | Mandatory | logic/values  |
+|:---------------------|:-----------------------------|:----------|:--------------|
+| `quality`            | `QUALITAET`                  | **Yes**   | 1-5           |
+| `qualityReason`      | `GRUND_QUALITAET`            | **Yes**   |               |
+| `cost`               | `KOSTEN`                     | **Yes**   | 1-5           |
+| `costReason`         | `KOSTEN_BEGRUENDUNG`         | **Yes**   |               |
+| `reliability`        | `EINHALTUNG_TERMINE`         | **Yes**   | 1-5           |
+| `reliabilityReason`  | `EINHALTUNG_TERMINE_GRUND`   | **Yes**   |               |
+| `availability`       | `VERFUEGBARKEIT`             | No        | 1-5           |
+| `availabilityReason` | `VERFUEGBARKEIT_BEGRUENDUNG` | No        |               |
+| `ratingComment`      | `KOMMENTAR`                  | No        |               |
+| *(Calculated)*       | `GESAMTBEWERTUNG`            | **Yes**   | Avg of scores |
+
+**Reference JSON Payload:**
+
+```json
+{
+  "jsonrpc": "2.0",
+  "method": "createSamples",
+  "id": "req-create-rating-01",
+  "params": [
+    "SESSION_TOKEN",
+    [
+      {
+        "@type": "as.dto.sample.create.SampleCreation",
+        "spaceId": {
+          "@type": "as.dto.space.id.SpacePermId",
+          "permId": "LIEFERANTENBEWERTUNG"
+        },
+        "projectId": {
+          "@type": "as.dto.project.id.ProjectIdentifier",
+          "identifier": "/LIEFERANTENBEWERTUNG/BEWERTUNGEN"
+        },
+        "experimentId": {
+          "@type": "as.dto.experiment.id.ExperimentIdentifier",
+          "identifier": "/LIEFERANTENBEWERTUNG/BEWERTUNGEN/BEWERTUNGEN"
+        },
+        "typeId": {
+          "@type": "as.dto.entitytype.id.EntityTypePermId",
+          "permId": "BESTELLBEWERTUNG"
+        },
+        "code": "BEWERTUNG-b34c5d6e-...",
+        "parentIds": [
+          {
+            "@type": "as.dto.sample.id.SamplePermId",
+            "permId": "20260102115225220-324"  // <--- LINK TO ORDER
+          }
+        ],
+        "properties": {
+          "QUALITAET": "1",
+          "GRUND_QUALITAET": "Poor quality",
+          "KOSTEN": "5",
+          "KOSTEN_BEGRUENDUNG": "Free of charge",
+          "EINHALTUNG_TERMINE": "5",
+          "EINHALTUNG_TERMINE_GRUND": "On time",
+          "VERFUEGBARKEIT": "1",
+          "VERFUEGBARKEIT_BEGRUENDUNG": "Contact Person was not available",
+          "GESAMTBEWERTUNG": "3.0",
+          "KOMMENTAR": "Mixed experience"
+        }
+      }
+    ]
+  ]
+}
+```
