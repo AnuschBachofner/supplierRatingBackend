@@ -1159,3 +1159,44 @@ Creating a rating involves linking it to a parent **Order**.
   ]
 }
 ```
+
+## 7. Update Operations
+
+### 7.1. Updating Suppliers
+
+**Context:**
+To update existing entities (e.g., when a supplier moves to a new address), the `updateSamples` method is used.
+This operation allows modifying specific properties without recreating the sample.
+
+* **Method:** `updateSamples`
+* **DTO:** `SampleUpdate` (`as.dto.sample.update.SampleUpdate`)
+* **Identifier:** The `sampleId` (PermID) is mandatory to identify the target.
+
+**Behavior:**
+* **Partial Update:** Only the properties included in the `properties` map are updated. Omitted properties remain unchanged.
+
+**Reference JSON Payload:**
+
+```json
+{
+  "jsonrpc": "2.0",
+  "method": "updateSamples",
+  "id": "req-update-supplier-01",
+  "params": [
+    "SESSION_TOKEN",
+    [
+      {
+        "@type": "as.dto.sample.update.SampleUpdate",
+        "sampleId": {
+          "@type": "as.dto.sample.id.SamplePermId",
+          "permId": "20251215211254413-199" // Target Supplier PermID
+        },
+        "properties": {
+          "LIEFERANTEN_ORT": "Bern",
+          "LIEFERANTEN_POSTLEITZAHL": "3000"
+        }
+      }
+    ]
+  ]
+}
+```

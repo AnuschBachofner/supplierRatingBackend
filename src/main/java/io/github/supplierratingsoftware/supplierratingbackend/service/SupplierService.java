@@ -5,6 +5,7 @@ import io.github.supplierratingsoftware.supplierratingbackend.constant.openbis.O
 import io.github.supplierratingsoftware.supplierratingbackend.dto.api.RatingStatsDto;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.api.SupplierCreationDto;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.api.SupplierDto;
+import io.github.supplierratingsoftware.supplierratingbackend.dto.api.SupplierUpdateDto;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.creation.SampleCreation;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.fetchoptions.PropertyFetchOptions;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.fetchoptions.SampleFetchOptions;
@@ -12,7 +13,9 @@ import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.fetcho
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.id.SamplePermId;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.result.OpenBisSample;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.search.*;
+import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.update.SampleUpdate;
 import io.github.supplierratingsoftware.supplierratingbackend.exception.OpenBisIntegrationException;
+import io.github.supplierratingsoftware.supplierratingbackend.exception.OpenBisResourceNotFoundException;
 import io.github.supplierratingsoftware.supplierratingbackend.integration.openbis.OpenBisClient;
 import io.github.supplierratingsoftware.supplierratingbackend.mapper.SupplierMapper;
 import io.github.supplierratingsoftware.supplierratingbackend.util.OpenBisUtils;
@@ -119,6 +122,42 @@ public class SupplierService {
 
         // Fetch the newly created supplier to return full details
         return fetchSupplierMetadataByPermId(permId.permId());
+    }
+
+    /**
+     * Updates the master data of an existing supplier.
+     *
+     * @param permId The openBIS PermID of the supplier.
+     * @param updateDto The update data.
+     * @return The updated supplier details.
+     */
+    public SupplierDto updateSupplier(String permId, SupplierUpdateDto updateDto) {
+        log.info("Updating supplier with PermID: {}", permId);
+
+        // Validation: Check if the supplier exists AND is actually a supplier
+        SampleSearchCriteria criteria = SampleSearchCriteria.create()
+                .with(PermIdSearchCriteria.withId(permId))
+                .with(SampleTypeSearchCriteria.withCode(properties.supplier().typeCode()));
+
+        SampleFetchOptions fetchOptions = new SampleFetchOptions(
+                new PropertyFetchOptions(),
+                new SampleTypeFetchOptions(),
+                null,
+                null);
+
+        List<OpenBisSample> existingSamples = openBisClient.searchSamples(criteria, fetchOptions);
+        if (existingSamples.isEmpty()) {
+            throw new OpenBisResourceNotFoundException("Supplier with PermID " + permId + " not found.");
+        }
+
+        // Map to OpenBIS Update
+        SampleUpdate update = supplierMapper.toOpenBisUpdate(permId, updateDto);
+
+        // Execute Update
+        openBisClient.updateSamples(List.of(update));
+
+        // Fetch and return the updated supplier (to show the changes in response)
+        return fetchSupplierMetadataByPermId(permId);
     }
 
     /**

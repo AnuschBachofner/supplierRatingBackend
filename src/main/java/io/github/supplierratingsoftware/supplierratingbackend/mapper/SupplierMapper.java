@@ -5,12 +5,15 @@ import io.github.supplierratingsoftware.supplierratingbackend.constant.openbis.O
 import io.github.supplierratingsoftware.supplierratingbackend.dto.api.RatingStatsDto;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.api.SupplierCreationDto;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.api.SupplierDto;
+import io.github.supplierratingsoftware.supplierratingbackend.dto.api.SupplierUpdateDto;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.creation.SampleCreation;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.id.EntityTypePermId;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.id.ExperimentIdentifier;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.id.ProjectIdentifier;
+import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.id.SamplePermId;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.id.SpacePermId;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.result.OpenBisSample;
+import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.update.SampleUpdate;
 import io.github.supplierratingsoftware.supplierratingbackend.util.OpenBisUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -108,20 +111,20 @@ public class SupplierMapper {
 
         // Mandatory fields
         props.put(OpenBisSchemaConstants.NAME_SUPPLIER_PROPERTY, dto.name());
-        props.put(OpenBisSchemaConstants.CUSTOMER_NUMBER_SUPPLIER_PROPERTY, dto.customerNumber());
-        props.put(OpenBisSchemaConstants.STREET_SUPPLIER_PROPERTY, dto.street());
+        props.put(OpenBisSchemaConstants.COUNTRY_SUPPLIER_PROPERTY, dto.country());
         props.put(OpenBisSchemaConstants.ZIP_CODE_SUPPLIER_PROPERTY, dto.zipCode());
         props.put(OpenBisSchemaConstants.CITY_SUPPLIER_PROPERTY, dto.city());
-        props.put(OpenBisSchemaConstants.COUNTRY_SUPPLIER_PROPERTY, dto.country());
-        props.put(OpenBisSchemaConstants.VAT_ID_SUPPLIER_PROPERTY, dto.vatId());
-        props.put(OpenBisSchemaConstants.CONDITIONS_SUPPLIER_PROPERTY, dto.conditions());
 
         // Optional fields
+        OpenBisUtils.putIfNotNull(props, OpenBisSchemaConstants.CUSTOMER_NUMBER_SUPPLIER_PROPERTY, dto.customerNumber());
         OpenBisUtils.putIfNotNull(props, OpenBisSchemaConstants.ADDITION_SUPPLIER_PROPERTY, dto.addition());
+        OpenBisUtils.putIfNotNull(props, OpenBisSchemaConstants.STREET_SUPPLIER_PROPERTY, dto.street());
         OpenBisUtils.putIfNotNull(props, OpenBisSchemaConstants.PO_BOX_SUPPLIER_PROPERTY, dto.poBox());
         OpenBisUtils.putIfNotNull(props, OpenBisSchemaConstants.WEBSITE_SUPPLIER_PROPERTY, dto.website());
         OpenBisUtils.putIfNotNull(props, OpenBisSchemaConstants.EMAIL_SUPPLIER_PROPERTY, dto.email());
         OpenBisUtils.putIfNotNull(props, OpenBisSchemaConstants.PHONE_NUMBER_SUPPLIER_PROPERTY, dto.phoneNumber());
+        OpenBisUtils.putIfNotNull(props, OpenBisSchemaConstants.VAT_ID_SUPPLIER_PROPERTY, dto.vatId());
+        OpenBisUtils.putIfNotNull(props, OpenBisSchemaConstants.CONDITIONS_SUPPLIER_PROPERTY, dto.conditions());
         OpenBisUtils.putIfNotNull(props, OpenBisSchemaConstants.CUSTOMER_INFO_SUPPLIER_PROPERTY, dto.customerInfo());
 
         return new SampleCreation(
@@ -133,5 +136,42 @@ public class SupplierMapper {
                 props,
                 null // No parent samples needed for suppliers
         );
+    }
+
+    /**
+     * Converts a SupplierUpdateDto into an openBIS SampleUpdate object.
+     * (WRITE Direction)
+     *
+     * @param permId The stable identifier (PermID) of the supplier to update.
+     * @param dto    The update data containing mutable master data.
+     * @return The openBIS update payload.
+     */
+    public SampleUpdate toOpenBisUpdate(String permId, SupplierUpdateDto dto) {
+        // Identifier
+        SamplePermId sampleId = new SamplePermId(permId);
+
+        // Map Properties
+        Map<String, String> props = new HashMap<>();
+
+        // Mandatory Fields (enforced by @NotBlank in DTO)
+        props.put(OpenBisSchemaConstants.NAME_SUPPLIER_PROPERTY, dto.name());
+        props.put(OpenBisSchemaConstants.COUNTRY_SUPPLIER_PROPERTY, dto.country());
+        props.put(OpenBisSchemaConstants.ZIP_CODE_SUPPLIER_PROPERTY, dto.zipCode());
+        props.put(OpenBisSchemaConstants.CITY_SUPPLIER_PROPERTY, dto.city());
+
+        // Optional Fields
+        // Using putIfNotNull means `null` values in DTO are ignored (field remains unchanged in OpenBIS).
+        OpenBisUtils.putIfNotNull(props, OpenBisSchemaConstants.CUSTOMER_NUMBER_SUPPLIER_PROPERTY, dto.customerNumber());
+        OpenBisUtils.putIfNotNull(props, OpenBisSchemaConstants.ADDITION_SUPPLIER_PROPERTY, dto.addition());
+        OpenBisUtils.putIfNotNull(props, OpenBisSchemaConstants.STREET_SUPPLIER_PROPERTY, dto.street());
+        OpenBisUtils.putIfNotNull(props, OpenBisSchemaConstants.PO_BOX_SUPPLIER_PROPERTY, dto.poBox());
+        OpenBisUtils.putIfNotNull(props, OpenBisSchemaConstants.WEBSITE_SUPPLIER_PROPERTY, dto.website());
+        OpenBisUtils.putIfNotNull(props, OpenBisSchemaConstants.EMAIL_SUPPLIER_PROPERTY, dto.email());
+        OpenBisUtils.putIfNotNull(props, OpenBisSchemaConstants.PHONE_NUMBER_SUPPLIER_PROPERTY, dto.phoneNumber());
+        OpenBisUtils.putIfNotNull(props, OpenBisSchemaConstants.VAT_ID_SUPPLIER_PROPERTY, dto.vatId());
+        OpenBisUtils.putIfNotNull(props, OpenBisSchemaConstants.CONDITIONS_SUPPLIER_PROPERTY, dto.conditions());
+        OpenBisUtils.putIfNotNull(props, OpenBisSchemaConstants.CUSTOMER_INFO_SUPPLIER_PROPERTY, dto.customerInfo());
+
+        return new SampleUpdate(sampleId, props);
     }
 }

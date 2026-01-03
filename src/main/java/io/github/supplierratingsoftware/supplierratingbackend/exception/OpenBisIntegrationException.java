@@ -20,4 +20,13 @@ public class OpenBisIntegrationException extends RuntimeException {
     public OpenBisIntegrationException(String message) {
         super(message);
     }
+
+    /**
+     * Constructor for OpenBisIntegrationException with cause.
+     * @param message Detailed error message describing the failure.
+     * @param cause The underlying cause of the exception.
+     */
+    public OpenBisIntegrationException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

@@ -2,6 +2,7 @@ package io.github.supplierratingsoftware.supplierratingbackend.controller;
 
 import io.github.supplierratingsoftware.supplierratingbackend.dto.api.SupplierCreationDto;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.api.SupplierDto;
+import io.github.supplierratingsoftware.supplierratingbackend.dto.api.SupplierUpdateDto;
 import io.github.supplierratingsoftware.supplierratingbackend.service.SupplierService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -46,6 +47,22 @@ public class SupplierController {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(createdSupplier);
+    }
+
+    /**
+     * Updates an existing supplier.
+     *
+     * @param id The openBIS PermID of the supplier.
+     * @param updateDto The update payload.
+     * @return The updated supplier details.
+     */
+    @PutMapping("/{id}")
+    public ResponseEntity<SupplierDto> updateSupplier(
+            @PathVariable String id,
+            @RequestBody @Valid SupplierUpdateDto updateDto) {
+
+        SupplierDto updatedSupplier = supplierService.updateSupplier(id, updateDto);
+        return ResponseEntity.ok(updatedSupplier);
     }
 
 }

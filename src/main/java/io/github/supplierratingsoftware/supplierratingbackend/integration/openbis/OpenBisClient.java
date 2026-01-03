@@ -10,8 +10,8 @@ import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.id.Sam
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.result.OpenBisSample;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.result.OpenBisSearchResult;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.search.SampleSearchCriteria;
+import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.update.SampleUpdate;
 import io.github.supplierratingsoftware.supplierratingbackend.exception.OpenBisIntegrationException;
-import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.ParameterizedTypeReference;
@@ -42,11 +42,6 @@ public class OpenBisClient {
     private final RestClient restClient;
     private final OpenBisProperties properties;
 
-    // NOTE: This is a temporary solution until the final login/token process is implemented.
-    @Getter
-    private String sessionToken; // NOTE: since this is a temporary solution, we don't yet expect multi-threaded access.
-                                 // otherwise we would need to synchronize access to this field.
-
     /**
      * Constructs an instance of OpenBisClient with the specified RestClient builder and OpenBisProperties.
      *
@@ -70,6 +65,9 @@ public class OpenBisClient {
     }
 
     /**
+     * NOTE: The Login process is currently a temporary solution until the final login/token process is implemented.
+     * TODO: Implement a final login/token process and replace the temporary solution.
+     * TODO: This would involve a more secure and robust authentication mechanism from the REST-API of this application to OpenBIS.
      * Logs in to the OpenBIS system using the configured API URL, username, and password.
      * Sends an HTTP request to the OpenBIS API and retrieves a session token upon successful authentication.
      *
@@ -86,21 +84,32 @@ public class OpenBisClient {
         // Create a ParameterizedTypeReference for the response type
         // This is needed because the response type is generic
         // We expect a JsonRpcResponse<String> where the String is the session token
-        ParameterizedTypeReference<JsonRpcResponse<String>> responseType = new ParameterizedTypeReference<>() {
-        };
+        ParameterizedTypeReference<JsonRpcResponse<String>> responseType = new ParameterizedTypeReference<>() {};
 
-        // Send the login request and get the session token as a response (String)
-        JsonRpcResponse<String> response = restClient.post().body(request).retrieve().body(responseType);
-
-        if (response != null && !response.hasError() && response.result() != null) {
-            sessionToken = response.result();
-            log.info("Successfully logged in to OpenBIS");
-            log.info("Session token: {}", sessionToken);
-            return sessionToken;
-        } else {
-            logResponseErrors("Failed to log in to OpenBIS", response);
-            throw new RuntimeException("Failed to log in to OpenBIS");
+        // Send the login request
+        JsonRpcResponse<String> response;
+        try {
+            // Send the login request and get the session token as a response (String)
+            response = restClient.post().body(request).retrieve().body(responseType);
+        } catch (Exception e) {
+            log.error("Login request failed: {}", e.getMessage());
+            throw new OpenBisIntegrationException("Login request failed: " + e.getMessage(), e);
         }
+
+        // Validate response
+        validateResponse(response, "Failed to log in to OpenBIS");
+
+        // Check for null session token
+        if (response.result() == null) {
+            log.error("Login request returned `null` session token");
+            throw new OpenBisIntegrationException("Login request returned `null` session token");
+        }
+
+        // Success, return session token
+        String sessionToken = response.result();
+        log.info("Successfully logged in to OpenBIS");
+        log.debug("Session token: {}", sessionToken);
+        return sessionToken;
     }
 
     /**
@@ -112,7 +121,7 @@ public class OpenBisClient {
      */
     public List<OpenBisSample> searchSamples(SampleSearchCriteria criteria, SampleFetchOptions fetchOptions) {
         // Get the session token from the client
-        String sessionToken = (this.sessionToken == null) ? login() : this.sessionToken;
+        String sessionToken = login();
 
         // Create the search request payload
         // Order of parameters in V3 API: [sessionToken, criteria, fetchOptions]
@@ -121,22 +130,32 @@ public class OpenBisClient {
         // Define the return type of the search request
         // We expect a JsonRpcResponse<OpenBisSearchResult<OpenBisSample>>
         // where the OpenBisSearchResult contains a list of OpenBisSample objects
-        ParameterizedTypeReference<JsonRpcResponse<OpenBisSearchResult<OpenBisSample>>> responseType = new ParameterizedTypeReference<>() {
-        };
+        ParameterizedTypeReference<JsonRpcResponse<OpenBisSearchResult<OpenBisSample>>> responseType = new ParameterizedTypeReference<>() {};
 
-        // Send the search request and get the search result as a response (OpenBisSearchResult<OpenBisSample>)
-        JsonRpcResponse<OpenBisSearchResult<OpenBisSample>> response = restClient.post()
-                .body(request)
-                .retrieve()
-                .body(responseType);
-
-        // Unpack the search result and return the list of samples and handle any errors
-        if (response != null && !response.hasError() && response.result() != null) {
-            return response.result().objects();
-        } else {
-            logResponseErrors("Failed to search for samples", response);
-            throw new RuntimeException("Failed to search for samples");
+        // Send the search request
+        JsonRpcResponse<OpenBisSearchResult<OpenBisSample>> response;
+        try {
+            // Send the search request and get the search result as a response (OpenBisSearchResult<OpenBisSample>)
+            response = restClient.post()
+                    .body(request)
+                    .retrieve()
+                    .body(responseType);
+        } catch (Exception e) {
+            log.error("Search request failed: {}", e.getMessage());
+            throw new OpenBisIntegrationException("Search request failed: " + e.getMessage(), e);
         }
+
+        // Validate response
+        validateResponse(response, "Failed to search for samples");
+
+        // Ensure response result is not null
+        if (response.result() == null) {
+            log.error("Search returned a `null` result");
+            throw new OpenBisIntegrationException("Search returned a `null` result");
+        }
+
+        // Success, return the list of samples
+        return response.result().objects();
     }
 
     /**
@@ -154,43 +173,93 @@ public class OpenBisClient {
         }
 
         // Safety check: Ensure we are logged in
-        String currentToken = (this.sessionToken == null) ? login() : this.sessionToken;
+        String sessionToken = login();
 
         // Prepare Request
-        List<Object> params = List.of(currentToken, samples);
+        List<Object> params = List.of(sessionToken, samples);
         JsonRpcRequest request = new JsonRpcRequest(OpenBisJsonConstants.CREATE_SAMPLE_METHOD_NAME, params);
 
         // Define Response Type
-        ParameterizedTypeReference<JsonRpcResponse<List<SamplePermId>>> responseType =
-                new ParameterizedTypeReference<>() {};
+        ParameterizedTypeReference<JsonRpcResponse<List<SamplePermId>>> responseType = new ParameterizedTypeReference<>() {};
 
         // Execute Request
-        JsonRpcResponse<List<SamplePermId>> response = restClient.post()
-                .body(request)
-                .retrieve()
-                .body(responseType);
-
-        // Handle Response
-        if (response != null && !response.hasError() && response.result() != null) {
-            return response.result();
-        } else {
-            logResponseErrors("Failed to create samples", response);
-            String errorDetail = (response != null && response.error() != null) ? response.error().toString() : "Unknown Error";
-            throw new OpenBisIntegrationException("Failed to create samples in openBIS: Details: " + errorDetail);
+        JsonRpcResponse<List<SamplePermId>> response;
+        try {
+            response = restClient.post()
+                    .body(request)
+                    .retrieve()
+                    .body(responseType);
+        } catch (Exception e) {
+            log.error("Creation request failed: {}", e.getMessage());
+            throw new OpenBisIntegrationException("Creation request failed: " + e.getMessage(), e);
         }
+
+        // Validate response
+        validateResponse(response, "Failed to create samples");
+
+        // Ensure response result is not null
+        if (response.result() == null) {
+            log.error("Creation returned a `null` result");
+            throw new OpenBisIntegrationException("Creation returned a `null` result");
+        }
+
+        // Success, return the list of sample perm IDs of the created sample
+        return response.result();
     }
 
     /**
-     * Logs an error message if the specified response contains an error.
-     * (Helper method for error logging)
+     * Updates existing samples in OpenBIS.
      *
-     * @param message  The error message to log.
-     * @param response The response to check for errors.
+     * @param updates The list of update objects.
      */
-    private void logResponseErrors(String message, JsonRpcResponse<?> response) {
-        if (response != null && response.hasError()) {
-            log.error(message);
-            log.error("Response: {}", response.error());
+    public void updateSamples(List<SampleUpdate> updates) {
+        if (updates == null || updates.isEmpty()) return;
+        String sessionToken = login();
+
+        // Create the update request payload
+        List<Object> params = List.of(sessionToken, updates);
+        JsonRpcRequest request = new JsonRpcRequest(OpenBisJsonConstants.UPDATE_SAMPLE_METHOD_NAME, params);
+
+        // Define Response Type (OpenBIS returns "result": null for update requests)
+        ParameterizedTypeReference<JsonRpcResponse<Void>> responseType = new ParameterizedTypeReference<>() {};
+
+        // Execute Request
+        JsonRpcResponse<Void> response;
+        try {
+            response = restClient.post()
+                    .body(request)
+                    .retrieve()
+                    .body(responseType);
+        } catch (Exception e) {
+            log.error("Update request failed: {}", e.getMessage());
+            throw new OpenBisIntegrationException("Update request failed: " + e.getMessage(), e);
+        }
+
+        // Validate response
+        validateResponse(response, "Failed to update samples");
+    }
+
+    /**
+     * Validates that the response is not null and does not contain an OpenBIS error.
+     *
+     * @param response      The response to validate.
+     * @param errorMessage  The error message to use if validation fails.
+     * @throws OpenBisIntegrationException if the validation fails.
+     */
+    private void validateResponse(JsonRpcResponse<?> response, String errorMessage) {
+        if (response == null) {
+            log.error("{}: Received null response from OpenBIS", errorMessage);
+            throw new OpenBisIntegrationException(errorMessage + ": Received null response from OpenBIS");
+        }
+
+        if (response.hasError()) {
+            if (response.error() != null) {
+                log.error("Response: {}", response.error());
+            }
+            String errorDetail = (response.error() != null) ? response.error().toString() : "Unknown Error";
+            log.error(errorMessage);
+            log.error("Error in OpenBIS Response. Details: {}", errorDetail);
+            throw new OpenBisIntegrationException(errorMessage + ": " + errorDetail);
         }
     }
 }

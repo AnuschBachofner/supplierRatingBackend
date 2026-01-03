@@ -36,6 +36,9 @@ public final class OpenBisJsonConstants {
     public static final String EXPERIMENT_IDENTIFIER = "as.dto.experiment.id.ExperimentIdentifier";
     public static final String SAMPLE_PERM_ID = "as.dto.sample.id.SamplePermId"; // For responses
 
+    // - Update Types
+    public static final String SAMPLE_UPDATE = "as.dto.sample.update.SampleUpdate";
+
     // JSON Property Keys
     public static final String TYPE_JSON_PROPERTY_KEY = "@type";
     public static final String ID_JSON_PROPERTY_KEY = "@id";
@@ -47,6 +50,7 @@ public final class OpenBisJsonConstants {
     public static final String LOGIN_METHOD_NAME = "login";
     public static final String SEARCH_SAMPLES_METHOD_NAME = "searchSamples";
     public static final String CREATE_SAMPLE_METHOD_NAME = "createSamples";
+    public static final String UPDATE_SAMPLE_METHOD_NAME = "updateSamples";
 
     /**
      * Private constructor to prevent instantiation of utility class.

@@ -26,7 +26,7 @@ import jakarta.validation.constraints.NotBlank;
  * </pre>
  *
  * @param name              The supplier's name.
- * @param customerNumber    The customer number of the supplier.
+ * @param customerNumber    The customer number at that supplier.
  * @param addition          The supplier's additional address information.
  * @param street            The supplier's street.
  * @param poBox             The supplier's PO Box.
@@ -44,13 +44,11 @@ public record SupplierCreationDto(
         @NotBlank(message = "Name is required")
         String name,
 
-        @NotBlank(message = "Customer number is required")
-        String customerNumber,
+        String customerNumber, // Optional
 
         String addition, // Optional
 
-        @NotBlank(message = "Street is required")
-        String street,
+        String street, // Optional
 
         String poBox, // Optional
 
@@ -69,11 +67,9 @@ public record SupplierCreationDto(
 
         String phoneNumber, // Optional
 
-        @NotBlank(message = "VAT ID is required")
-        String vatId,
+        String vatId, // Optional
 
-        @NotBlank(message = "Conditions are required")
-        String conditions,
+        String conditions, // Optional
 
         String customerInfo // Optional
 ) {
