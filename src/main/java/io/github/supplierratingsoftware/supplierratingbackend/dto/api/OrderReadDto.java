@@ -50,7 +50,7 @@ package io.github.supplierratingsoftware.supplierratingbackend.dto.api;
  * @param supplierName  The name of the supplier (Parent of the order).
  * @param ratingId      The openBIS permID of the rating (Children of the order).
  */
-public record OrderDto(
+public record OrderReadDto(
         String name,
         String mainCategory,
         String subCategory,

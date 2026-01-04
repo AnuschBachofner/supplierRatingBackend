@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 
 /**
- * Represents an order creation request.
+ * Represents an update request for an Order.
  *
  * <p><strong>JSON Example:</strong></p>
  * <pre>
@@ -24,10 +24,12 @@ import jakarta.validation.constraints.Pattern;
  *         "orderedBy": "Jane Smith",
  *         "orderDate": "2023-01-01",
  *         "deliveryDate": "2023-01-15",
- *         "orderComment": "Please ship to warehouse A",
- *         "supplierId": "SUP-12345"
+ *         "orderComment": "Please ship to warehouse A"
  *     }
  * </pre>
+ *
+ * <p><strong>No supplier update:</strong>
+ * The supplier relation cannot be changed, so {@code supplierId} is excluded from this DTO.</p>
  *
  * @param name          The name/short description of the order (Mandatory).
  * @param mainCategory  The main category (e.g. "Beschaffung") (Mandatory).
@@ -43,9 +45,8 @@ import jakarta.validation.constraints.Pattern;
  * @param orderDate     The date of the order (YYYY-MM-DD) (Mandatory).
  * @param deliveryDate  The delivery date (YYYY-MM-DD).
  * @param orderComment  General comment.
- * @param supplierId    The PermID of the supplier this order belongs to (Mandatory).
  */
-public record OrderCreationDto(
+public record OrderUpdateDto(
         @NotBlank(message = "Name is required")
         String name,
 
@@ -83,9 +84,6 @@ public record OrderCreationDto(
         @Pattern(regexp = ValidationConstants.DATE_REGEX, message = ValidationConstants.DATE_MESSAGE)
         String deliveryDate, // optional
 
-        String orderComment, // optional
-
-        @NotBlank(message = "Supplier ID is required")
-        String supplierId
+        String orderComment // optional
 ) {
 }

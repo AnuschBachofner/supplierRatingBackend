@@ -2,7 +2,8 @@ package io.github.supplierratingsoftware.supplierratingbackend.service;
 
 import io.github.supplierratingsoftware.supplierratingbackend.config.OpenBisProperties;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.api.OrderCreationDto;
-import io.github.supplierratingsoftware.supplierratingbackend.dto.api.OrderDto;
+import io.github.supplierratingsoftware.supplierratingbackend.dto.api.OrderReadDto;
+import io.github.supplierratingsoftware.supplierratingbackend.dto.api.OrderUpdateDto;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.creation.SampleCreation;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.fetchoptions.PropertyFetchOptions;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.fetchoptions.SampleFetchOptions;
@@ -15,6 +16,7 @@ import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.search
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.search.SampleSearchCriteria;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.search.SampleTypeSearchCriteria;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.search.SpaceSearchCriteria;
+import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.update.SampleUpdate;
 import io.github.supplierratingsoftware.supplierratingbackend.exception.OpenBisIntegrationException;
 import io.github.supplierratingsoftware.supplierratingbackend.exception.OpenBisResourceNotFoundException;
 import io.github.supplierratingsoftware.supplierratingbackend.integration.openbis.OpenBisClient;
@@ -54,9 +56,9 @@ public class OrderService {
      * </p>
      *
      * @param supplierId (Optional) The PermID of the supplier to filter by. If null or blank, returns all orders.
-     * @return A list of {@link OrderDto} objects representing all orders.
+     * @return A list of {@link OrderReadDto} objects representing all orders.
      */
-    public List<OrderDto> getAllOrders(String supplierId) {
+    public List<OrderReadDto> getAllOrders(String supplierId) {
         SampleSearchCriteria criteria = SampleSearchCriteria.create()
                 .with(SpaceSearchCriteria.withCode(properties.defaultSpace()))
                 .with(ProjectSearchCriteria.withCode(properties.order().projectCode()))
@@ -84,7 +86,7 @@ public class OrderService {
      * @param creationDto The data for the new order.
      * @return The created order DTO (fetched fresh from openBIS to ensure consistency).
      */
-    public OrderDto createOrder(OrderCreationDto creationDto) {
+    public OrderReadDto createOrder(OrderCreationDto creationDto) {
         log.info("Creating a new order '{}' for supplier '{}'", creationDto.name(), creationDto.supplierId());
 
         // Validate Supplier Existence
@@ -105,6 +107,54 @@ public class OrderService {
     }
 
     /**
+     * Updates an existing order in OpenBIS based on the provided data.
+     *
+     * @param permId    The PermID of the order to update.
+     * @param updateDto The update data for the order.
+     * @return The updated order details.
+     * @throws OpenBisResourceNotFoundException if the order does not exist.
+     */
+    public OrderReadDto updateOrder(String permId, OrderUpdateDto updateDto) {
+        log.info("Updating order with PermID: {}", permId);
+
+        // Validate Order Existence
+        checkOrderExists(permId);
+
+        // Map to OpenBIS Update object
+        SampleUpdate update = orderMapper.toOpenBisUpdate(permId, updateDto);
+
+        // Execute Update via Client
+        openBisClient.updateSamples(List.of(update));
+
+        // Fetch and return fresh order
+        return fetchFreshOrder(permId);
+    }
+
+    /**
+     * Checks if an order with the given PermID exists in OpenBIS.
+     *
+     * @param permId The PermID of the order to check.
+     * @throws OpenBisResourceNotFoundException if the order does not exist.
+     */
+    private void checkOrderExists(String permId) {
+        SampleSearchCriteria criteria = SampleSearchCriteria.create()
+                .with(PermIdSearchCriteria.withId(permId))
+                .with(SampleTypeSearchCriteria.withCode(properties.order().typeCode()));
+
+        SampleFetchOptions fetchOptions = new SampleFetchOptions(
+                new PropertyFetchOptions(),
+                new SampleTypeFetchOptions(),
+                null,
+                null
+        );
+
+        List<OpenBisSample> results = openBisClient.searchSamples(criteria, fetchOptions);
+        if (results.isEmpty()) {
+            throw new OpenBisResourceNotFoundException("Order with PermID " + permId + " not found.");
+        }
+    }
+
+    /**
      * Optimized fetch of fresh order from OpenBIS using the provided PermID.
      * <p>
      * Does NOT fetch children (ratings) as they don't yet exist.
@@ -118,7 +168,7 @@ public class OrderService {
      * @param permID The PermID of the order to fetch.
      * @return The fetched order DTO.
      */
-    private OrderDto fetchFreshOrder(String permID) {
+    private OrderReadDto fetchFreshOrder(String permID) {
         SampleSearchCriteria criteria = SampleSearchCriteria.create().with(PermIdSearchCriteria.withId(permID));
         SampleFetchOptions fetchOptions = new SampleFetchOptions(
                 new PropertyFetchOptions(),
@@ -138,6 +188,12 @@ public class OrderService {
         return orderMapper.toApiDto(results.getFirst());
     }
 
+    /**
+     * Checks if a supplier with the given PermID exists in OpenBIS.
+     *
+     * @param supplierId The PermID of the supplier to check.
+     * @throws OpenBisResourceNotFoundException if the supplier does not exist.
+     */
     private void checkSupplierExists(String supplierId) {
         SampleSearchCriteria criteria = SampleSearchCriteria.create()
                 .with(PermIdSearchCriteria.withId(supplierId))

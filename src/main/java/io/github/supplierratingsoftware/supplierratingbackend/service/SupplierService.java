@@ -4,7 +4,7 @@ import io.github.supplierratingsoftware.supplierratingbackend.config.OpenBisProp
 import io.github.supplierratingsoftware.supplierratingbackend.constant.openbis.OpenBisSchemaConstants;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.api.RatingStatsDto;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.api.SupplierCreationDto;
-import io.github.supplierratingsoftware.supplierratingbackend.dto.api.SupplierDto;
+import io.github.supplierratingsoftware.supplierratingbackend.dto.api.SupplierReadDto;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.api.SupplierUpdateDto;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.creation.SampleCreation;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.fetchoptions.PropertyFetchOptions;
@@ -54,9 +54,9 @@ public class SupplierService {
      * including their child orders and ratings to calculate aggregates.
      * </p>
      *
-     * @return A list of {@link SupplierDto} objects representing all available suppliers.
+     * @return A list of {@link SupplierReadDto} objects representing all available suppliers.
      */
-    public List<SupplierDto> getAllSuppliers() {
+    public List<SupplierReadDto> getAllSuppliers() {
         // 1. Define Hierarchy Fetch Options (Recursive Fetching)
 
         // Level 2: Ratings (Children of Orders)
@@ -107,7 +107,7 @@ public class SupplierService {
      * @param creationDto The data for the new supplier.
      * @return The DTO of the newly created supplier (fetched fresh from openBIS to ensure consistency).
      */
-    public SupplierDto createSupplier(SupplierCreationDto creationDto) {
+    public SupplierReadDto createSupplier(SupplierCreationDto creationDto) {
         log.info("Creating a new supplier {}", creationDto.name());
 
         // Map API DTO to openBIS Creation DTO
@@ -131,10 +131,29 @@ public class SupplierService {
      * @param updateDto The update data.
      * @return The updated supplier details.
      */
-    public SupplierDto updateSupplier(String permId, SupplierUpdateDto updateDto) {
+    public SupplierReadDto updateSupplier(String permId, SupplierUpdateDto updateDto) {
         log.info("Updating supplier with PermID: {}", permId);
 
         // Validation: Check if the supplier exists AND is actually a supplier
+        checkSupplierExists(permId);
+
+        // Map to OpenBIS Update
+        SampleUpdate update = supplierMapper.toOpenBisUpdate(permId, updateDto);
+
+        // Execute Update
+        openBisClient.updateSamples(List.of(update));
+
+        // Fetch and return the updated supplier (to show the changes in response)
+        return fetchSupplierMetadataByPermId(permId);
+    }
+
+    /**
+     * Checks if a supplier with the given PermID exists in openBIS.
+     *
+     * @param permId The PermID of the supplier to check.
+     * @throws OpenBisResourceNotFoundException if the supplier does not exist.
+     */
+    private void checkSupplierExists(String permId) {
         SampleSearchCriteria criteria = SampleSearchCriteria.create()
                 .with(PermIdSearchCriteria.withId(permId))
                 .with(SampleTypeSearchCriteria.withCode(properties.supplier().typeCode()));
@@ -149,15 +168,6 @@ public class SupplierService {
         if (existingSamples.isEmpty()) {
             throw new OpenBisResourceNotFoundException("Supplier with PermID " + permId + " not found.");
         }
-
-        // Map to OpenBIS Update
-        SampleUpdate update = supplierMapper.toOpenBisUpdate(permId, updateDto);
-
-        // Execute Update
-        openBisClient.updateSamples(List.of(update));
-
-        // Fetch and return the updated supplier (to show the changes in response)
-        return fetchSupplierMetadataByPermId(permId);
     }
 
     /**
@@ -285,9 +295,9 @@ public class SupplierService {
      * </p>
      *
      * @param permId The PermID of the supplier to fetch.
-     * @return The mapped SupplierDto with null stats.
+     * @return The mapped SupplierReadDto with null stats.
      */
-    private SupplierDto fetchSupplierMetadataByPermId(String permId) {
+    private SupplierReadDto fetchSupplierMetadataByPermId(String permId) {
         SampleSearchCriteria criteria = SampleSearchCriteria.create().with(PermIdSearchCriteria.withId(permId));
 
         // Optimized Fetch Options: Properties & Type only. No hierarchy.

@@ -28,19 +28,19 @@ import jakarta.validation.constraints.Pattern;
  *     }
  * </pre>
  *
- * @param name            The supplier's name.
- * @param customerNumber  The customer number at that supplier.
+ * @param name            The supplier's name (Mandatory).
+ * @param customerNumber  The customer number at that supplier (Mandatory).
  * @param addition        The supplier's additional address information.
- * @param street          The supplier's street.
+ * @param street          The supplier's street (Mandatory).
  * @param poBox           The supplier's postal box.
- * @param country         The supplier's country.
- * @param zipCode         The supplier's postal code.
- * @param city            The supplier's city.
+ * @param country         The supplier's country (Mandatory).
+ * @param zipCode         The supplier's postal code (Mandatory).
+ * @param city            The supplier's city (Mandatory).
  * @param website         The supplier's website URL.
  * @param email           The supplier's email address.
  * @param phoneNumber     The supplier's phone number.
- * @param vatId           The supplier's VAT identification number.
- * @param conditions      The supplier's conditions or terms.
+ * @param vatId           The supplier's VAT identification number (Mandatory).
+ * @param conditions      The supplier's conditions or terms (Mandatory).
  * @param customerInfo    Additional customer information.
  */
 public record SupplierUpdateDto(

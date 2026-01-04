@@ -1,7 +1,8 @@
 package io.github.supplierratingsoftware.supplierratingbackend.controller;
 
 import io.github.supplierratingsoftware.supplierratingbackend.dto.api.OrderCreationDto;
-import io.github.supplierratingsoftware.supplierratingbackend.dto.api.OrderDto;
+import io.github.supplierratingsoftware.supplierratingbackend.dto.api.OrderReadDto;
+import io.github.supplierratingsoftware.supplierratingbackend.dto.api.OrderUpdateDto;
 import io.github.supplierratingsoftware.supplierratingbackend.service.OrderService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -28,10 +29,10 @@ public class OrderController {
      * Optionally filters for orders belonging to a specific supplier.
      *
      * @param supplierId (Optional) The suppliers PermID to filter for, or null to retrieve all orders.
-     * @return ResponseEntity containing a list of OrderDto objects representing all orders.
+     * @return ResponseEntity containing a list of OrderReadDto objects representing all orders.
      */
     @GetMapping
-    public ResponseEntity<List<OrderDto>> getAllOrders(@RequestParam(required = false) String supplierId) {
+    public ResponseEntity<List<OrderReadDto>> getAllOrders(@RequestParam(required = false) String supplierId) {
         return ResponseEntity.ok(orderService.getAllOrders(supplierId));
     }
 
@@ -39,13 +40,29 @@ public class OrderController {
      * Creates a new order.
      *
      * @param creationDto The payload containing the new order details.
-     * @return The created {@link OrderDto} wrapped in a ResponseEntity with HTTP 201 Created.
+     * @return The created {@link OrderReadDto} wrapped in a ResponseEntity with HTTP 201 Created.
      */
     @PostMapping
-    public ResponseEntity<OrderDto> createOrder(@RequestBody @Valid OrderCreationDto creationDto) {
-        OrderDto createdOrder = orderService.createOrder(creationDto);
+    public ResponseEntity<OrderReadDto> createOrder(@RequestBody @Valid OrderCreationDto creationDto) {
+        OrderReadDto createdOrder = orderService.createOrder(creationDto);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(createdOrder);
+    }
+
+    /**
+     * Updates an existing order.
+     *
+     * @param id        The PermID of the order to update.
+     * @param updateDto The payload containing the updated order details.
+     * @return The updated {@link OrderReadDto}.
+     */
+    @PutMapping("/{id}")
+    public ResponseEntity<OrderReadDto> updateOrder(
+            @PathVariable String id,
+            @RequestBody @Valid OrderUpdateDto updateDto) {
+
+        OrderReadDto updatedOrder = orderService.updateOrder(id, updateDto);
+        return ResponseEntity.ok(updatedOrder);
     }
 }

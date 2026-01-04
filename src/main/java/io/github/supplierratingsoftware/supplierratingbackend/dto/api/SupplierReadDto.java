@@ -52,7 +52,7 @@ package io.github.supplierratingsoftware.supplierratingbackend.dto.api;
  * @param stats          The supplier's statistics (Rating).
  * @see RatingStatsDto
  */
-public record SupplierDto(
+public record SupplierReadDto(
         String name,
         String customerNumber,
         String addition,

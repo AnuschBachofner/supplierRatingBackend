@@ -1,7 +1,7 @@
 package io.github.supplierratingsoftware.supplierratingbackend.controller;
 
 import io.github.supplierratingsoftware.supplierratingbackend.dto.api.SupplierCreationDto;
-import io.github.supplierratingsoftware.supplierratingbackend.dto.api.SupplierDto;
+import io.github.supplierratingsoftware.supplierratingbackend.dto.api.SupplierReadDto;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.api.SupplierUpdateDto;
 import io.github.supplierratingsoftware.supplierratingbackend.service.SupplierService;
 import jakarta.validation.Valid;
@@ -27,10 +27,10 @@ public class SupplierController {
     /**
      * Retrieves a list of all registered suppliers.
      *
-     * @return ResponseEntity containing a list of SupplierDto objects.
+     * @return ResponseEntity containing a list of SupplierReadDto objects.
      */
     @GetMapping
-    public ResponseEntity<List<SupplierDto>> getAllSuppliers() {
+    public ResponseEntity<List<SupplierReadDto>> getAllSuppliers() {
         return ResponseEntity.ok(supplierService.getAllSuppliers());
     }
 
@@ -39,11 +39,11 @@ public class SupplierController {
      * Validates the input DTO and ensures the necessary properties are set.
      *
      * @param creationDto The payload containing the new supplier's details.
-     * @return The created {@link SupplierDto} wrapped in a ResponseEntity with HTTP 201 Created.
+     * @return The created {@link SupplierReadDto} wrapped in a ResponseEntity with HTTP 201 Created.
      */
     @PostMapping
-    public ResponseEntity<SupplierDto> createSupplier(@RequestBody @Valid SupplierCreationDto creationDto) {
-        SupplierDto createdSupplier = supplierService.createSupplier(creationDto);
+    public ResponseEntity<SupplierReadDto> createSupplier(@RequestBody @Valid SupplierCreationDto creationDto) {
+        SupplierReadDto createdSupplier = supplierService.createSupplier(creationDto);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(createdSupplier);
@@ -57,11 +57,11 @@ public class SupplierController {
      * @return The updated supplier details.
      */
     @PutMapping("/{id}")
-    public ResponseEntity<SupplierDto> updateSupplier(
+    public ResponseEntity<SupplierReadDto> updateSupplier(
             @PathVariable String id,
             @RequestBody @Valid SupplierUpdateDto updateDto) {
 
-        SupplierDto updatedSupplier = supplierService.updateSupplier(id, updateDto);
+        SupplierReadDto updatedSupplier = supplierService.updateSupplier(id, updateDto);
         return ResponseEntity.ok(updatedSupplier);
     }
 

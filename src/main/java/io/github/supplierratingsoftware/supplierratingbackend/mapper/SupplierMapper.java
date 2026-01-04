@@ -4,7 +4,7 @@ import io.github.supplierratingsoftware.supplierratingbackend.config.OpenBisProp
 import io.github.supplierratingsoftware.supplierratingbackend.constant.openbis.OpenBisSchemaConstants;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.api.RatingStatsDto;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.api.SupplierCreationDto;
-import io.github.supplierratingsoftware.supplierratingbackend.dto.api.SupplierDto;
+import io.github.supplierratingsoftware.supplierratingbackend.dto.api.SupplierReadDto;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.api.SupplierUpdateDto;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.creation.SampleCreation;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.id.EntityTypePermId;
@@ -23,11 +23,11 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * Component responsible for mapping technical OpenBIS samples to the domain-specific {@link SupplierDto} and vice versa.
+ * Component responsible for mapping technical OpenBIS samples to the domain-specific {@link SupplierReadDto} and vice versa.
  * <p>
  * Handles both directions:
  * <ul>
- *     <li>READ: {@link OpenBisSample} -> {@link SupplierDto}</li>
+ *     <li>READ: {@link OpenBisSample} -> {@link SupplierReadDto}</li>
  *     <li>WRITE: {@link SupplierCreationDto} -> {@link SampleCreation}</li>
  * </ul>
  * </p>
@@ -39,21 +39,21 @@ public class SupplierMapper {
     private final OpenBisProperties properties;
 
     /**
-     * Converts a generic {@link OpenBisSample} into a {@link SupplierDto}.
+     * Converts a generic {@link OpenBisSample} into a {@link SupplierReadDto}.
      * (READ direction)
      *
      * @param sample The raw sample object from OpenBIS. Can be null.
      * @param stats  The rating statistics for the supplier, can be null.
-     * @return The mapped {@link SupplierDto}, or {@code null} if the input sample was null.
+     * @return The mapped {@link SupplierReadDto}, or {@code null} if the input sample was null.
      */
-    public SupplierDto toApiDto(OpenBisSample sample, RatingStatsDto stats) {
+    public SupplierReadDto toApiDto(OpenBisSample sample, RatingStatsDto stats) {
         if (sample == null) return null;
 
         Map<String, String> props = sample.properties(); // Access the Map at the record.
 
         if (props == null) props = Map.of();
 
-        return new SupplierDto(
+        return new SupplierReadDto(
                 props.get(OpenBisSchemaConstants.NAME_SUPPLIER_PROPERTY),
                 props.get(OpenBisSchemaConstants.CUSTOMER_NUMBER_SUPPLIER_PROPERTY),
                 props.get(OpenBisSchemaConstants.ADDITION_SUPPLIER_PROPERTY),

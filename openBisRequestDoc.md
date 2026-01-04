@@ -1200,3 +1200,41 @@ This operation allows modifying specific properties without recreating the sampl
   ]
 }
 ```
+
+### 7.2. Updating Orders
+
+**Context:**
+Updates specific properties of an Order (e.g. status, details, dates).
+**Crucial:** This operation updates properties *without* modifying the parent-child relationships
+(Supplier link). The `supplierId` is implicitly preserved because the `parents` field is omitted in the update payload.
+
+* **Method:** `updateSamples`
+* **DTO:** `SampleUpdate`
+* **Identifier:** The `sampleId` (PermID) is mandatory.
+
+**Reference JSON Payload:**
+
+```json
+{
+  "jsonrpc": "2.0",
+  "method": "updateSamples",
+  "id": "req-update-order-01",
+  "params": [
+    "SESSION_TOKEN",
+    [
+      {
+        "@type": "as.dto.sample.update.SampleUpdate",
+        "sampleId": {
+          "@type": "as.dto.sample.id.SamplePermId",
+          "permId": "20260102115225220-324" // Target Order PermID
+        },
+        "properties": {
+          "NAME": "Updated Order Name",
+          "KOMMENTAR": "Updated status via API",
+          "LIEFERDATUM": "2026-05-20"
+        }
+      }
+    ]
+  ]
+}
+```

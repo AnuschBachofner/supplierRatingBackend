@@ -3,7 +3,7 @@ package io.github.supplierratingsoftware.supplierratingbackend.mapper;
 import io.github.supplierratingsoftware.supplierratingbackend.config.OpenBisProperties;
 import io.github.supplierratingsoftware.supplierratingbackend.constant.openbis.OpenBisSchemaConstants;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.api.RatingCreationDto;
-import io.github.supplierratingsoftware.supplierratingbackend.dto.api.RatingDto;
+import io.github.supplierratingsoftware.supplierratingbackend.dto.api.RatingReadDto;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.creation.SampleCreation;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.id.EntityTypePermId;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.id.ExperimentIdentifier;
@@ -24,11 +24,11 @@ import java.util.UUID;
 import java.util.stream.Stream;
 
 /**
- * Component responsible for mapping technical OpenBIS samples to the domain-specific {@link RatingDto} and vice versa.
+ * Component responsible for mapping technical OpenBIS samples to the domain-specific {@link RatingReadDto} and vice versa.
  * <p>
  * Handles both directions:
  * <ul>
- *     <li>READ: {@link OpenBisSample} -> {@link RatingDto}</li>
+ *     <li>READ: {@link OpenBisSample} -> {@link RatingReadDto}</li>
  *     <li>WRITE: TODO: implement WRITE later</li>
  * </ul>
  * </p>
@@ -41,13 +41,13 @@ public class RatingMapper {
     private final OpenBisProperties properties;
 
     /**
-     * Converts a generic {@link OpenBisSample} into a {@link RatingDto}.
+     * Converts a generic {@link OpenBisSample} into a {@link RatingReadDto}.
      * (READ direction)
      *
      * @param sample The raw sample object from OpenBIS. Can be null.
      * @return The domain-specific rating DTO, or null if the input sample is null.
      */
-    public RatingDto toApiDto(OpenBisSample sample) {
+    public RatingReadDto toApiDto(OpenBisSample sample) {
         if (sample == null) {
             return null;
         }
@@ -67,7 +67,7 @@ public class RatingMapper {
             }
         }
 
-        return new RatingDto(
+        return new RatingReadDto(
                 OpenBisUtils.parseDoubleOrNull(
                         properties.get(OpenBisSchemaConstants.QUALITY_RATING_PROPERTY),
                         OpenBisSchemaConstants.QUALITY_RATING_PROPERTY,

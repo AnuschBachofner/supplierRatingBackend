@@ -3,11 +3,12 @@ package io.github.supplierratingsoftware.supplierratingbackend.mapper;
 import io.github.supplierratingsoftware.supplierratingbackend.config.OpenBisProperties;
 import io.github.supplierratingsoftware.supplierratingbackend.constant.openbis.OpenBisSchemaConstants;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.api.OrderCreationDto;
-import io.github.supplierratingsoftware.supplierratingbackend.dto.api.OrderDto;
+import io.github.supplierratingsoftware.supplierratingbackend.dto.api.OrderReadDto;
+import io.github.supplierratingsoftware.supplierratingbackend.dto.api.OrderUpdateDto;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.creation.SampleCreation;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.id.*;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.result.OpenBisSample;
-import io.github.supplierratingsoftware.supplierratingbackend.exception.OpenBisIntegrationException;
+import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.update.SampleUpdate;
 import io.github.supplierratingsoftware.supplierratingbackend.util.OpenBisUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -18,11 +19,11 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * Component responsible for mapping technical OpenBIS samples to the domain-specific {@link OrderDto} and vice versa.
+ * Component responsible for mapping technical OpenBIS samples to the domain-specific {@link OrderReadDto} and vice versa.
  * <p>
  * Handles both directions:
  * <ul>
- *     <li>READ: {@link OpenBisSample} -> {@link OrderDto}</li>
+ *     <li>READ: {@link OpenBisSample} -> {@link OrderReadDto}</li>
  *     <li>WRITE: {@link OrderCreationDto} -> {@link SampleCreation}</li>
  * </ul>
  * </p>
@@ -34,13 +35,13 @@ public class OrderMapper {
     private final OpenBisProperties properties;
 
     /**
-     * Converts a generic {@link OpenBisSample} into a {@link OrderDto}.
+     * Converts a generic {@link OpenBisSample} into a {@link OrderReadDto}.
      * (READ direction)
      *
      * @param sample The raw sample object from OpenBIS. Can be null.
      * @return The DTO representation of the order, or null if the sample is null.
      */
-    public OrderDto toApiDto(OpenBisSample sample) {
+    public OrderReadDto toApiDto(OpenBisSample sample) {
         if (sample == null) return null;
 
         Map<String, String> props = sample.properties();
@@ -55,7 +56,7 @@ public class OrderMapper {
             }
         }
 
-        return new OrderDto(
+        return new OrderReadDto(
                 props.get(OpenBisSchemaConstants.NAME_ORDER_PROPERTY),
                 props.get(OpenBisSchemaConstants.MAIN_CATEGORY_ORDER_PROPERTY),
                 props.get(OpenBisSchemaConstants.SUB_CATEGORY_ORDER_PROPERTY),
@@ -145,5 +146,45 @@ public class OrderMapper {
                 props,
                 parentIds // <-- Linked Supplier
         );
+    }
+
+    /**
+     * Converts an {@link OrderUpdateDto} into an openBIS {@link SampleUpdate} object.
+     * (WRITE Direction)
+     *
+     * <p><strong>Important:</strong> This mapping strictly excludes parent relationships (Suppliers).
+     * The supplier of an order cannot be changed via update.</p>
+     *
+     * @param permId The stable identifier (PermID) of the order to update.
+     * @param dto    The update data for the order.
+     * @return The openBIS update object for the order.
+     */
+    public SampleUpdate toOpenBisUpdate(String permId, OrderUpdateDto dto) {
+        // Identifier
+        SamplePermId sampleId = new SamplePermId(permId);
+
+        // Map Properties
+        Map<String, String> props = new HashMap<>();
+
+        // Mandatory Fields (Enforced by @NotBlank in DTO)
+        props.put(OpenBisSchemaConstants.NAME_ORDER_PROPERTY, dto.name());
+        props.put(OpenBisSchemaConstants.MAIN_CATEGORY_ORDER_PROPERTY, dto.mainCategory());
+        props.put(OpenBisSchemaConstants.SUB_CATEGORY_ORDER_PROPERTY, dto.subCategory());
+        props.put(OpenBisSchemaConstants.ORDER_REASON_ORDER_PROPERTY, dto.reason());
+        props.put(OpenBisSchemaConstants.PURCHASER_ORDER_PROPERTY, dto.orderedBy());
+        props.put(OpenBisSchemaConstants.ORDER_DATE_ORDER_PROPERTY, dto.orderDate());
+
+        // Optional Fields
+        // `null` values in DTO are ignored (field remains unchanged in OpenBIS).
+        OpenBisUtils.putIfNotNull(props, OpenBisSchemaConstants.DESCRIPTION_ORDER_PROPERTY, dto.details());
+        OpenBisUtils.putIfNotNull(props, OpenBisSchemaConstants.FREQUENCY_ORDER_PROPERTY, dto.frequency());
+        OpenBisUtils.putIfNotNull(props, OpenBisSchemaConstants.CONTACT_NAME_ORDER_PROPERTY, dto.contactPerson());
+        OpenBisUtils.putIfNotNull(props, OpenBisSchemaConstants.CONTACT_EMAIL_ORDER_PROPERTY, dto.contactEmail());
+        OpenBisUtils.putIfNotNull(props, OpenBisSchemaConstants.CONTACT_PHONE_ORDER_PROPERTY, dto.contactPhone());
+        OpenBisUtils.putIfNotNull(props, OpenBisSchemaConstants.ORDER_METHOD_ORDER_PROPERTY, dto.orderMethod());
+        OpenBisUtils.putIfNotNull(props, OpenBisSchemaConstants.DELIVERY_DATE_ORDER_PROPERTY, dto.deliveryDate());
+        OpenBisUtils.putIfNotNull(props, OpenBisSchemaConstants.ORDER_COMMENT_ORDER_PROPERTY, dto.orderComment());
+
+        return new SampleUpdate(sampleId, props);
     }
 }
