@@ -144,8 +144,8 @@ public class OrderService {
                 .with(SampleTypeSearchCriteria.withCode(properties.supplier().typeCode()));
         // Fetch only the ID
         SampleFetchOptions fetchOptions = new SampleFetchOptions(
-                null,
-                null,
+                new PropertyFetchOptions(), // Fetch basic properties (even if empty list)
+                new SampleTypeFetchOptions(), // Fetch type information
                 null,
                 null
         );

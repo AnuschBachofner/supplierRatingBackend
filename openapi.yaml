@@ -283,9 +283,13 @@ components:
       type: object
       required:
         - name
+        - customerNumber
+        - street
+        - country
         - zipCode
         - city
-        - country
+        - vatId
+        - conditions
       properties:
         name:
           type: string
@@ -313,6 +317,7 @@ components:
         country:
           type: string
           description: Mapped to LIEFERANTEN_LAND (Vocabulary LIEFERANTEN_LAND)
+          enum: [ CH, D, F, FL, NL ]
           examples:
             - "CH"
         zipCode:
@@ -328,6 +333,7 @@ components:
         website:
           type: string
           description: Mapped to LIEFERANTEN_WEBLINK
+          pattern: '^(http|https|ftp)://\S+$'
           examples:
             - "https://acme.com"
         email:
@@ -387,6 +393,11 @@ components:
       type: object
       required:
         - name
+        - mainCategory
+        - subCategory
+        - reason
+        - orderedBy
+        - orderDate
       properties:
         name:
           type: string
@@ -396,13 +407,24 @@ components:
         mainCategory:
           type: string
           description: Mapped to BESTELLUNG_HK (Vocabulary BESTELLUNGHK)
+          enum: [ Beschaffung, Dienstleistung ]
           examples:
-            - "BESCHAFFUNG"
+            - "Beschaffung"
         subCategory:
           type: string
           description: Mapped to BESTELLUNG_UK (Vocabulary BESTELLUNGFK)
+          enum:
+            - Beratung
+            - Dienstleistung
+            - Gerät/Werkzeug
+            - Maschine
+            - Messgeräte
+            - Messmittel
+            - PC Hardware
+            - PC Software
+            - Prüfmaschine
           examples:
-            - "MESSMITTEL"
+            - "Messmittel"
         details:
           type: string
           description: Mapped to BEZEICHNUNG
@@ -438,13 +460,13 @@ components:
         orderDate:
           type: string
           format: date
-          description: Mapped to BESTELLDATUM
+          description: Mapped to BESTELLDATUM (YYYY-MM-DD)
           examples:
             - "2023-12-15"
         deliveryDate:
           type: string
           format: date
-          description: Mapped to LIEFERDATUM
+          description: Mapped to LIEFERDATUM (YYYY-MM-DD)
         orderComment:
           type: string
           description: Mapped to KOMMENTAR (General comment)
@@ -496,46 +518,61 @@ components:
               type: string
               description: Name of the parent supplier (for display)
             ratingId:
-              type: ["string", "null"]
+              type: [ "string", "null" ]
               description: PermID of the linked rating (if exists), otherwise null.
 
     # --- RATING DTOS ---
     RatingBaseDTO:
       type: object
+      required:
+        - quality
+        - qualityReason
+        - cost
+        - costReason
+        - reliability
+        - reliabilityReason
       properties:
         quality:
-          type: number
-          format: float
-          description: Mapped to QUALITAET (1-5)
+          type: integer
+          minimum: 1
+          maximum: 5
+          format: integer
+          description: Mapped to QUALITAET (1-5), 1 = Poor, 5 = Excellent
           examples:
-            - 5.0
+            - 5
         qualityReason:
           type: string
           description: Mapped to GRUND_QUALITAET
         cost:
-          type: number
-          format: float
-          description: Mapped to KOSTEN (1-5)
+          type: integer
+          minimum: 1
+          maximum: 5
+          format: integer
+          description: Mapped to KOSTEN (1-5), 1 = Poor, 5 = Excellent
           examples:
-            - 3.0
+            - 3
         costReason:
           type: string
           description: Mapped to KOSTEN_BEGRUENDUNG
         reliability:
-          type: number
-          format: float
-          description: Mapped to EINHALTUNG_TERMINE (1-5)
+          type: integer
+          minimum: 1
+          maximum: 5
+          format: integer
+          description: Mapped to EINHALTUNG_TERMINE (1-5), 1 = Poor, 5 = Excellent
           examples:
-            - 5.0
+            - 5
         reliabilityReason:
           type: string
           description: Mapped to EINHALTUNG_TERMINE_GRUND
         availability:
-          type: number
-          format: float
-          description: Mapped to VERFUEGBARKEIT (1-5)
+          type: integer
+          minimum: 1
+          maximum: 5
+          format: integer
+          description: Mapped to VERFUEGBARKEIT (1-5) 1 = Poor, 5 = Excellent
           examples:
-            - 4.5
+            - 4
         availabilityReason:
           type: string
           description: Mapped to VERFUEGBARKEIT_BEGRUENDUNG

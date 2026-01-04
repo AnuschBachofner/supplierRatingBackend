@@ -116,19 +116,19 @@ public class OrderMapper {
 
         // Mandatory
         props.put(OpenBisSchemaConstants.NAME_ORDER_PROPERTY, dto.name());
+        props.put(OpenBisSchemaConstants.MAIN_CATEGORY_ORDER_PROPERTY, dto.mainCategory());
+        props.put(OpenBisSchemaConstants.SUB_CATEGORY_ORDER_PROPERTY, dto.subCategory());
+        props.put(OpenBisSchemaConstants.ORDER_REASON_ORDER_PROPERTY, dto.reason());
+        props.put(OpenBisSchemaConstants.PURCHASER_ORDER_PROPERTY, dto.orderedBy());
+        props.put(OpenBisSchemaConstants.ORDER_DATE_ORDER_PROPERTY, dto.orderDate());
 
         // Optional
-        OpenBisUtils.putIfNotNull(props, OpenBisSchemaConstants.MAIN_CATEGORY_ORDER_PROPERTY, dto.mainCategory());
-        OpenBisUtils.putIfNotNull(props, OpenBisSchemaConstants.SUB_CATEGORY_ORDER_PROPERTY, dto.subCategory());
         OpenBisUtils.putIfNotNull(props, OpenBisSchemaConstants.DESCRIPTION_ORDER_PROPERTY, dto.details());
         OpenBisUtils.putIfNotNull(props, OpenBisSchemaConstants.FREQUENCY_ORDER_PROPERTY, dto.frequency());
         OpenBisUtils.putIfNotNull(props, OpenBisSchemaConstants.CONTACT_NAME_ORDER_PROPERTY, dto.contactPerson());
         OpenBisUtils.putIfNotNull(props, OpenBisSchemaConstants.CONTACT_EMAIL_ORDER_PROPERTY, dto.contactEmail());
         OpenBisUtils.putIfNotNull(props, OpenBisSchemaConstants.CONTACT_PHONE_ORDER_PROPERTY, dto.contactPhone());
-        OpenBisUtils.putIfNotNull(props, OpenBisSchemaConstants.ORDER_REASON_ORDER_PROPERTY, dto.reason());
         OpenBisUtils.putIfNotNull(props, OpenBisSchemaConstants.ORDER_METHOD_ORDER_PROPERTY, dto.orderMethod());
-        OpenBisUtils.putIfNotNull(props, OpenBisSchemaConstants.PURCHASER_ORDER_PROPERTY, dto.orderedBy());
-        OpenBisUtils.putIfNotNull(props, OpenBisSchemaConstants.ORDER_DATE_ORDER_PROPERTY, dto.orderDate());
         OpenBisUtils.putIfNotNull(props, OpenBisSchemaConstants.DELIVERY_DATE_ORDER_PROPERTY, dto.deliveryDate());
         OpenBisUtils.putIfNotNull(props, OpenBisSchemaConstants.ORDER_COMMENT_ORDER_PROPERTY, dto.orderComment());
 

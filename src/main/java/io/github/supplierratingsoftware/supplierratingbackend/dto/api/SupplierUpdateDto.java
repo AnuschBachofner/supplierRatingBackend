@@ -1,6 +1,9 @@
 package io.github.supplierratingsoftware.supplierratingbackend.dto.api;
 
+import io.github.supplierratingsoftware.supplierratingbackend.constant.api.ValidationConstants;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 
 /**
  * Represents an update request for a supplier.
@@ -44,15 +47,18 @@ public record SupplierUpdateDto(
         @NotBlank(message = "Name is required")
         String name,
 
+        @NotBlank(message = "Customer number is required")
         String customerNumber,
 
         String addition,
 
+        @NotBlank(message = "Street is required")
         String street,
 
         String poBox,
 
         @NotBlank(message = "Country is required")
+        @Pattern(regexp = ValidationConstants.COUNTRY_REGEX, message = ValidationConstants.COUNTRY_MESSAGE)
         String country,
 
         @NotBlank(message = "Postal code is required")
@@ -61,14 +67,18 @@ public record SupplierUpdateDto(
         @NotBlank(message = "City is required")
         String city,
 
+        @Pattern(regexp = ValidationConstants.URL_REGEX, message = ValidationConstants.URL_MESSAGE)
         String website,
 
+        @Email(message = "Email must be a valid email address")
         String email,
 
         String phoneNumber,
 
+        @NotBlank(message = "VAT ID is required")
         String vatId,
 
+        @NotBlank(message = "Conditions are required")
         String conditions,
 
         String customerInfo

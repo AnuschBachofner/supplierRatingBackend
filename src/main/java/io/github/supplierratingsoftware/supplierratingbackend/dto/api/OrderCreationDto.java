@@ -1,5 +1,7 @@
 package io.github.supplierratingsoftware.supplierratingbackend.dto.api;
 
+import io.github.supplierratingsoftware.supplierratingbackend.constant.api.ValidationConstants;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 
@@ -47,24 +49,41 @@ public record OrderCreationDto(
         @NotBlank(message = "Name is required")
         String name,
 
+        @NotBlank(message = "Main category is required")
+        @Pattern(regexp = ValidationConstants.MAIN_CATEGORY_REGEX, message = ValidationConstants.MAIN_CATEGORY_MESSAGE)
         String mainCategory,
+
+        @NotBlank(message = "Subcategory is required")
+        @Pattern(regexp = ValidationConstants.SUB_CATEGORY_REGEX, message = ValidationConstants.SUB_CATEGORY_MESSAGE)
         String subCategory,
-        String details,
-        String frequency,
-        String contactPerson,
-        String contactEmail,
-        String contactPhone,
+
+        String details, // optional
+
+        String frequency, // optional
+
+        String contactPerson, // optional
+
+        @Email(message = "Contact email must be a valid email address")
+        String contactEmail, // optional
+
+        String contactPhone, // optional
+
+        @NotBlank(message = "Reason is required")
         String reason,
-        String orderMethod,
+
+        String orderMethod, // optional
+
+        @NotBlank(message = "Ordered by is required")
         String orderedBy,
 
-        @Pattern(regexp = "\\d{4}-\\d{2}-\\d{2}", message = "Order date must be in format YYYY-MM-DD")
+        @NotBlank(message = "Order date is required")
+        @Pattern(regexp = ValidationConstants.DATE_REGEX, message = ValidationConstants.DATE_MESSAGE)
         String orderDate,
 
-        @Pattern(regexp = "\\d{4}-\\d{2}-\\d{2}", message = "Delivery date must be in format YYYY-MM-DD")
-        String deliveryDate,
+        @Pattern(regexp = ValidationConstants.DATE_REGEX, message = ValidationConstants.DATE_MESSAGE)
+        String deliveryDate, // optional
 
-        String orderComment,
+        String orderComment, // optional
 
         @NotBlank(message = "Supplier ID is required")
         String supplierId

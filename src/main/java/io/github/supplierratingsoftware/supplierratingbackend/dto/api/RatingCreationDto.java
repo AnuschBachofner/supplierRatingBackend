@@ -1,5 +1,6 @@
 package io.github.supplierratingsoftware.supplierratingbackend.dto.api;
 
+import io.github.supplierratingsoftware.supplierratingbackend.constant.api.ValidationConstants;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -48,31 +49,31 @@ public record RatingCreationDto(
         String orderId,
 
         @NotNull(message = "Quality score is required")
-        @Min(value = 1, message = "Score must be at least 1")
-        @Max(value = 5, message = "Score must be at most 5")
+        @Min(value = ValidationConstants.RATING_SCORE_MIN, message = ValidationConstants.RATING_SCORE_MIN_MESSAGE)
+        @Max(value = ValidationConstants.RATING_SCORE_MAX, message = ValidationConstants.RATING_SCORE_MAX_MESSAGE)
         Integer quality,
 
         @NotBlank(message = "Reason for quality rating is required")
         String qualityReason,
 
         @NotNull(message = "Cost score is required")
-        @Min(value = 1, message = "Score must be at least 1")
-        @Max(value = 5, message = "Score must be at most 5")
+        @Min(value = ValidationConstants.RATING_SCORE_MIN, message = ValidationConstants.RATING_SCORE_MIN_MESSAGE)
+        @Max(value = ValidationConstants.RATING_SCORE_MAX, message = ValidationConstants.RATING_SCORE_MAX_MESSAGE)
         Integer cost,
 
         @NotBlank(message = "Reason for cost rating is required")
         String costReason,
 
         @NotNull(message = "Reliability score is required")
-        @Min(value = 1, message = "Score must be at least 1")
-        @Max(value = 5, message = "Score must be at most 5")
+        @Min(value = ValidationConstants.RATING_SCORE_MIN, message = ValidationConstants.RATING_SCORE_MIN_MESSAGE)
+        @Max(value = ValidationConstants.RATING_SCORE_MAX, message = ValidationConstants.RATING_SCORE_MAX_MESSAGE)
         Integer reliability,
 
         @NotBlank(message = "Reason for reliability rating is required")
         String reliabilityReason,
 
-        @Min(value = 1, message = "Score must be at least 1")
-        @Max(value = 5, message = "Score must be at most 5")
+        @Min(value = ValidationConstants.RATING_SCORE_MIN, message = ValidationConstants.RATING_SCORE_MIN_MESSAGE)
+        @Max(value = ValidationConstants.RATING_SCORE_MAX, message = ValidationConstants.RATING_SCORE_MAX_MESSAGE)
         Integer availability,
 
         String availabilityReason,
