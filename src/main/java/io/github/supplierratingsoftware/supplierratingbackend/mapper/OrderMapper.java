@@ -36,31 +36,45 @@ public class OrderMapper {
 
     /**
      * Converts a generic {@link OpenBisSample} into a {@link OrderReadDto}.
+     * This method attempts to resolve the supplier from the sample's parents.
+     * (READ direction)
+     *
+     * @param sample The raw sample object from OpenBIS.
+     * @return The DTO representation.
+     */
+    public OrderReadDto toApiDto(OpenBisSample sample) {
+        if (sample == null) return null;
+
+        // Try to resolve supplier from parent
+        String supplierId = null;
+        String supplierName = null;
+        if (sample.parents() != null && !sample.parents().isEmpty()) {
+            OpenBisSample parent = sample.parents().getFirst();
+            if (parent.permId() != null) supplierId = parent.permId().permId();
+            if (parent.properties() != null) {
+                supplierName = parent.properties().get(OpenBisSchemaConstants.NAME_SUPPLIER_PROPERTY);
+            }
+        }
+
+        return toApiDto(sample, supplierId, supplierName);
+    }
+
+    /**
+     * Converts a generic {@link OpenBisSample} into a {@link OrderReadDto}
+     * using provided supplier ID and name.
      * (READ direction)
      *
      * @param sample The raw sample object from OpenBIS. Can be null.
+     * @param supplierId The supplier ID to use in the DTO. Can be null.
+     * @param supplierName The supplier name to use in the DTO. Can be null.
      * @return The DTO representation of the order, or null if the sample is null.
      */
-    public OrderReadDto toApiDto(OpenBisSample sample) {
+    public OrderReadDto toApiDto(OpenBisSample sample, String supplierId, String supplierName) {
         if (sample == null) return null;
 
         Map<String, String> props = sample.properties();
 
         if (props == null) props = Map.of();
-
-        String supplierName = null;
-        String supplierId = null;
-        if (sample.parents() != null && !sample.parents().isEmpty()) {
-            OpenBisSample parent = sample.parents().getFirst();
-            if (parent != null) {
-                if (parent.permId() != null) {
-                    supplierId = parent.permId().permId();
-                }
-                if (parent.properties() != null && parent.properties().containsKey(OpenBisSchemaConstants.NAME_SUPPLIER_PROPERTY)) {
-                    supplierName = parent.properties().get(OpenBisSchemaConstants.NAME_SUPPLIER_PROPERTY);
-                }
-            }
-        }
 
         String ratingStatus = OpenBisSchemaConstants.RATING_STATUS_PENDING_ORDER_PROPERTY;
         String ratingId = null;

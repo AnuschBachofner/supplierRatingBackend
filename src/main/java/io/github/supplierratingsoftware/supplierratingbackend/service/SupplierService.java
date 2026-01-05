@@ -2,6 +2,7 @@ package io.github.supplierratingsoftware.supplierratingbackend.service;
 
 import io.github.supplierratingsoftware.supplierratingbackend.config.OpenBisProperties;
 import io.github.supplierratingsoftware.supplierratingbackend.constant.openbis.OpenBisSchemaConstants;
+import io.github.supplierratingsoftware.supplierratingbackend.dto.api.OrderReadDto;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.api.RatingStatsDto;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.api.SupplierCreationDto;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.api.SupplierReadDto;
@@ -17,6 +18,7 @@ import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.update
 import io.github.supplierratingsoftware.supplierratingbackend.exception.OpenBisIntegrationException;
 import io.github.supplierratingsoftware.supplierratingbackend.exception.OpenBisResourceNotFoundException;
 import io.github.supplierratingsoftware.supplierratingbackend.integration.openbis.OpenBisClient;
+import io.github.supplierratingsoftware.supplierratingbackend.mapper.OrderMapper;
 import io.github.supplierratingsoftware.supplierratingbackend.mapper.SupplierMapper;
 import io.github.supplierratingsoftware.supplierratingbackend.util.OpenBisUtils;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -44,6 +47,7 @@ public class SupplierService {
     private final OpenBisClient openBisClient;
     private final SupplierMapper supplierMapper;
     private final OpenBisProperties properties;
+    private final OrderMapper orderMapper;
 
     /**
      * Retrieves all suppliers from OpenBIS.
@@ -96,9 +100,80 @@ public class SupplierService {
         return rawSamples.stream()
                 .map(supplier -> {
                     RatingStatsDto stats = calculateStats(supplier);
-                    return supplierMapper.toApiDto(supplier, stats);
+                    return supplierMapper.toApiDto(supplier, stats, null);
                 })
                 .toList();
+    }
+
+    /**
+     * Retrieves a single supplier by its PermID from OpenBIS.
+     * This includes the full list of orders associated with the supplier.
+     *
+     * @param permId The PermID of the supplier to retrieve.
+     * @return The supplier details including orders.
+     * @throws OpenBisResourceNotFoundException If the supplier with the given PermID is not found.
+     */
+    public SupplierReadDto getSupplierById(String permId) {
+        // Criteria: Search by PermID
+        SampleSearchCriteria criteria = SampleSearchCriteria.create()
+                .with(PermIdSearchCriteria.withId(permId))
+                .with(SampleTypeSearchCriteria.withCode(properties.supplier().typeCode()));
+
+        // Deep fetch options for Detail View:
+        // - Grandchildren (Ratings): Needed for Stats calculation and rating status
+        SampleFetchOptions ratingFetchOptions = new SampleFetchOptions(
+                new PropertyFetchOptions(),
+                new SampleTypeFetchOptions(),
+                null,
+                null
+        );
+
+        // - Children (Orders): Needed for Order List
+        SampleFetchOptions orderFetchOptions = new SampleFetchOptions(
+                new PropertyFetchOptions(),
+                new SampleTypeFetchOptions(),
+                null,
+                ratingFetchOptions
+        );
+
+        // - The supplier itself
+        SampleFetchOptions fetchOptions = new SampleFetchOptions(
+                new PropertyFetchOptions(),
+                new SampleTypeFetchOptions(),
+                null,
+                orderFetchOptions
+        );
+
+        List<OpenBisSample> results = openBisClient.searchSamples(criteria, fetchOptions);
+
+        if (results.isEmpty()) {
+            throw new OpenBisResourceNotFoundException("Supplier with PermID '" + permId + "' not found in OpenBIS");
+        }
+
+        OpenBisSample supplierSample = results.getFirst();
+
+        // Extract Supplier Info for Injection
+        if (supplierSample.permId() == null || supplierSample.permId().permId() == null) {
+            throw new OpenBisIntegrationException("Critical Error: Supplier with PermID '" + permId + "' has no PermID.");
+        }
+        String supplierId = supplierSample.permId().permId();
+        Map<String, String> supplierProperties = supplierSample.properties();
+        String supplierName = supplierProperties != null ? supplierProperties.get(OpenBisSchemaConstants.NAME_SUPPLIER_PROPERTY) : null;
+
+        // Calculate Stats
+        RatingStatsDto stats = calculateStats(supplierSample);
+
+        // Map Orders
+        List<OrderReadDto> orders = List.of();
+        if (supplierSample.children() != null) {
+            orders = supplierSample.children().stream()
+                    // Ensure we only process Orders
+                    .filter(child -> child.type() != null && child.type().code().equals(properties.order().typeCode()))
+                    .map(child -> orderMapper.toApiDto(child, supplierId, supplierName))
+                    .toList();
+        }
+
+        return supplierMapper.toApiDto(supplierSample, stats, orders);
     }
 
     /**
@@ -313,6 +388,6 @@ public class SupplierService {
             throw new OpenBisIntegrationException("Critical Error: Created supplier with PermID " + permId + " could not be retrieved immediately after creation.");
         }
 
-        return supplierMapper.toApiDto(results.getFirst(), null);
+        return supplierMapper.toApiDto(results.getFirst(), null, null);
     }
 }

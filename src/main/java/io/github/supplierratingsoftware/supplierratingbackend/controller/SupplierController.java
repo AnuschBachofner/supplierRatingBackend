@@ -35,6 +35,17 @@ public class SupplierController {
     }
 
     /**
+     * Retrieves a supplier by its openBIS PermID.
+     *
+     * @param id The PermID of the supplier to retrieve.
+     * @return ResponseEntity containing the detailed supplier information.
+     */
+    @GetMapping("/{id}")
+    public ResponseEntity<SupplierReadDto> getSupplierById(@PathVariable String id) {
+        return ResponseEntity.ok(supplierService.getSupplierById(id));
+    }
+
+    /**
      * Creates a new supplier.
      * Validates the input DTO and ensures the necessary properties are set.
      *

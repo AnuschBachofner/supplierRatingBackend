@@ -1,5 +1,9 @@
 package io.github.supplierratingsoftware.supplierratingbackend.dto.api;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+import java.util.List;
+
 /**
  * Represents a supplier.
  *
@@ -22,14 +26,8 @@ package io.github.supplierratingsoftware.supplierratingbackend.dto.api;
  *     "customerInfo": "string",
  *     "id": "string",
  *     "code": "string",
- *     "stats": {
- *       "avgQuality": 4.5,
- *       "avgCost": 3.8,
- *       "avgReliability": 5,
- *       "avgAvailability": 4.2,
- *       "avgTotal": 4.4,
- *       "totalRatingCount": 12
- *     }
+ *     "stats": { ... },
+ *     "orders": [ ... ]
  *   }
  * </pre>
  *
@@ -50,6 +48,7 @@ package io.github.supplierratingsoftware.supplierratingbackend.dto.api;
  * @param id             The openBIS permID of the supplier.
  * @param code           The openBIS code of the supplier.
  * @param stats          The supplier's statistics (Rating).
+ * @param orders         The orders belonging to this supplier.
  * @see RatingStatsDto
  */
 public record SupplierReadDto(
@@ -69,6 +68,12 @@ public record SupplierReadDto(
         String customerInfo,
         String id,
         String code,
-        RatingStatsDto stats
+        RatingStatsDto stats,
+
+
+        // Include the orders field only in detailed view.
+        // In other views, the orders field will be null and the JSON serializer will ignore it.
+        @JsonInclude(JsonInclude.Include.NON_NULL)
+        List<OrderReadDto> orders
 ) {
 }
