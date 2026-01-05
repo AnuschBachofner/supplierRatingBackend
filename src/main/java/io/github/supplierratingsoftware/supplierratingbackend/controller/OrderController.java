@@ -37,6 +37,17 @@ public class OrderController {
     }
 
     /**
+     * Retrieves an order by its OpenBIS PermID.
+     *
+     * @param id The PermID of the order to retrieve.
+     * @return ResponseEntity containing the OrderReadDto of the retrieved order.
+     */
+    @GetMapping("/{id}")
+    public ResponseEntity<OrderReadDto> getOrderById(@PathVariable String id) {
+        return ResponseEntity.ok(orderService.getOrderById(id));
+    }
+
+    /**
      * Creates a new order.
      *
      * @param creationDto The payload containing the new order details.

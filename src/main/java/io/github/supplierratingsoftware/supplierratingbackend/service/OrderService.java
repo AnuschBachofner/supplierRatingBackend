@@ -92,6 +92,55 @@ public class OrderService {
     }
 
     /**
+     * Retrieves an order by its PermID from OpenBIS.
+     * <p>
+     * Executes a search for the order sample with the given PermID and the configured
+     * order sample type. It fetches the order's properties, its parent supplier sample,
+     * and its child rating samples, then maps the result to an {@link OrderReadDto}.
+     * </p>
+     *
+     * @param permId The PermID of the order to retrieve.
+     * @return The {@link OrderReadDto} representing the order with the given PermID.
+     * @throws OpenBisResourceNotFoundException if the order does not exist.
+     */
+    public OrderReadDto getOrderById(String permId) {
+        SampleSearchCriteria criteria = SampleSearchCriteria.create()
+                .with(PermIdSearchCriteria.withId(permId))
+                .with(SampleTypeSearchCriteria.withCode(properties.order().typeCode()));
+
+        // Children (ratings)
+        SampleFetchOptions childrenOptions = new SampleFetchOptions(
+                new PropertyFetchOptions(),
+                new SampleTypeFetchOptions(),
+                null,
+                null
+        );
+
+        // Parents (supplier)
+        SampleFetchOptions parentOptions = new SampleFetchOptions(
+                new PropertyFetchOptions(),
+                new SampleTypeFetchOptions(),
+                null,
+                null
+        );
+
+        SampleFetchOptions fetchOptions = new SampleFetchOptions(
+                new PropertyFetchOptions(),
+                new SampleTypeFetchOptions(),
+                parentOptions, // Fetch parent (supplier) of the order
+                childrenOptions // Fetch children (ratings) of the order
+        );
+
+        List<OpenBisSample> rawSamples = openBisClient.searchSamples(criteria, fetchOptions);
+
+        if (rawSamples.isEmpty()) {
+            throw new OpenBisResourceNotFoundException("Order with PermID " + permId + " not found.");
+        }
+
+        return orderMapper.toApiDto(rawSamples.getFirst());
+    }
+
+    /**
      * Creates a new order in OpenBIS based on the provided data.
      *
      * @param creationDto The data for the new order.
