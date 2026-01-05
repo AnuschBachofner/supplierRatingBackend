@@ -63,17 +63,7 @@ public class RatingService {
                 .with(SampleTypeSearchCriteria.withCode(properties.rating().typeCode()));
 
         // 2. Fetch Options: Load Properties, Type, and Parent (Order)
-        SampleFetchOptions fetchOptions = new SampleFetchOptions(
-                new PropertyFetchOptions(),     // Load Scores
-                new SampleTypeFetchOptions(),   // Load Type Info
-                new SampleFetchOptions(         // PARENTS FETCHING (The Order)
-                        null,                   // No properties needed for Order here
-                        null,
-                        null,                    // Stop recursion
-                        null                    // No children needed for Orders
-                ),
-                null                    // No children needed for Ratings
-        );
+        SampleFetchOptions fetchOptions = createDeepRatingFetchOptions();
 
         // 3. Execute Search
         List<OpenBisSample> samples = openBisClient.searchSamples(criteria, fetchOptions);
@@ -166,14 +156,44 @@ public class RatingService {
      */
     private RatingReadDto fetchFreshRating(String permId) {
         SampleSearchCriteria criteria = SampleSearchCriteria.create().with(PermIdSearchCriteria.withId(permId));
-        SampleFetchOptions parentOptions = new SampleFetchOptions(null, null, null, null);
-        SampleFetchOptions fetchOptions = new SampleFetchOptions(
-                new PropertyFetchOptions(),
-                new SampleTypeFetchOptions(),
-                parentOptions,
-                null);
+
+        // Fetch options for deep rating retrieval
+        SampleFetchOptions fetchOptions = createDeepRatingFetchOptions();
+
         List<OpenBisSample> results = openBisClient.searchSamples(criteria, fetchOptions);
         if (results.isEmpty()) throw new OpenBisResourceNotFoundException("Critical Error: Rating created but could not be retrieved immediately. PermID: " + permId);
         return ratingMapper.toApiDto(results.getFirst());
+    }
+
+    /**
+     * Helper method to create a fetch options object for deep rating retrieval.
+     * This includes Supplier, Order, and Rating details.
+     *
+     * @return SampleFetchOptions for deep rating retrieval
+     */
+    private SampleFetchOptions createDeepRatingFetchOptions() {
+        // Grandparent (Supplier)
+        SampleFetchOptions supplierFetchOptions = new SampleFetchOptions(
+                new PropertyFetchOptions(),
+                new SampleTypeFetchOptions(),
+                null,
+                null
+        );
+
+        // Parent (Order)
+        SampleFetchOptions orderFetchOptions = new SampleFetchOptions(
+                new PropertyFetchOptions(),
+                new SampleTypeFetchOptions(),
+                supplierFetchOptions, // link to Supplier
+                null
+        );
+
+        // Target (Rating)
+        return new SampleFetchOptions(
+                new PropertyFetchOptions(),     // Load Scores
+                new SampleTypeFetchOptions(),   // Load Type Info
+                orderFetchOptions,      // link to Order
+                null
+        );
     }
 }

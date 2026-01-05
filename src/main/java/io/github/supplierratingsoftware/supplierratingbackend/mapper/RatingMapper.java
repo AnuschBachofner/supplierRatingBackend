@@ -57,13 +57,27 @@ public class RatingMapper {
             properties = Map.of();
         }
 
-        // Extract Parent Order ID (Foreign Key)
+        // Resolve Hierarchy: Rating -> Order -> Supplier
         String orderId = null;
-        List<OpenBisSample> parents = sample.parents();
-        if (parents != null && !parents.isEmpty()) {
-            OpenBisSample parentOrder = parents.get(0);
-            if (parentOrder != null && parentOrder.permId() != null) {
-                orderId = parentOrder.permId().permId();
+        String supplierId = null;
+        String supplierName = null;
+
+        // Get Order (Parent)
+        if (sample.parents() != null && !sample.parents().isEmpty()) {
+            OpenBisSample order = sample.parents().getFirst();
+            if (order != null && order.permId() != null) {
+                orderId = order.permId().permId();
+            }
+
+            // Get Supplier (Grandparent)
+            if (order != null && order.parents() != null && !order.parents().isEmpty()) {
+                OpenBisSample supplier = order.parents().getFirst();
+                if (supplier != null && supplier.permId() != null) {
+                    supplierId = supplier.permId().permId();
+                }
+                if (supplier != null && supplier.properties() != null) {
+                    supplierName = supplier.properties().get(OpenBisSchemaConstants.NAME_SUPPLIER_PROPERTY);
+                }
             }
         }
 
@@ -107,8 +121,8 @@ public class RatingMapper {
                 sample.permId() != null ? sample.permId().permId() : null,
                 sample.code(),
                 orderId,
-                null, //TODO: populate supplierId, once supplier reference is available
-                null //TODO: populate supplierName, once supplier reference is available
+                supplierId,
+                supplierName
         );
     }
 
