@@ -39,6 +39,10 @@ public final class OpenBisSchemaConstants {
     public static final String DELIVERY_DATE_ORDER_PROPERTY = "LIEFERDATUM";
     public static final String ORDER_COMMENT_ORDER_PROPERTY = "KOMMENTAR";
 
+    // - Rating Status of Orders
+    public static final String RATING_STATUS_RATED_ORDER_PROPERTY = "RATED";
+    public static final String RATING_STATUS_PENDING_ORDER_PROPERTY = "PENDING";
+
     // - Rating
     public static final String QUALITY_RATING_PROPERTY = "QUALITAET";
     public static final String QUALITY_REASON_RATING_PROPERTY = "GRUND_QUALITAET";

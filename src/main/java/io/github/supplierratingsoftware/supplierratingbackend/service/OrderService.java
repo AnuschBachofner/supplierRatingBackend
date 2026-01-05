@@ -66,11 +66,22 @@ public class OrderService {
 
         if (supplierId != null && !supplierId.isBlank()) criteria.with(SampleParentsSearchCriteria.withParentId(supplierId));
 
+        SampleFetchOptions childrenOptions = new SampleFetchOptions(
+                new PropertyFetchOptions(), // Empty properties
+                new SampleTypeFetchOptions(), // Type information
+                null,
+                null
+        );
+
         SampleFetchOptions fetchOptions = new SampleFetchOptions(
                 new PropertyFetchOptions(), // Fetch properties of the order
                 new SampleTypeFetchOptions(), // Fetch type information of the order
-                new SampleFetchOptions(null, null, null, null),
-                null // No children needed for orders
+                new SampleFetchOptions( // Fetch parent (supplier) of the order
+                        new PropertyFetchOptions(),
+                        new SampleTypeFetchOptions(),
+                        null,
+                        null),
+                childrenOptions // Fetch children (ratings) of the order
         );
         List<OpenBisSample> rawSamples = openBisClient.searchSamples(criteria, fetchOptions);
 

@@ -48,11 +48,29 @@ public class OrderMapper {
 
         if (props == null) props = Map.of();
 
+        String supplierName = null;
         String supplierId = null;
         if (sample.parents() != null && !sample.parents().isEmpty()) {
-            OpenBisSample parent = sample.parents().get(0);
-            if (parent != null && parent.permId() != null) {
-                supplierId = parent.permId().permId();
+            OpenBisSample parent = sample.parents().getFirst();
+            if (parent != null) {
+                if (parent.permId() != null) {
+                    supplierId = parent.permId().permId();
+                }
+                if (parent.properties() != null && parent.properties().containsKey(OpenBisSchemaConstants.NAME_SUPPLIER_PROPERTY)) {
+                    supplierName = parent.properties().get(OpenBisSchemaConstants.NAME_SUPPLIER_PROPERTY);
+                }
+            }
+        }
+
+        String ratingStatus = OpenBisSchemaConstants.RATING_STATUS_PENDING_ORDER_PROPERTY;
+        String ratingId = null;
+
+        if (sample.children() != null && !sample.children().isEmpty()) {
+            OpenBisSample rating = sample.children().getFirst();
+            if (rating != null) {
+                // Business Logic: 1 Order has max. 1 Rating.
+                ratingStatus = OpenBisSchemaConstants.RATING_STATUS_RATED_ORDER_PROPERTY;
+                ratingId = rating.permId() != null ? rating.permId().permId() : null;
             }
         }
 
@@ -73,10 +91,10 @@ public class OrderMapper {
                 props.get(OpenBisSchemaConstants.ORDER_COMMENT_ORDER_PROPERTY),
                 sample.permId() != null ? sample.permId().permId() : null,
                 sample.code(),
-                null, //TODO: to be implemented by business logic (if there is any rating, then ...)
+                ratingStatus,
                 supplierId,
-                null, //TODO: to be implemented, when search for single supplier is implemented
-                null //TODO: to be implemented, when rating logic is implemented
+                supplierName,
+                ratingId
         );
     }
 
