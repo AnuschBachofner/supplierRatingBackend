@@ -76,6 +76,12 @@ public class OrderMapper {
 
         if (props == null) props = Map.of();
 
+        // Mapping Codes (openBIS Code for openBIS V3 API) -> Labels (user-friendly term for REST-API)
+        String rawMainCategory = props.get(OpenBisSchemaConstants.MAIN_CATEGORY_ORDER_PROPERTY);
+        String mainCategory = OpenBisSchemaConstants.ORDER_MAIN_CATEGORY_MAPPING_CODE_TO_LABEL.getOrDefault(rawMainCategory, rawMainCategory);
+        String rawSubCategory = props.get(OpenBisSchemaConstants.SUB_CATEGORY_ORDER_PROPERTY);
+        String subCategory = OpenBisSchemaConstants.ORDER_SUB_CATEGORY_MAPPING_CODE_TO_LABEL.getOrDefault(rawSubCategory, rawSubCategory);
+
         String ratingStatus = OpenBisSchemaConstants.RATING_STATUS_PENDING_ORDER_PROPERTY;
         String ratingId = null;
 
@@ -90,8 +96,8 @@ public class OrderMapper {
 
         return new OrderReadDto(
                 props.get(OpenBisSchemaConstants.NAME_ORDER_PROPERTY),
-                props.get(OpenBisSchemaConstants.MAIN_CATEGORY_ORDER_PROPERTY),
-                props.get(OpenBisSchemaConstants.SUB_CATEGORY_ORDER_PROPERTY),
+                mainCategory,
+                subCategory,
                 props.get(OpenBisSchemaConstants.DESCRIPTION_ORDER_PROPERTY),
                 props.get(OpenBisSchemaConstants.FREQUENCY_ORDER_PROPERTY),
                 props.get(OpenBisSchemaConstants.CONTACT_NAME_ORDER_PROPERTY),
@@ -144,13 +150,17 @@ public class OrderMapper {
                 )
         );
 
+        // Mapping Labels (user-friendly term for REST-API) -> Codes (openBIS Code for openBIS V3 API)
+        String mainCategoryCode = OpenBisSchemaConstants.ORDER_MAIN_CATEGORY_MAPPING_LABEL_TO_CODE.getOrDefault(dto.mainCategory(), dto.mainCategory());
+        String subCategoryCode = OpenBisSchemaConstants.ORDER_SUB_CATEGORY_MAPPING_LABEL_TO_CODE.getOrDefault(dto.subCategory(), dto.subCategory());
+
         // Map Properties
         Map<String, String> props = new HashMap<>();
 
         // Mandatory
         props.put(OpenBisSchemaConstants.NAME_ORDER_PROPERTY, dto.name());
-        props.put(OpenBisSchemaConstants.MAIN_CATEGORY_ORDER_PROPERTY, dto.mainCategory());
-        props.put(OpenBisSchemaConstants.SUB_CATEGORY_ORDER_PROPERTY, dto.subCategory());
+        props.put(OpenBisSchemaConstants.MAIN_CATEGORY_ORDER_PROPERTY, mainCategoryCode);
+        props.put(OpenBisSchemaConstants.SUB_CATEGORY_ORDER_PROPERTY, subCategoryCode);
         props.put(OpenBisSchemaConstants.ORDER_REASON_ORDER_PROPERTY, dto.reason());
         props.put(OpenBisSchemaConstants.PURCHASER_ORDER_PROPERTY, dto.orderedBy());
         props.put(OpenBisSchemaConstants.ORDER_DATE_ORDER_PROPERTY, dto.orderDate());
@@ -195,13 +205,17 @@ public class OrderMapper {
         // Identifier
         SamplePermId sampleId = new SamplePermId(permId);
 
+        // Mapping Labels (user-friendly term for REST-API) -> Codes (openBIS Code for openBIS V3 API)
+        String mainCategoryCode = OpenBisSchemaConstants.ORDER_MAIN_CATEGORY_MAPPING_LABEL_TO_CODE.getOrDefault(dto.mainCategory(), dto.mainCategory());
+        String subCategoryCode = OpenBisSchemaConstants.ORDER_SUB_CATEGORY_MAPPING_LABEL_TO_CODE.getOrDefault(dto.subCategory(), dto.subCategory());
+
         // Map Properties
         Map<String, String> props = new HashMap<>();
 
         // Mandatory Fields (Enforced by @NotBlank in DTO)
         props.put(OpenBisSchemaConstants.NAME_ORDER_PROPERTY, dto.name());
-        props.put(OpenBisSchemaConstants.MAIN_CATEGORY_ORDER_PROPERTY, dto.mainCategory());
-        props.put(OpenBisSchemaConstants.SUB_CATEGORY_ORDER_PROPERTY, dto.subCategory());
+        props.put(OpenBisSchemaConstants.MAIN_CATEGORY_ORDER_PROPERTY, mainCategoryCode);
+        props.put(OpenBisSchemaConstants.SUB_CATEGORY_ORDER_PROPERTY, subCategoryCode);
         props.put(OpenBisSchemaConstants.ORDER_REASON_ORDER_PROPERTY, dto.reason());
         props.put(OpenBisSchemaConstants.PURCHASER_ORDER_PROPERTY, dto.orderedBy());
         props.put(OpenBisSchemaConstants.ORDER_DATE_ORDER_PROPERTY, dto.orderDate());

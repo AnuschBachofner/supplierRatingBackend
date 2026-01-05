@@ -1,6 +1,8 @@
 package io.github.supplierratingsoftware.supplierratingbackend.dto.api;
 
 import io.github.supplierratingsoftware.supplierratingbackend.constant.api.ValidationConstants;
+import io.github.supplierratingsoftware.supplierratingbackend.constant.openbis.OpenBisSchemaConstants;
+import io.github.supplierratingsoftware.supplierratingbackend.validation.annotation.OpenBisVocabulary;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -51,11 +53,11 @@ public record OrderUpdateDto(
         String name,
 
         @NotBlank(message = "Main category is required")
-        @Pattern(regexp = ValidationConstants.MAIN_CATEGORY_REGEX, message = ValidationConstants.MAIN_CATEGORY_MESSAGE)
+        @OpenBisVocabulary(type = OpenBisSchemaConstants.MAIN_CATEGORY_ORDER_PROPERTY)
         String mainCategory,
 
         @NotBlank(message = "Subcategory is required")
-        @Pattern(regexp = ValidationConstants.SUB_CATEGORY_REGEX, message = ValidationConstants.SUB_CATEGORY_MESSAGE)
+        @OpenBisVocabulary(type = OpenBisSchemaConstants.SUB_CATEGORY_ORDER_PROPERTY)
         String subCategory,
 
         String details, // optional

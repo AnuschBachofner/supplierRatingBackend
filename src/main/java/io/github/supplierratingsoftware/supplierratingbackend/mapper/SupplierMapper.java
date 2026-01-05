@@ -56,13 +56,17 @@ public class SupplierMapper {
 
         if (props == null) props = Map.of();
 
+        // Mapping Codes (openBIS Code for openBIS V3 API) -> Labels (user-friendly term for REST-API)
+        String rawCountry = props.get(OpenBisSchemaConstants.COUNTRY_SUPPLIER_PROPERTY);
+        String country = OpenBisSchemaConstants.SUPPLIER_COUNTRY_MAPPING_CODE_TO_LABEL.getOrDefault(rawCountry, rawCountry);
+
         return new SupplierReadDto(
                 props.get(OpenBisSchemaConstants.NAME_SUPPLIER_PROPERTY),
                 props.get(OpenBisSchemaConstants.CUSTOMER_NUMBER_SUPPLIER_PROPERTY),
                 props.get(OpenBisSchemaConstants.ADDITION_SUPPLIER_PROPERTY),
                 props.get(OpenBisSchemaConstants.STREET_SUPPLIER_PROPERTY),
                 props.get(OpenBisSchemaConstants.PO_BOX_SUPPLIER_PROPERTY),
-                props.get(OpenBisSchemaConstants.COUNTRY_SUPPLIER_PROPERTY),
+                country,
                 props.get(OpenBisSchemaConstants.ZIP_CODE_SUPPLIER_PROPERTY),
                 props.get(OpenBisSchemaConstants.CITY_SUPPLIER_PROPERTY),
                 props.get(OpenBisSchemaConstants.WEBSITE_SUPPLIER_PROPERTY),
@@ -110,6 +114,9 @@ public class SupplierMapper {
                 )
         );
 
+        // Mapping Labels (user-friendly term for REST-API) -> Codes (openBIS Code for openBIS V3 API)
+        String countryCode = OpenBisSchemaConstants.SUPPLIER_COUNTRY_MAPPING_LABEL_TO_CODE.getOrDefault(dto.country(), dto.country());
+
         // Map Properties
         Map<String, String> props = new HashMap<>();
 
@@ -117,7 +124,7 @@ public class SupplierMapper {
         props.put(OpenBisSchemaConstants.NAME_SUPPLIER_PROPERTY, dto.name());
         props.put(OpenBisSchemaConstants.CUSTOMER_NUMBER_SUPPLIER_PROPERTY, dto.customerNumber());
         props.put(OpenBisSchemaConstants.STREET_SUPPLIER_PROPERTY, dto.street());
-        props.put(OpenBisSchemaConstants.COUNTRY_SUPPLIER_PROPERTY, dto.country());
+        props.put(OpenBisSchemaConstants.COUNTRY_SUPPLIER_PROPERTY, countryCode);
         props.put(OpenBisSchemaConstants.ZIP_CODE_SUPPLIER_PROPERTY, dto.zipCode());
         props.put(OpenBisSchemaConstants.CITY_SUPPLIER_PROPERTY, dto.city());
         props.put(OpenBisSchemaConstants.VAT_ID_SUPPLIER_PROPERTY, dto.vatId());
@@ -154,6 +161,9 @@ public class SupplierMapper {
         // Identifier
         SamplePermId sampleId = new SamplePermId(permId);
 
+        // Mapping Labels (user-friendly term for REST-API) -> Codes (openBIS Code for openBIS V3 API)
+        String countryCode = OpenBisSchemaConstants.SUPPLIER_COUNTRY_MAPPING_LABEL_TO_CODE.getOrDefault(dto.country(), dto.country());
+
         // Map Properties
         Map<String, String> props = new HashMap<>();
 
@@ -161,7 +171,7 @@ public class SupplierMapper {
         props.put(OpenBisSchemaConstants.NAME_SUPPLIER_PROPERTY, dto.name());
         props.put(OpenBisSchemaConstants.CUSTOMER_NUMBER_SUPPLIER_PROPERTY, dto.customerNumber());
         props.put(OpenBisSchemaConstants.STREET_SUPPLIER_PROPERTY, dto.street());
-        props.put(OpenBisSchemaConstants.COUNTRY_SUPPLIER_PROPERTY, dto.country());
+        props.put(OpenBisSchemaConstants.COUNTRY_SUPPLIER_PROPERTY, countryCode);
         props.put(OpenBisSchemaConstants.ZIP_CODE_SUPPLIER_PROPERTY, dto.zipCode());
         props.put(OpenBisSchemaConstants.CITY_SUPPLIER_PROPERTY, dto.city());
         props.put(OpenBisSchemaConstants.VAT_ID_SUPPLIER_PROPERTY, dto.vatId());

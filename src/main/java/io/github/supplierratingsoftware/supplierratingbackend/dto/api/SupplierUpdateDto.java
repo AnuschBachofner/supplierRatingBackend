@@ -1,6 +1,8 @@
 package io.github.supplierratingsoftware.supplierratingbackend.dto.api;
 
 import io.github.supplierratingsoftware.supplierratingbackend.constant.api.ValidationConstants;
+import io.github.supplierratingsoftware.supplierratingbackend.constant.openbis.OpenBisSchemaConstants;
+import io.github.supplierratingsoftware.supplierratingbackend.validation.annotation.OpenBisVocabulary;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -58,7 +60,7 @@ public record SupplierUpdateDto(
         String poBox,
 
         @NotBlank(message = "Country is required")
-        @Pattern(regexp = ValidationConstants.COUNTRY_REGEX, message = ValidationConstants.COUNTRY_MESSAGE)
+        @OpenBisVocabulary(type = OpenBisSchemaConstants.COUNTRY_SUPPLIER_PROPERTY)
         String country,
 
         @NotBlank(message = "Postal code is required")
