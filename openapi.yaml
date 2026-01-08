@@ -28,7 +28,7 @@ paths:
       operationId: getAllSuppliers
       responses:
         '200':
-          description: Successful retrieval
+          description: 'Successful retrieval [returns an array of SupplierSummaryDTO]'
           content:
             application/json:
               schema:
@@ -40,6 +40,7 @@ paths:
       description: Creates a new supplier (Type LIEFERANT) in openBIS. The code is generated automatically.
       operationId: createSupplier
       requestBody:
+        description: 'Required data for creation [uses SupplierCreateDTO]'
         required: true
         content:
           application/json:
@@ -47,7 +48,7 @@ paths:
               $ref: '#/components/schemas/SupplierCreateDTO'
       responses:
         '201':
-          description: Supplier successfully created
+          description: 'Supplier successfully created [returns SupplierDetailDTO]'
           content:
             application/json:
               schema:
@@ -69,7 +70,7 @@ paths:
             type: string
       responses:
         '200':
-          description: Supplier found
+          description: 'Supplier found [returns SupplierDetailDTO]'
           content:
             application/json:
               schema:
@@ -88,6 +89,7 @@ paths:
           schema:
             type: string
       requestBody:
+        description: 'Data to update [uses SupplierUpdateDTO]'
         required: true
         content:
           application/json:
@@ -95,7 +97,7 @@ paths:
               $ref: '#/components/schemas/SupplierUpdateDTO'
       responses:
         '200':
-          description: Update successful
+          description: 'Update successful [returns SupplierDetailDTO]'
           content:
             application/json:
               schema:
@@ -118,7 +120,7 @@ paths:
             type: string
       responses:
         '200':
-          description: List of orders
+          description: 'List of orders [returns an array of OrderSummaryDTO]'
           content:
             application/json:
               schema:
@@ -130,6 +132,7 @@ paths:
       description: Creates a new order (Type BESTELLUNG) and assigns it to a supplier. The code is generated automatically.
       operationId: createOrder
       requestBody:
+        description: 'Required data for creation [uses OrderCreateDTO]'
         required: true
         content:
           application/json:
@@ -137,7 +140,7 @@ paths:
               $ref: '#/components/schemas/OrderCreateDTO'
       responses:
         '201':
-          description: Order created
+          description: 'Order created [returns OrderDetailDTO]'
           content:
             application/json:
               schema:
@@ -157,7 +160,7 @@ paths:
             type: string
       responses:
         '200':
-          description: Order found
+          description: 'Order found [returns OrderDetailDTO]'
           content:
             application/json:
               schema:
@@ -176,6 +179,7 @@ paths:
           schema:
             type: string
       requestBody:
+        description: 'Data to update [uses OrderUpdateDTO]'
         required: true
         content:
           application/json:
@@ -183,7 +187,7 @@ paths:
               $ref: '#/components/schemas/OrderUpdateDTO'
       responses:
         '200':
-          description: Update successful
+          description: 'Update successful [returns OrderDetailDTO]'
           content:
             application/json:
               schema:
@@ -200,6 +204,7 @@ paths:
         Calculates the total score automatically.
       operationId: createRating
       requestBody:
+        description: 'Required data for creation [uses RatingCreateDTO]'
         required: true
         content:
           application/json:
@@ -207,7 +212,7 @@ paths:
               $ref: '#/components/schemas/RatingCreateDTO'
       responses:
         '201':
-          description: Rating created
+          description: 'Rating created [returns RatingDetailDTO]'
           content:
             application/json:
               schema:
@@ -227,7 +232,7 @@ paths:
             type: string
       responses:
         '200':
-          description: Rating found
+          description: 'Rating found [returns RatingDetailDTO]'
           content:
             application/json:
               schema:
@@ -239,6 +244,7 @@ components:
   schemas:
     # --- COMMON STATS ---
     RatingStats:
+      title: RatingStats
       type: object
       description: Calculated average values for a supplier based on the 4 criteria and total score.
       properties:
@@ -280,6 +286,7 @@ components:
 
     # --- SUPPLIER DTOS ---
     SupplierBaseDTO:
+      title: SupplierBaseDTO
       type: object
       required:
         - name
@@ -353,13 +360,16 @@ components:
           description: Mapped to KUNDENINFORMATION
 
     SupplierCreateDTO:
+      title: SupplierCreateDTO
       allOf:
         - $ref: '#/components/schemas/SupplierBaseDTO'
 
     SupplierUpdateDTO:
+      title: SupplierUpdateDTO
       $ref: '#/components/schemas/SupplierBaseDTO'
 
     SupplierSummaryDTO:
+      title: SupplierSummaryDTO
       allOf:
         - $ref: '#/components/schemas/SupplierBaseDTO'
         - type: object
@@ -378,6 +388,7 @@ components:
               $ref: '#/components/schemas/RatingStats'
 
     SupplierDetailDTO:
+      title: SupplierDetailDTO
       allOf:
         - $ref: '#/components/schemas/SupplierSummaryDTO'
         - type: object
@@ -390,6 +401,7 @@ components:
 
     # --- ORDER DTOS ---
     OrderBaseDTO:
+      title: OrderBaseDTO
       type: object
       required:
         - name
@@ -472,6 +484,7 @@ components:
           description: Mapped to KOMMENTAR (General comment)
 
     OrderCreateDTO:
+      title: OrderCreateDTO
       allOf:
         - $ref: '#/components/schemas/OrderBaseDTO'
         - type: object
@@ -485,9 +498,11 @@ components:
                 - "2023050512345"
 
     OrderUpdateDTO:
+      title: OrderUpdateDTO
       $ref: '#/components/schemas/OrderBaseDTO'
 
     OrderSummaryDTO:
+      title: OrderSummaryDTO
       allOf:
         - $ref: '#/components/schemas/OrderBaseDTO'
         - type: object
@@ -507,6 +522,7 @@ components:
               description: Helps the frontend to show if already rated.
 
     OrderDetailDTO:
+      title: OrderDetailDTO
       allOf:
         - $ref: '#/components/schemas/OrderSummaryDTO'
         - type: object
@@ -523,6 +539,7 @@ components:
 
     # --- RATING DTOS ---
     RatingBaseDTO:
+      title: RatingBaseDTO
       type: object
       required:
         - quality
@@ -581,6 +598,7 @@ components:
           description: Mapped to KOMMENTAR
 
     RatingCreateDTO:
+      title: RatingCreateDTO
       allOf:
         - $ref: '#/components/schemas/RatingBaseDTO'
         - type: object
@@ -598,6 +616,7 @@ components:
               description: PermID of the order this rating belongs to.
 
     RatingDetailDTO:
+      title: RatingDetailDTO
       allOf:
         - $ref: '#/components/schemas/RatingBaseDTO'
         - type: object
