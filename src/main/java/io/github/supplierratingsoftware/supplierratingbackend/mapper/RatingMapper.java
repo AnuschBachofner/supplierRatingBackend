@@ -82,34 +82,41 @@ public class RatingMapper {
         }
 
         return new RatingReadDto(
-                OpenBisUtils.parseDoubleOrNull(
+                // This rounds the parsed Double to the nearest Integer.
+                // But since the rating score values should be integers, this rounding is expected behavior.
+                // Rating scores which were originally set by this application into openBIS are already Integers anyway.
+                // But openBis converts them to Floating Point Numbers, so this rounding is necessary.
+                // This means we are rounding values like 2.0 to 2.
+                OpenBisUtils.parseIntegerOrNull(
                         properties.get(OpenBisSchemaConstants.QUALITY_RATING_PROPERTY),
                         OpenBisSchemaConstants.QUALITY_RATING_PROPERTY,
                         sample.code()
                 ),
                 properties.get(OpenBisSchemaConstants.QUALITY_REASON_RATING_PROPERTY),
 
-                OpenBisUtils.parseDoubleOrNull(
+                OpenBisUtils.parseIntegerOrNull(
                         properties.get(OpenBisSchemaConstants.COST_RATING_PROPERTY),
                         OpenBisSchemaConstants.COST_RATING_PROPERTY,
                         sample.code()
                 ),
                 properties.get(OpenBisSchemaConstants.COST_REASON_RATING_PROPERTY),
 
-                OpenBisUtils.parseDoubleOrNull(
+                OpenBisUtils.parseIntegerOrNull(
                         properties.get(OpenBisSchemaConstants.RELIABILITY_RATING_PROPERTY),
                         OpenBisSchemaConstants.RELIABILITY_RATING_PROPERTY,
                         sample.code()
                 ),
                 properties.get(OpenBisSchemaConstants.RELIABILITY_REASON_RATING_PROPERTY),
 
-                OpenBisUtils.parseDoubleOrNull(
+                OpenBisUtils.parseIntegerOrNull(
                         properties.get(OpenBisSchemaConstants.AVAILABILITY_RATING_PROPERTY),
                         OpenBisSchemaConstants.AVAILABILITY_RATING_PROPERTY,
                         sample.code()
                 ),
                 properties.get(OpenBisSchemaConstants.AVAILABILITY_REASON_RATING_PROPERTY),
 
+                // The total score is calculated as an average value of the other ratings.
+                // This is why it is not going to be rounded but instead directly returned as a Double.
                 OpenBisUtils.parseDoubleOrNull(
                         properties.get(OpenBisSchemaConstants.TOTAL_SCORE_RATING_PROPERTY),
                         OpenBisSchemaConstants.TOTAL_SCORE_RATING_PROPERTY,

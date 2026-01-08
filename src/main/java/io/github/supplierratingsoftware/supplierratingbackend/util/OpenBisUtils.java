@@ -18,6 +18,29 @@ public final class OpenBisUtils {
     }
 
     /**
+     * Safely parses a string property to an Integer.
+     * <p><strong>Rounding:</strong>
+     * This Method rounds the parsed Double to the nearest Integer.
+     * </p>
+     *
+     * @param value        The string value to parse.
+     * @param contextKey   The key or property name (for logging context).
+     * @param contextValue The sample code or ID (for logging context).
+     * @return The parsed Integer, or null if the value is null/blank or invalid.
+     */
+    public static Integer parseIntegerOrNull(String value, String contextKey, String contextValue) {
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+        try {
+            return (int) Math.round(Double.parseDouble(value));
+        } catch (NumberFormatException e) {
+            logDataParsingError(contextKey, value, contextValue, null, Integer.class.getSimpleName());
+            return null;
+        }
+    }
+
+    /**
      * Safely parses a string property to a Double.
      *
      * @param value        The string value to parse.
@@ -32,8 +55,7 @@ public final class OpenBisUtils {
         try {
             return Double.valueOf(value);
         } catch (NumberFormatException e) {
-            log.warn("Data Quality Warning: Failed to parse property '{}' with value '{}' for sample '{}'. Returning null.",
-                    contextKey, value, contextValue);
+            logDataParsingError(contextKey, value, contextValue, null, Double.class.getSimpleName());
             return null;
         }
     }
@@ -66,5 +88,10 @@ public final class OpenBisUtils {
         if (map != null && value != null && !value.isBlank()) {
             map.put(key, value);
         }
+    }
+
+    private static void logDataParsingError(String property, String value, String sampleName, Object returnValue, String typeName) {
+        log.warn("Data Quality Warning: Failed to parse property '{}' with value '{}' to {} for sample '{}'. Returning {} instead.",
+                property, value, typeName, sampleName, returnValue);
     }
 }

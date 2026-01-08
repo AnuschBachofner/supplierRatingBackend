@@ -41,16 +41,16 @@ package io.github.supplierratingsoftware.supplierratingbackend.dto.api;
  * @param supplierName The supplier name (Parent of the order).
  */
 public record RatingReadDto(
-        Double quality,
+        Integer quality,
         String qualityReason,
 
-        Double cost,
+        Integer cost,
         String costReason,
 
-        Double reliability,
+        Integer reliability,
         String reliabilityReason,
 
-        Double availability,
+        Integer availability,
         String availabilityReason,
 
         Double totalScore,
