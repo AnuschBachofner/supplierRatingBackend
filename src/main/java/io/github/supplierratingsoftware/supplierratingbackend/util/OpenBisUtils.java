@@ -90,6 +90,34 @@ public final class OpenBisUtils {
         }
     }
 
+    /**
+     * Puts a value into the map specifically for UPDATE (PUT) operations.
+     * <p>
+     * Logic:
+     * <ul>
+     *      <li>If value is <b>NULL</b>: Do nothing. The field remains unchanged in OpenBIS (Safety mechanism for partial updates).</li>
+     *      <li>If value is <b>EMPTY/BLANK ("") or (" ")</b>: Put "" in the map. OpenBIS interprets this as "DELETE value".</li>
+     *      <li>If value is <b>TEXT</b>: Put it in the map. OpenBIS updates the value.</li>
+     * </ul>
+     * </p>
+     *
+     * @param map   The properties map.
+     * @param key   The property key.
+     * @param value The value to update (can be null or empty).
+     */
+    public static void putForUpdate(Map<String, String> map, String key, String value) {
+        if (map == null) return;
+        // Case Value is null:
+        if (value == null) return;
+        // Case Value is empty/blank:
+        if (value.isBlank()) {
+            map.put(key, "");
+            return;
+        }
+        // Case Value is text:
+        map.put(key, value);
+    }
+
     private static void logDataParsingError(String property, String value, String sampleName, Object returnValue, String typeName) {
         log.warn("Data Quality Warning: Failed to parse property '{}' with value '{}' to {} for sample '{}'. Returning {} instead.",
                 property, value, typeName, sampleName, returnValue);

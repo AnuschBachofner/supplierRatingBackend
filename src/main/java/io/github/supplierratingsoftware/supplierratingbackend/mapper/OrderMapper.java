@@ -221,15 +221,15 @@ public class OrderMapper {
         props.put(OpenBisSchemaConstants.ORDER_DATE_ORDER_PROPERTY, dto.orderDate());
 
         // Optional Fields
-        // `null` values in DTO are ignored (field remains unchanged in OpenBIS).
-        OpenBisUtils.putIfNotNull(props, OpenBisSchemaConstants.DESCRIPTION_ORDER_PROPERTY, dto.details());
-        OpenBisUtils.putIfNotNull(props, OpenBisSchemaConstants.FREQUENCY_ORDER_PROPERTY, dto.frequency());
-        OpenBisUtils.putIfNotNull(props, OpenBisSchemaConstants.CONTACT_NAME_ORDER_PROPERTY, dto.contactPerson());
-        OpenBisUtils.putIfNotNull(props, OpenBisSchemaConstants.CONTACT_EMAIL_ORDER_PROPERTY, dto.contactEmail());
-        OpenBisUtils.putIfNotNull(props, OpenBisSchemaConstants.CONTACT_PHONE_ORDER_PROPERTY, dto.contactPhone());
-        OpenBisUtils.putIfNotNull(props, OpenBisSchemaConstants.ORDER_METHOD_ORDER_PROPERTY, dto.orderMethod());
-        OpenBisUtils.putIfNotNull(props, OpenBisSchemaConstants.DELIVERY_DATE_ORDER_PROPERTY, dto.deliveryDate());
-        OpenBisUtils.putIfNotNull(props, OpenBisSchemaConstants.ORDER_COMMENT_ORDER_PROPERTY, dto.orderComment());
+        // Use putForUpdate to allow clearing values via empty strings
+        OpenBisUtils.putForUpdate(props, OpenBisSchemaConstants.DESCRIPTION_ORDER_PROPERTY, dto.details());
+        OpenBisUtils.putForUpdate(props, OpenBisSchemaConstants.FREQUENCY_ORDER_PROPERTY, dto.frequency());
+        OpenBisUtils.putForUpdate(props, OpenBisSchemaConstants.CONTACT_NAME_ORDER_PROPERTY, dto.contactPerson());
+        OpenBisUtils.putForUpdate(props, OpenBisSchemaConstants.CONTACT_EMAIL_ORDER_PROPERTY, dto.contactEmail());
+        OpenBisUtils.putForUpdate(props, OpenBisSchemaConstants.CONTACT_PHONE_ORDER_PROPERTY, dto.contactPhone());
+        OpenBisUtils.putForUpdate(props, OpenBisSchemaConstants.ORDER_METHOD_ORDER_PROPERTY, dto.orderMethod());
+        OpenBisUtils.putForUpdate(props, OpenBisSchemaConstants.DELIVERY_DATE_ORDER_PROPERTY, dto.deliveryDate());
+        OpenBisUtils.putForUpdate(props, OpenBisSchemaConstants.ORDER_COMMENT_ORDER_PROPERTY, dto.orderComment());
 
         return new SampleUpdate(sampleId, props);
     }

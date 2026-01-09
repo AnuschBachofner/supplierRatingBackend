@@ -321,6 +321,31 @@ public class SupplierMapperTest {
         );
     }
 
+    /**
+     * Helper method to create a SupplierUpdateDto object with optional fields set to empty strings.
+     * This is useful for testing scenarios where fields need to be explicitly cleared.
+     *
+     * @return SupplierUpdateDto object with all optional fields set to empty strings.
+     */
+    private SupplierUpdateDto getClearingSupplierUpdateDto() {
+        return new SupplierUpdateDto(
+                DUMMY_SUPPLIER_NAME,
+                DUMMY_CUSTOMER_NUMBER,
+                "", // <-- field should get cleared
+                DUMMY_STREET,
+                "", // <-- field should get cleared
+                VALID_EXAMPLE_COUNTRY_LABEL,
+                DUMMY_ZIP_CODE,
+                DUMMY_CITY,
+                "", // <-- field should get cleared
+                "", // <-- field should get cleared
+                "", // <-- field should get cleared
+                DUMMY_VAT_ID,
+                DUMMY_CONDITIONS,
+                "" // <-- field should get cleared
+        );
+    }
+
     // Setup
 
     /**
@@ -880,5 +905,29 @@ public class SupplierMapperTest {
         assertThat(result.properties()).containsEntry(OpenBisSchemaConstants.EMAIL_SUPPLIER_PROPERTY, DUMMY_EMAIL);
         assertThat(result.properties()).containsEntry(OpenBisSchemaConstants.PHONE_NUMBER_SUPPLIER_PROPERTY, DUMMY_PHONE_NUMBER);
         assertThat(result.properties()).containsEntry(OpenBisSchemaConstants.CUSTOMER_INFO_SUPPLIER_PROPERTY, DUMMY_CUSTOMER_INFO);
+    }
+
+    /**
+     * Tests that the toOpenBisUpdate method maps empty strings in optional fields to empty strings in the properties map.
+     * This ensures that fields can be explicitly cleared by sending an empty string. An empty string gets transmitted and
+     * signals OpenBIS to clear the field.
+     */
+    @Test
+    void toOpenBisUpdate_shouldMapEmptyStringsToEmptyProperties() {
+
+        // Arrange
+        SupplierUpdateDto dto = getClearingSupplierUpdateDto();
+
+        // Act
+        SampleUpdate result = supplierMapper.toOpenBisUpdate(DUMMY_PERM_ID, dto);
+
+        // Assert
+        // Verify that empty strings are PASSED to the map (not ignored)
+        assertThat(result.properties()).containsEntry(OpenBisSchemaConstants.ADDITION_SUPPLIER_PROPERTY, "");
+        assertThat(result.properties()).containsEntry(OpenBisSchemaConstants.PO_BOX_SUPPLIER_PROPERTY, "");
+        assertThat(result.properties()).containsEntry(OpenBisSchemaConstants.WEBSITE_SUPPLIER_PROPERTY, "");
+        assertThat(result.properties()).containsEntry(OpenBisSchemaConstants.EMAIL_SUPPLIER_PROPERTY, "");
+        assertThat(result.properties()).containsEntry(OpenBisSchemaConstants.PHONE_NUMBER_SUPPLIER_PROPERTY, "");
+        assertThat(result.properties()).containsEntry(OpenBisSchemaConstants.CUSTOMER_INFO_SUPPLIER_PROPERTY, "");
     }
 }

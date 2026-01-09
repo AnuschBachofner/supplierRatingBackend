@@ -178,13 +178,13 @@ public class SupplierMapper {
         props.put(OpenBisSchemaConstants.CONDITIONS_SUPPLIER_PROPERTY, dto.conditions());
 
         // Optional Fields
-        // Using putIfNotNull means `null` values in DTO are ignored (field remains unchanged in OpenBIS).
-        OpenBisUtils.putIfNotNull(props, OpenBisSchemaConstants.ADDITION_SUPPLIER_PROPERTY, dto.addition());
-        OpenBisUtils.putIfNotNull(props, OpenBisSchemaConstants.PO_BOX_SUPPLIER_PROPERTY, dto.poBox());
-        OpenBisUtils.putIfNotNull(props, OpenBisSchemaConstants.WEBSITE_SUPPLIER_PROPERTY, dto.website());
-        OpenBisUtils.putIfNotNull(props, OpenBisSchemaConstants.EMAIL_SUPPLIER_PROPERTY, dto.email());
-        OpenBisUtils.putIfNotNull(props, OpenBisSchemaConstants.PHONE_NUMBER_SUPPLIER_PROPERTY, dto.phoneNumber());
-        OpenBisUtils.putIfNotNull(props, OpenBisSchemaConstants.CUSTOMER_INFO_SUPPLIER_PROPERTY, dto.customerInfo());
+        // Use putForUpdate to allow clearing values via empty strings
+        OpenBisUtils.putForUpdate(props, OpenBisSchemaConstants.ADDITION_SUPPLIER_PROPERTY, dto.addition());
+        OpenBisUtils.putForUpdate(props, OpenBisSchemaConstants.PO_BOX_SUPPLIER_PROPERTY, dto.poBox());
+        OpenBisUtils.putForUpdate(props, OpenBisSchemaConstants.WEBSITE_SUPPLIER_PROPERTY, dto.website());
+        OpenBisUtils.putForUpdate(props, OpenBisSchemaConstants.EMAIL_SUPPLIER_PROPERTY, dto.email());
+        OpenBisUtils.putForUpdate(props, OpenBisSchemaConstants.PHONE_NUMBER_SUPPLIER_PROPERTY, dto.phoneNumber());
+        OpenBisUtils.putForUpdate(props, OpenBisSchemaConstants.CUSTOMER_INFO_SUPPLIER_PROPERTY, dto.customerInfo());
 
         return new SampleUpdate(sampleId, props);
     }

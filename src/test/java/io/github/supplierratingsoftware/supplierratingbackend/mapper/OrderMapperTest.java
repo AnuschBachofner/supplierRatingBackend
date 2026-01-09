@@ -334,6 +334,34 @@ public class OrderMapperTest {
     }
 
     /**
+     * Helper method to create an OrderUpdateDto that clears optional fields for testing.
+     * <p>
+     * This DTO sets selected optional string fields to empty strings so that tests can
+     * verify that applying the update results in those fields being cleared.
+     * </p>
+     *
+     * @return An OrderUpdateDto configured to clear optional fields when applied.
+     */
+    OrderUpdateDto getClearingOrderUpdateDto() {
+        return new OrderUpdateDto(
+                DUMMY_ORDER_NAME,
+                VALID_EXAMPLE_MAIN_CATEGORY_LABEL,
+                VALID_EXAMPLE_SUB_CATEGORY_LABEL,
+                "", // <-- field should get cleared
+                "", // <-- field should get cleared
+                "", // <-- field should get cleared
+                "", // <-- field should get cleared
+                "", // <-- field should get cleared
+                DUMMY_ORDER_REASON,
+                "", // <-- field should get cleared
+                DUMMY_PURCHASER,
+                DUMMY_ORDER_DATE,
+                "", // <-- field should get cleared
+                "" // <-- field should get cleared
+        );
+    }
+
+    /**
      * Setup method to set up the test environment with predefined OpenBis properties.
      */
     @BeforeEach
@@ -841,5 +869,31 @@ public class OrderMapperTest {
         assertThat(result.properties()).containsEntry(OpenBisSchemaConstants.ORDER_METHOD_ORDER_PROPERTY, DUMMY_ORDER_METHOD);
         assertThat(result.properties()).containsEntry(OpenBisSchemaConstants.DELIVERY_DATE_ORDER_PROPERTY, DUMMY_ORDER_DELIVERY_DATE);
         assertThat(result.properties()).containsEntry(OpenBisSchemaConstants.ORDER_COMMENT_ORDER_PROPERTY, DUMMY_ORDER_COMMENT);
+    }
+
+    /**
+     * Tests that the toOpenBisUpdate method maps empty strings in optional fields to empty strings in the properties map.
+     * This ensures that fields can be explicitly cleared by sending an empty string. An empty string gets transmitted and
+     * signals OpenBIS to clear the field.
+     */
+    @Test
+    void toOpenBisUpdate_shouldMapEmptyStringsToEmptyProperties() {
+
+        // Arrange
+        OrderUpdateDto dto = getClearingOrderUpdateDto();
+
+        // Act
+        SampleUpdate result = orderMapper.toOpenBisUpdate(DUMMY_PERM_ID, dto);
+
+        // Assert
+        // Verify that empty strings are PASSED to the map (not ignored)
+        assertThat(result.properties()).containsEntry(OpenBisSchemaConstants.DESCRIPTION_ORDER_PROPERTY, "");
+        assertThat(result.properties()).containsEntry(OpenBisSchemaConstants.FREQUENCY_ORDER_PROPERTY, "");
+        assertThat(result.properties()).containsEntry(OpenBisSchemaConstants.CONTACT_NAME_ORDER_PROPERTY, "");
+        assertThat(result.properties()).containsEntry(OpenBisSchemaConstants.CONTACT_EMAIL_ORDER_PROPERTY, "");
+        assertThat(result.properties()).containsEntry(OpenBisSchemaConstants.CONTACT_PHONE_ORDER_PROPERTY, "");
+        assertThat(result.properties()).containsEntry(OpenBisSchemaConstants.ORDER_METHOD_ORDER_PROPERTY, "");
+        assertThat(result.properties()).containsEntry(OpenBisSchemaConstants.DELIVERY_DATE_ORDER_PROPERTY, "");
+        assertThat(result.properties()).containsEntry(OpenBisSchemaConstants.ORDER_COMMENT_ORDER_PROPERTY, "");
     }
 }
