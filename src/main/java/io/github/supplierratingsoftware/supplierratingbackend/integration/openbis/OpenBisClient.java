@@ -47,8 +47,9 @@ public class OpenBisClient {
      *
      * @param properties an OpenBisProperties instance containing the necessary OpenBIS configuration properties
      *                   such as API URL, username, and password.
+     * @param restClientBuilder a RestClient builder used to configure the RestClient used by the OpenBisClient.
      */
-    public OpenBisClient(OpenBisProperties properties) {
+    public OpenBisClient(OpenBisProperties properties, RestClient.Builder restClientBuilder) {
         this.properties = properties;
 
         // OpenBIS sends "application/json-rpc" responses instead of "application/json"
@@ -57,7 +58,7 @@ public class OpenBisClient {
         converter.setSupportedMediaTypes(List.of(MediaType.APPLICATION_JSON, MediaType.parseMediaType(OpenBisJsonConstants.SUPPORTED_MEDIA_TYPE)));
 
         // Build the RestClient with the custom Jackson-Converter
-        this.restClient = RestClient.builder()
+        this.restClient = restClientBuilder
                 .baseUrl(properties.apiUrl())
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .configureMessageConverters(converters -> converters.addCustomConverter(converter))
