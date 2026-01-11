@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -13,7 +14,7 @@ import java.util.Map;
 
 /**
  * Global exception handler for the Supplier Rating Backend application.
- *
+ * <p>
  * This class centralizes exception handling across the application, providing
  * standardized responses for various types of exceptions.
  */
@@ -71,5 +72,22 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleOpenBisIntegration(OpenBisIntegrationException ex) {
         log.error("OpenBIS integration error: {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
+    }
+
+
+    /**
+     * Handles exceptions when the JSON body is malformed (e.g. missing quotes or brackets or invalid escape sequences).
+     *
+     * @param ex The HttpMessageNotReadableException indicating that the request body could not be read or parsed.
+     * @return A ResponseEntity with HTTP status 400 (Bad Request) and a map containing error details.
+     */
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<Map<String, String>> handleMalformedJson(HttpMessageNotReadableException ex) {
+        log.warn("Malformed JSON request: {}", ex.getMessage());
+        Map<String, String> errorResponse = new HashMap<>();
+        errorResponse.put("error", "Malformed JSON request");
+        errorResponse.put("details", "The request body could not be parsed. Please check the syntax for missing quotes or brackets or invalid escape sequences.");
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
 }

@@ -13,10 +13,14 @@ public final class ValidationConstants {
     }
 
     // --- Common ---
-    // Checks for protocol and at least one character after `://`
-    // Accepts empty string (for clearing)
-    public static final String URL_REGEX = "^$|^(http|https|ftp)://[^\\s]+$";
-    public static final String URL_MESSAGE = "URL must be in format http(s)://<domain> or ftp://<domain> and contain no spaces";
+
+    // Enforces that the host is composed of valid labels: alphanumeric, optional interior hyphens, separated by dots.
+    // Strictly forbids backslashes '\' anywhere in the URL and disallows spaces in the path to satisfy OpenBIS strictness.
+    // Accepts empty string (for clearing/optional fields).
+    public static final String URL_REGEX = "^$|^(http|https|ftp)://(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?)(?:\\.(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?))*(?::[0-9]+)?(/[^\\s\\\\]*)?$";
+
+    // Message adapted to reflect that spaces are indeed forbidden by the regex now.
+    public static final String URL_MESSAGE = "URL must be a valid format (http/https/ftp), have a valid host structure, and must not contain backslashes or spaces";
 
     // Checks for a valid date format: YYYY-MM-DD
     // Accepts empty string (for clearing)

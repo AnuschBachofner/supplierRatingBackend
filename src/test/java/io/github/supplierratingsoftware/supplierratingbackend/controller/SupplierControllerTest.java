@@ -64,13 +64,22 @@ class SupplierControllerTest {
     private static final String DUMMY_ZIP = "Test Zip Code";
     private static final String DUMMY_CITY = "Test City";
     private static final String VALID_WEBSITE = "https://example.com";
-    private static final String INVALID_WEBSITE = "ht tp://broken-url";
+    private static final String INVALID_WEBSITE_A_NOT_CORRECT_PROTOCOL = "ht tp://broken-url";
+    private static final String INVALID_WEBSITE_B_LEADING_SPECIAL_CHAR = "https://=broken-url";
+
+    // Java string literal "\\\\" represents two backslash characters, which will appear as two backslashes in the URL being validated by the regex.
+    private static final String INVALID_WEBSITE_C_CONTAINING_BACKSLASH = "https://broken\\\\url";
+
     private static final String VALID_EMAIL = "contact@example.com";
     private static final String INVALID_EMAIL = "not-an.email";
     private static final String DUMMY_PHONE = "+41 44 123 45 67";
     private static final String DUMMY_VAT = "Test VAT ID";
     private static final String DUMMY_CONDITIONS = "Test Conditions";
     private static final String DUMMY_INFO = "Test Info";
+    private static final String MALFORMED_JSON_MISSING_CLOSING_BRACKET = "{\"key\": \"value\"";
+
+    // Invalid JSON escape sequence ([backslash]u must have four hex digits). Java "\\" becomes single "\" in string.
+    private static final String MALFORMED_JSON_ESCAPE_SEQUENCE = "{\"key\": \"\\u001\"}";
 
     // --- Validation specific constants ---
     private static final String BLANK_STRING = " ";
@@ -80,6 +89,9 @@ class SupplierControllerTest {
     private static final String EMPTY_JSON_LIST = "[]";
     private static final String JSON_NAME_PATH = "$.name";
     private static final String JSON_ID_PATH = "$.id";
+    private static final String JSON_ERROR_PATH = "$.error";
+    private static final String JSON_MALFORMED_JSON_REQUEST_MESSAGE = "Malformed JSON request";
+    private static final String JSON_DETAILS_PATH = "$.details";
 
     // --- Helper Methods - SupplierReadDto ---
 
@@ -183,6 +195,49 @@ class SupplierControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
+    /**
+     * Verifies that sending malformed JSON (syntax error, e.g. missing bracket) results in 400 Bad Request
+     * and returns the custom error structure defined in GlobalExceptionHandler.
+     *
+     * <p><strong>This tests the global exception handler. This is why this test scenario is not needed in the other
+     * controller tests.</strong></p>
+     */
+    @Test
+    void createSupplier_shouldReturnBadRequest_whenJsonIsMalformed_MissingBracket() throws Exception {
+
+        // Arrange
+        String malformedJson = MALFORMED_JSON_MISSING_CLOSING_BRACKET;
+
+        // Act & Assert
+        mockMvc.perform(post(SUPPLIER_BASE_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(malformedJson))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath(JSON_ERROR_PATH).value(JSON_MALFORMED_JSON_REQUEST_MESSAGE))
+                .andExpect(jsonPath(JSON_DETAILS_PATH).exists());
+    }
+
+    /**
+     * Verifies that sending malformed JSON (invalid escape sequence) results in 400 Bad Request.
+     *
+     * <p><strong>This tests the global exception handler. This is why this test scenario is not needed in the other
+     * controller tests.</strong></p>
+     */
+    @Test
+    void createSupplier_shouldReturnBadRequest_whenJsonIsMalformed_InvalidEscape() throws Exception {
+
+        // Arrange
+        String malformedJson = MALFORMED_JSON_ESCAPE_SEQUENCE;
+
+        // Act & Assert
+        mockMvc.perform(post(SUPPLIER_BASE_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(malformedJson))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath(JSON_ERROR_PATH).value(JSON_MALFORMED_JSON_REQUEST_MESSAGE))
+                .andExpect(jsonPath(JSON_DETAILS_PATH).exists());
+    }
+
     // --- Tests for UPDATE ---
 
     /**
@@ -235,7 +290,9 @@ class SupplierControllerTest {
         return Stream.of(
                 // Format & Vocabulary Validators
                 Arguments.of(new CreationBuilder() {{ email = INVALID_EMAIL; }}.build(), "Invalid Email Format"),
-                Arguments.of(new CreationBuilder() {{ website = INVALID_WEBSITE; }}.build(), "Invalid Website URL"),
+                Arguments.of(new CreationBuilder() {{ website = INVALID_WEBSITE_A_NOT_CORRECT_PROTOCOL; }}.build(), "Invalid Website (Bad Protocol)"),
+                Arguments.of(new CreationBuilder() {{ website = INVALID_WEBSITE_B_LEADING_SPECIAL_CHAR; }}.build(), "Invalid Website (Starts with special char)"),
+                Arguments.of(new CreationBuilder() {{ website = INVALID_WEBSITE_C_CONTAINING_BACKSLASH; }}.build(), "Invalid Website (Contains Backslash)"),
                 Arguments.of(new CreationBuilder() {{ country = INVALID_COUNTRY_LABEL; }}.build(), "Invalid Country Vocabulary"),
 
                 // Mandatory Fields: Name
@@ -289,7 +346,9 @@ class SupplierControllerTest {
         return Stream.of(
                 // Format & Vocabulary Validators
                 Arguments.of(new UpdateBuilder() {{ email = INVALID_EMAIL; }}.build(), "Invalid Email Format"),
-                Arguments.of(new UpdateBuilder() {{ website = INVALID_WEBSITE; }}.build(), "Invalid Website URL"),
+                Arguments.of(new UpdateBuilder() {{ website = INVALID_WEBSITE_A_NOT_CORRECT_PROTOCOL; }}.build(), "Invalid Website (Bad Protocol)"),
+                Arguments.of(new UpdateBuilder() {{ website = INVALID_WEBSITE_B_LEADING_SPECIAL_CHAR; }}.build(), "Invalid Website (Starts with special char)"),
+                Arguments.of(new UpdateBuilder() {{ website = INVALID_WEBSITE_C_CONTAINING_BACKSLASH; }}.build(), "Invalid Website (Contains Backslash)"),
                 Arguments.of(new UpdateBuilder() {{ country = INVALID_COUNTRY_LABEL; }}.build(), "Invalid Country Vocabulary"),
 
                 // Mandatory Fields: Name
