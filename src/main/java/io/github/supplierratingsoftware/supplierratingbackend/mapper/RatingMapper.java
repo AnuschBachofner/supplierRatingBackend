@@ -3,7 +3,7 @@ package io.github.supplierratingsoftware.supplierratingbackend.mapper;
 import io.github.supplierratingsoftware.supplierratingbackend.config.OpenBisProperties;
 import io.github.supplierratingsoftware.supplierratingbackend.constant.openbis.OpenBisSchemaConstants;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.api.RatingCreationDto;
-import io.github.supplierratingsoftware.supplierratingbackend.dto.api.RatingReadDto;
+import io.github.supplierratingsoftware.supplierratingbackend.dto.api.RatingDetailDto;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.creation.SampleCreation;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.id.EntityTypePermId;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.id.ExperimentIdentifier;
@@ -24,11 +24,11 @@ import java.util.UUID;
 import java.util.stream.Stream;
 
 /**
- * Component responsible for mapping technical OpenBIS samples to the domain-specific {@link RatingReadDto} and vice versa.
+ * Component responsible for mapping technical OpenBIS samples to the domain-specific {@link RatingDetailDto} and vice versa.
  * <p>
  * Handles both directions:
  * <ul>
- *     <li>READ: {@link OpenBisSample} -> {@link RatingReadDto}</li>
+ *     <li>READ: {@link OpenBisSample} -> {@link RatingDetailDto}</li>
  *     <li>WRITE: TODO: implement WRITE later</li>
  * </ul>
  * </p>
@@ -41,13 +41,13 @@ public class RatingMapper {
     private final OpenBisProperties properties;
 
     /**
-     * Converts a generic {@link OpenBisSample} into a {@link RatingReadDto}.
+     * Converts a generic {@link OpenBisSample} into a {@link RatingDetailDto}.
      * (READ direction)
      *
      * @param sample The raw sample object from OpenBIS. Can be null.
      * @return The domain-specific rating DTO, or null if the input sample is null.
      */
-    public RatingReadDto toApiDto(OpenBisSample sample) {
+    public RatingDetailDto toApiDto(OpenBisSample sample) {
         if (sample == null) {
             return null;
         }
@@ -81,7 +81,7 @@ public class RatingMapper {
             }
         }
 
-        return new RatingReadDto(
+        return new RatingDetailDto(
                 // This rounds the parsed Double to the nearest Integer.
                 // But since the rating score values should be integers, this rounding is expected behavior.
                 // Rating scores which were originally set by this application into openBIS are already Integers anyway.

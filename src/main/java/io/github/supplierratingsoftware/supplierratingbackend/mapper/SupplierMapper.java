@@ -2,10 +2,10 @@ package io.github.supplierratingsoftware.supplierratingbackend.mapper;
 
 import io.github.supplierratingsoftware.supplierratingbackend.config.OpenBisProperties;
 import io.github.supplierratingsoftware.supplierratingbackend.constant.openbis.OpenBisSchemaConstants;
-import io.github.supplierratingsoftware.supplierratingbackend.dto.api.OrderReadDto;
+import io.github.supplierratingsoftware.supplierratingbackend.dto.api.OrderDetailDto;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.api.RatingStatsDto;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.api.SupplierCreationDto;
-import io.github.supplierratingsoftware.supplierratingbackend.dto.api.SupplierReadDto;
+import io.github.supplierratingsoftware.supplierratingbackend.dto.api.SupplierDetailDto;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.api.SupplierUpdateDto;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.creation.SampleCreation;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.id.EntityTypePermId;
@@ -25,11 +25,11 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * Component responsible for mapping technical OpenBIS samples to the domain-specific {@link SupplierReadDto} and vice versa.
+ * Component responsible for mapping technical OpenBIS samples to the domain-specific {@link SupplierDetailDto} and vice versa.
  * <p>
  * Handles both directions:
  * <ul>
- *     <li>READ: {@link OpenBisSample} -> {@link SupplierReadDto}</li>
+ *     <li>READ: {@link OpenBisSample} -> {@link SupplierDetailDto}</li>
  *     <li>WRITE: {@link SupplierCreationDto} -> {@link SampleCreation}</li>
  * </ul>
  * </p>
@@ -41,15 +41,15 @@ public class SupplierMapper {
     private final OpenBisProperties properties;
 
     /**
-     * Converts a generic {@link OpenBisSample} into a {@link SupplierReadDto}.
+     * Converts a generic {@link OpenBisSample} into a {@link SupplierDetailDto}.
      * (READ direction)
      *
      * @param sample The raw sample object from OpenBIS. Can be null.
      * @param stats  The rating statistics for the supplier. Can be null.
      * @param orders The orders belonging to the supplier. Can be null for List views.
-     * @return The mapped {@link SupplierReadDto}, or {@code null} if the input sample was null.
+     * @return The mapped {@link SupplierDetailDto}, or {@code null} if the input sample was null.
      */
-    public SupplierReadDto toApiDto(OpenBisSample sample, RatingStatsDto stats, List<OrderReadDto> orders) {
+    public SupplierDetailDto toApiDto(OpenBisSample sample, RatingStatsDto stats, List<OrderDetailDto> orders) {
         if (sample == null) return null;
 
         Map<String, String> props = sample.properties(); // Access the Map at the record.
@@ -60,7 +60,7 @@ public class SupplierMapper {
         String rawCountry = props.get(OpenBisSchemaConstants.COUNTRY_SUPPLIER_PROPERTY);
         String country = OpenBisSchemaConstants.SUPPLIER_COUNTRY_MAPPING_CODE_TO_LABEL.getOrDefault(rawCountry, rawCountry);
 
-        return new SupplierReadDto(
+        return new SupplierDetailDto(
                 props.get(OpenBisSchemaConstants.NAME_SUPPLIER_PROPERTY),
                 props.get(OpenBisSchemaConstants.CUSTOMER_NUMBER_SUPPLIER_PROPERTY),
                 props.get(OpenBisSchemaConstants.ADDITION_SUPPLIER_PROPERTY),

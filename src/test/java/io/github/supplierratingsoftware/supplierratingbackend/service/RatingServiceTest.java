@@ -2,7 +2,7 @@ package io.github.supplierratingsoftware.supplierratingbackend.service;
 
 import io.github.supplierratingsoftware.supplierratingbackend.config.OpenBisProperties;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.api.RatingCreationDto;
-import io.github.supplierratingsoftware.supplierratingbackend.dto.api.RatingReadDto;
+import io.github.supplierratingsoftware.supplierratingbackend.dto.api.RatingDetailDto;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.creation.SampleCreation;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.id.*;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.result.OpenBisSample;
@@ -162,8 +162,8 @@ public class RatingServiceTest {
     /**
      * Dummy return object for mapper mocks (read).
      */
-    private RatingReadDto getMinimalRatingReadDto() {
-        return new RatingReadDto(
+    private RatingDetailDto getMinimalRatingDetailDto() {
+        return new RatingDetailDto(
                 DUMMY_QUALITY,
                 DUMMY_QUALITY_REASON,
                 DUMMY_COST,
@@ -257,7 +257,7 @@ public class RatingServiceTest {
 
         // Arrange
         OpenBisSample ratingSample = createOpenBisRating(DUMMY_RATING_PERM_ID, DUMMY_ORDER_PERM_ID);
-        RatingReadDto expectedDto = getMinimalRatingReadDto();
+        RatingDetailDto expectedDto = getMinimalRatingDetailDto();
         when(openBisClient.searchSamples(any(), any())).thenReturn(List.of(ratingSample));
         when(ratingMapper.toApiDto(any())).thenReturn(expectedDto);
         SampleSearchCriteria expectedCriteria = SampleSearchCriteria.create()
@@ -265,7 +265,7 @@ public class RatingServiceTest {
                 .with(io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.search.SampleTypeSearchCriteria.withCode(RATING_TYPE_CODE));
 
         // Act
-        Optional<RatingReadDto> result = ratingService.getRatingById(DUMMY_RATING_PERM_ID);
+        Optional<RatingDetailDto> result = ratingService.getRatingById(DUMMY_RATING_PERM_ID);
 
         // Assert
         assertThat(result).isPresent();
@@ -289,7 +289,7 @@ public class RatingServiceTest {
         when(openBisClient.searchSamples(any(), any())).thenReturn(Collections.emptyList());
 
         // Act
-        Optional<RatingReadDto> result = ratingService.getRatingById(DUMMY_RATING_PERM_ID);
+        Optional<RatingDetailDto> result = ratingService.getRatingById(DUMMY_RATING_PERM_ID);
 
         // Assert
         assertThat(result).isEmpty();
@@ -316,7 +316,7 @@ public class RatingServiceTest {
         SampleCreation sampleCreation = getRatingSampleCreationDto();
         OpenBisSample orderSample = createOpenBisOrder(DUMMY_ORDER_PERM_ID, DUMMY_SUPPLIER_PERM_ID);
         OpenBisSample createdRatingSample = createOpenBisRating(DUMMY_RATING_PERM_ID, DUMMY_ORDER_PERM_ID);
-        RatingReadDto expectedDto = getMinimalRatingReadDto();
+        RatingDetailDto expectedDto = getMinimalRatingDetailDto();
 
         // Sequential Mocks for searchSamples:
         // 1. validateOrderExists -> Returns Order List (Order exists)
@@ -331,7 +331,7 @@ public class RatingServiceTest {
         when(ratingMapper.toApiDto(any())).thenReturn(expectedDto);
 
         // Act
-        RatingReadDto result = ratingService.createRating(creationDto);
+        RatingDetailDto result = ratingService.createRating(creationDto);
 
         // Assert
         assertThat(result).isEqualTo(expectedDto);

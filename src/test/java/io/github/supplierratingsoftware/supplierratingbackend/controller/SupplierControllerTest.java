@@ -1,7 +1,7 @@
 package io.github.supplierratingsoftware.supplierratingbackend.controller;
 
 import io.github.supplierratingsoftware.supplierratingbackend.dto.api.SupplierCreationDto;
-import io.github.supplierratingsoftware.supplierratingbackend.dto.api.SupplierReadDto;
+import io.github.supplierratingsoftware.supplierratingbackend.dto.api.SupplierDetailDto;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.api.SupplierUpdateDto;
 import io.github.supplierratingsoftware.supplierratingbackend.service.SupplierService;
 import org.junit.jupiter.api.Test;
@@ -93,13 +93,13 @@ class SupplierControllerTest {
     private static final String JSON_MALFORMED_JSON_REQUEST_MESSAGE = "Malformed JSON request";
     private static final String JSON_DETAILS_PATH = "$.details";
 
-    // --- Helper Methods - SupplierReadDto ---
+    // --- Helper Methods - SupplierDetailDto ---
 
     /**
-     * Creates a valid {@link SupplierReadDto} for testing purposes.
+     * Creates a valid {@link SupplierDetailDto} for testing purposes.
      */
-    private static SupplierReadDto createValidReadDto() {
-        return new SupplierReadDto(
+    private static SupplierDetailDto createValidDetailDto() {
+        return new SupplierDetailDto(
                 DUMMY_NAME,
                 DUMMY_CUSTOMER_NUMBER,
                 DUMMY_ADDITION,
@@ -143,8 +143,8 @@ class SupplierControllerTest {
     @Test
     void getSupplierById_shouldReturnOkAndSupplier() throws Exception {
         // Arrange
-        SupplierReadDto readDto = createValidReadDto();
-        when(supplierService.getSupplierById(DUMMY_ID)).thenReturn(readDto);
+        SupplierDetailDto detailDto = createValidDetailDto();
+        when(supplierService.getSupplierById(DUMMY_ID)).thenReturn(detailDto);
 
         // Act & Assert
         mockMvc.perform(get(SUPPLIER_ID_URL_TEMPLATE, DUMMY_ID))
@@ -162,9 +162,9 @@ class SupplierControllerTest {
     void createSupplier_shouldReturnCreated_whenDtoIsValid() throws Exception {
         // Arrange
         SupplierCreationDto validDto = new CreationBuilder().build();
-        SupplierReadDto expectedReadDto = createValidReadDto();
+        SupplierDetailDto expectedDetailDto = createValidDetailDto();
 
-        when(supplierService.createSupplier(any(SupplierCreationDto.class))).thenReturn(expectedReadDto);
+        when(supplierService.createSupplier(any(SupplierCreationDto.class))).thenReturn(expectedDetailDto);
 
         // Act & Assert
         mockMvc.perform(post(SUPPLIER_BASE_URL)
@@ -247,9 +247,9 @@ class SupplierControllerTest {
     void updateSupplier_shouldReturnOk_whenDtoIsValid() throws Exception {
         // Arrange
         SupplierUpdateDto validDto = new UpdateBuilder().build();
-        SupplierReadDto expectedReadDto = createValidReadDto();
+        SupplierDetailDto expectedDetailDto = createValidDetailDto();
 
-        when(supplierService.updateSupplier(eq(DUMMY_ID), any(SupplierUpdateDto.class))).thenReturn(expectedReadDto);
+        when(supplierService.updateSupplier(eq(DUMMY_ID), any(SupplierUpdateDto.class))).thenReturn(expectedDetailDto);
 
         // Act & Assert
         mockMvc.perform(put(SUPPLIER_ID_URL_TEMPLATE, DUMMY_ID)

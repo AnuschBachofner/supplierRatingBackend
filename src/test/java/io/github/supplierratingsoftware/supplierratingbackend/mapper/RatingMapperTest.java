@@ -3,7 +3,7 @@ package io.github.supplierratingsoftware.supplierratingbackend.mapper;
 import io.github.supplierratingsoftware.supplierratingbackend.config.OpenBisProperties;
 import io.github.supplierratingsoftware.supplierratingbackend.constant.openbis.OpenBisSchemaConstants;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.api.RatingCreationDto;
-import io.github.supplierratingsoftware.supplierratingbackend.dto.api.RatingReadDto;
+import io.github.supplierratingsoftware.supplierratingbackend.dto.api.RatingDetailDto;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.creation.SampleCreation;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.id.OpenBisEntityType;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.id.OpenBisPermId;
@@ -485,7 +485,7 @@ public class RatingMapperTest {
         OpenBisSample sample = null;
 
         // Act
-        RatingReadDto result = ratingMapper.toApiDto(sample);
+        RatingDetailDto result = ratingMapper.toApiDto(sample);
 
         // Assert
         assertThat(result).isNull();
@@ -501,7 +501,7 @@ public class RatingMapperTest {
         OpenBisSample sample = getOpenBisRatingSampleWithNullScoreValues();
 
         // Act
-        RatingReadDto result = ratingMapper.toApiDto(sample);
+        RatingDetailDto result = ratingMapper.toApiDto(sample);
 
         // Assert
         assertThat(result.quality()).isNull();
@@ -520,7 +520,7 @@ public class RatingMapperTest {
         OpenBisSample sample = getOpenBisRatingSampleWithNullProperties();
 
         // Act
-        RatingReadDto result = ratingMapper.toApiDto(sample);
+        RatingDetailDto result = ratingMapper.toApiDto(sample);
 
         // Assert
         assertThat(result.quality()).isNull();
@@ -539,7 +539,7 @@ public class RatingMapperTest {
         OpenBisSample sample = getOpenBisRatingSample();
 
         // Act
-        RatingReadDto result = ratingMapper.toApiDto(sample);
+        RatingDetailDto result = ratingMapper.toApiDto(sample);
 
         // Assert
         assertThat(result.quality()).isEqualTo(DUMMY_QUALITY_RATING_SCORE_INT);
@@ -558,7 +558,7 @@ public class RatingMapperTest {
         OpenBisSample sample = getOpenBisRatingSampleWithNotANumberScoreValues();
 
         // Act
-        RatingReadDto result = ratingMapper.toApiDto(sample);
+        RatingDetailDto result = ratingMapper.toApiDto(sample);
 
         // Assert
         assertThat(result.quality()).isNull();
@@ -577,7 +577,7 @@ public class RatingMapperTest {
         OpenBisSample sample = getOpenBisRatingSample();
 
         // Act
-        RatingReadDto result = ratingMapper.toApiDto(sample);
+        RatingDetailDto result = ratingMapper.toApiDto(sample);
 
         // Assert
         assertThat(result.qualityReason()).isEqualTo(DUMMY_QUALITY_RATING_REASON);
@@ -596,7 +596,7 @@ public class RatingMapperTest {
         OpenBisSample sample = getOpenBisRatingSample();
 
         // Act
-        RatingReadDto result = ratingMapper.toApiDto(sample);
+        RatingDetailDto result = ratingMapper.toApiDto(sample);
 
         // Assert
         assertThat(result.id()).isEqualTo(DUMMY_RATING_ID);
@@ -613,7 +613,7 @@ public class RatingMapperTest {
         OpenBisSample sample = getOpenBisRatingSampleWithoutParents();
 
         // Act
-        RatingReadDto result = ratingMapper.toApiDto(sample);
+        RatingDetailDto result = ratingMapper.toApiDto(sample);
 
         // Assert
         assertThat(result.orderId()).isNull();
@@ -629,7 +629,7 @@ public class RatingMapperTest {
         OpenBisSample sample = getOpenBisRatingSampleWithEmptyParents();
 
         // Act
-        RatingReadDto result = ratingMapper.toApiDto(sample);
+        RatingDetailDto result = ratingMapper.toApiDto(sample);
 
         // Assert
         assertThat(result.orderId()).isNull();
@@ -645,7 +645,7 @@ public class RatingMapperTest {
         OpenBisSample sample = getOpenBisRatingSampleWithNullParentOrder();
 
         // Act
-        RatingReadDto result = ratingMapper.toApiDto(sample);
+        RatingDetailDto result = ratingMapper.toApiDto(sample);
 
         // Assert
         assertThat(result.orderId()).isNull();
@@ -661,7 +661,7 @@ public class RatingMapperTest {
         OpenBisSample sample = getOpenBisRatingSampleWithParentOrderWithNullPermId();
 
         // Act
-        RatingReadDto result = ratingMapper.toApiDto(sample);
+        RatingDetailDto result = ratingMapper.toApiDto(sample);
 
         // Assert
         assertThat(result.orderId()).isNull();
@@ -677,7 +677,7 @@ public class RatingMapperTest {
         OpenBisSample sample = getOpenBisRatingSample();
 
         // Act
-        RatingReadDto result = ratingMapper.toApiDto(sample);
+        RatingDetailDto result = ratingMapper.toApiDto(sample);
 
         // Assert
         assertThat(result.orderId()).isEqualTo(DUMMY_ORDER_ID);
@@ -694,7 +694,7 @@ public class RatingMapperTest {
         OpenBisSample sample = getOpenBisRatingSampleWithoutParents();
 
         // Act
-        RatingReadDto result = ratingMapper.toApiDto(sample);
+        RatingDetailDto result = ratingMapper.toApiDto(sample);
 
         // Assert
         assertThat(result.supplierId()).isNull();
@@ -712,7 +712,7 @@ public class RatingMapperTest {
         OpenBisSample sample = getOpenBisRatingSampleWithEmptyParents();
 
         // Act
-        RatingReadDto result = ratingMapper.toApiDto(sample);
+        RatingDetailDto result = ratingMapper.toApiDto(sample);
 
         // Assert
         assertThat(result.supplierId()).isNull();
@@ -730,7 +730,7 @@ public class RatingMapperTest {
         OpenBisSample sample = getOpenBisRatingSampleWithNullParentOrder();
 
         // Act
-        RatingReadDto result = ratingMapper.toApiDto(sample);
+        RatingDetailDto result = ratingMapper.toApiDto(sample);
 
         // Assert
         assertThat(result.supplierId()).isNull();
@@ -748,7 +748,7 @@ public class RatingMapperTest {
         OpenBisSample sample = getOpenBisRatingSampleWithoutGrandparents();
 
         // Act
-        RatingReadDto result = ratingMapper.toApiDto(sample);
+        RatingDetailDto result = ratingMapper.toApiDto(sample);
 
         // Assert
         assertThat(result.supplierId()).isNull();
@@ -766,7 +766,7 @@ public class RatingMapperTest {
         OpenBisSample sample = getOpenBisRatingSampleWithEmptyGrandparents();
 
         // Act
-        RatingReadDto result = ratingMapper.toApiDto(sample);
+        RatingDetailDto result = ratingMapper.toApiDto(sample);
 
         // Assert
         assertThat(result.supplierId()).isNull();
@@ -784,7 +784,7 @@ public class RatingMapperTest {
        OpenBisSample sample = getOpenBisRatingSampleWithNullGrandparentSupplier();
 
        // Act
-       RatingReadDto result = ratingMapper.toApiDto(sample);
+       RatingDetailDto result = ratingMapper.toApiDto(sample);
 
        // Assert
        assertThat(result.supplierId()).isNull();
@@ -801,7 +801,7 @@ public class RatingMapperTest {
         OpenBisSample sample = getOpenBisRatingSampleWithGrandparentSupplierWithNullPermId();
 
         // Act
-        RatingReadDto result = ratingMapper.toApiDto(sample);
+        RatingDetailDto result = ratingMapper.toApiDto(sample);
 
         // Assert
         assertThat(result.supplierId()).isNull();
@@ -817,7 +817,7 @@ public class RatingMapperTest {
         OpenBisSample sample = getOpenBisRatingSample();
 
         // Act
-        RatingReadDto result = ratingMapper.toApiDto(sample);
+        RatingDetailDto result = ratingMapper.toApiDto(sample);
 
         // Assert
         assertThat(result.supplierId()).isEqualTo(DUMMY_SUPPLIER_ID);
@@ -833,7 +833,7 @@ public class RatingMapperTest {
         OpenBisSample sample = getOpenBisRatingSampleWithGrandparentSupplierWithoutProperties();
 
         // Act
-        RatingReadDto result = ratingMapper.toApiDto(sample);
+        RatingDetailDto result = ratingMapper.toApiDto(sample);
 
         // Assert
         assertThat(result.supplierName()).isNull();
@@ -849,7 +849,7 @@ public class RatingMapperTest {
         OpenBisSample sample = getOpenBisRatingSample();
 
         // Act
-        RatingReadDto result = ratingMapper.toApiDto(sample);
+        RatingDetailDto result = ratingMapper.toApiDto(sample);
 
         // Assert
         assertThat(result.supplierName()).isEqualTo(DUMMY_SUPPLIER_NAME);

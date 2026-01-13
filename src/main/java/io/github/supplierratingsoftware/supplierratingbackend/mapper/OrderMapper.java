@@ -3,7 +3,7 @@ package io.github.supplierratingsoftware.supplierratingbackend.mapper;
 import io.github.supplierratingsoftware.supplierratingbackend.config.OpenBisProperties;
 import io.github.supplierratingsoftware.supplierratingbackend.constant.openbis.OpenBisSchemaConstants;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.api.OrderCreationDto;
-import io.github.supplierratingsoftware.supplierratingbackend.dto.api.OrderReadDto;
+import io.github.supplierratingsoftware.supplierratingbackend.dto.api.OrderDetailDto;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.api.OrderUpdateDto;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.creation.SampleCreation;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.id.*;
@@ -19,11 +19,11 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * Component responsible for mapping technical OpenBIS samples to the domain-specific {@link OrderReadDto} and vice versa.
+ * Component responsible for mapping technical OpenBIS samples to the domain-specific {@link OrderDetailDto} and vice versa.
  * <p>
  * Handles both directions:
  * <ul>
- *     <li>READ: {@link OpenBisSample} -> {@link OrderReadDto}</li>
+ *     <li>READ: {@link OpenBisSample} -> {@link OrderDetailDto}</li>
  *     <li>WRITE: {@link OrderCreationDto} -> {@link SampleCreation}</li>
  * </ul>
  * </p>
@@ -35,14 +35,14 @@ public class OrderMapper {
     private final OpenBisProperties properties;
 
     /**
-     * Converts a generic {@link OpenBisSample} into a {@link OrderReadDto}.
+     * Converts a generic {@link OpenBisSample} into a {@link OrderDetailDto}.
      * This method attempts to resolve the supplier from the sample's parents.
      * (READ direction)
      *
      * @param sample The raw sample object from OpenBIS.
      * @return The DTO representation.
      */
-    public OrderReadDto toApiDto(OpenBisSample sample) {
+    public OrderDetailDto toApiDto(OpenBisSample sample) {
         if (sample == null) return null;
 
         // Try to resolve supplier from parent
@@ -60,7 +60,7 @@ public class OrderMapper {
     }
 
     /**
-     * Converts a generic {@link OpenBisSample} into a {@link OrderReadDto}
+     * Converts a generic {@link OpenBisSample} into a {@link OrderDetailDto}
      * using provided supplier ID and name.
      * (READ direction)
      *
@@ -69,7 +69,7 @@ public class OrderMapper {
      * @param supplierName The supplier name to use in the DTO. Can be null.
      * @return The DTO representation of the order, or null if the sample is null.
      */
-    public OrderReadDto toApiDto(OpenBisSample sample, String supplierId, String supplierName) {
+    public OrderDetailDto toApiDto(OpenBisSample sample, String supplierId, String supplierName) {
         if (sample == null) return null;
 
         Map<String, String> props = sample.properties();
@@ -94,7 +94,7 @@ public class OrderMapper {
             }
         }
 
-        return new OrderReadDto(
+        return new OrderDetailDto(
                 props.get(OpenBisSchemaConstants.NAME_ORDER_PROPERTY),
                 mainCategory,
                 subCategory,

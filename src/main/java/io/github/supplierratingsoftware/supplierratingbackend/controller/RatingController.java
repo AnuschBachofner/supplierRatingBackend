@@ -1,7 +1,7 @@
 package io.github.supplierratingsoftware.supplierratingbackend.controller;
 
 import io.github.supplierratingsoftware.supplierratingbackend.dto.api.RatingCreationDto;
-import io.github.supplierratingsoftware.supplierratingbackend.dto.api.RatingReadDto;
+import io.github.supplierratingsoftware.supplierratingbackend.dto.api.RatingDetailDto;
 import io.github.supplierratingsoftware.supplierratingbackend.service.RatingService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -34,7 +34,7 @@ public class RatingController {
      * @return The rating if found, or a 404 Not Found response if not found.
      */
     @GetMapping("/{id}")
-    public ResponseEntity<RatingReadDto> getRatingById(@PathVariable String id) {
+    public ResponseEntity<RatingDetailDto> getRatingById(@PathVariable String id) {
         return ratingService.getRatingById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -45,11 +45,11 @@ public class RatingController {
      * Calculates the total score automatically based on the provided criteria.
      *
      * @param creationDto The rating data.
-     * @return The created RatingReadDto.
+     * @return The created RatingDetailDto.
      */
     @PostMapping
-    public ResponseEntity<RatingReadDto> createRating(@RequestBody @Valid RatingCreationDto creationDto) {
-        RatingReadDto createdRating = ratingService.createRating(creationDto);
+    public ResponseEntity<RatingDetailDto> createRating(@RequestBody @Valid RatingCreationDto creationDto) {
+        RatingDetailDto createdRating = ratingService.createRating(creationDto);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(createdRating);

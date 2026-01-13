@@ -2,7 +2,7 @@ package io.github.supplierratingsoftware.supplierratingbackend.controller;
 
 import io.github.supplierratingsoftware.supplierratingbackend.constant.api.ValidationConstants;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.api.RatingCreationDto;
-import io.github.supplierratingsoftware.supplierratingbackend.dto.api.RatingReadDto;
+import io.github.supplierratingsoftware.supplierratingbackend.dto.api.RatingDetailDto;
 import io.github.supplierratingsoftware.supplierratingbackend.service.RatingService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -79,13 +79,13 @@ class RatingControllerTest {
     // --- JSON Constants ---
     private static final String JSON_ID_PATH = "$.id";
 
-    // --- Helper Methods - RatingReadDto ---
+    // --- Helper Methods - RatingDetailDto ---
 
     /**
-     * Creates a valid {@link RatingReadDto} for mocking service response.
+     * Creates a valid {@link RatingDetailDto} for mocking service response.
      */
-    private static RatingReadDto createValidReadDto() {
-        return new RatingReadDto(
+    private static RatingDetailDto createValidDetailDto() {
+        return new RatingDetailDto(
                 VALID_SCORE, DUMMY_QUALITY_REASON,
                 VALID_SCORE, DUMMY_COST_REASON,
                 VALID_SCORE, DUMMY_RELIABILITY_REASON,
@@ -103,8 +103,8 @@ class RatingControllerTest {
      */
     @Test
     void getRatingById_shouldReturnOkAndRating() throws Exception {
-        RatingReadDto readDto = createValidReadDto();
-        when(ratingService.getRatingById(DUMMY_RATING_ID)).thenReturn(Optional.of(readDto));
+        RatingDetailDto detailDto = createValidDetailDto();
+        when(ratingService.getRatingById(DUMMY_RATING_ID)).thenReturn(Optional.of(detailDto));
 
         mockMvc.perform(get(RATING_ID_URL_TEMPLATE, DUMMY_RATING_ID))
                 .andExpect(status().isOk())
@@ -130,9 +130,9 @@ class RatingControllerTest {
     @Test
     void createRating_shouldReturnCreated_whenDtoIsValid() throws Exception {
         RatingCreationDto validDto = new CreationBuilder().build();
-        RatingReadDto expectedReadDto = createValidReadDto();
+        RatingDetailDto expectedDetailDto = createValidDetailDto();
 
-        when(ratingService.createRating(any(RatingCreationDto.class))).thenReturn(expectedReadDto);
+        when(ratingService.createRating(any(RatingCreationDto.class))).thenReturn(expectedDetailDto);
 
         mockMvc.perform(post(RATING_BASE_URL)
                         .contentType(MediaType.APPLICATION_JSON)

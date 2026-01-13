@@ -4,7 +4,7 @@ import io.github.supplierratingsoftware.supplierratingbackend.config.OpenBisProp
 import io.github.supplierratingsoftware.supplierratingbackend.constant.openbis.OpenBisSchemaConstants;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.api.RatingStatsDto;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.api.SupplierCreationDto;
-import io.github.supplierratingsoftware.supplierratingbackend.dto.api.SupplierReadDto;
+import io.github.supplierratingsoftware.supplierratingbackend.dto.api.SupplierDetailDto;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.api.SupplierUpdateDto;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.creation.SampleCreation;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.id.EntityTypePermId;
@@ -261,12 +261,12 @@ public class SupplierServiceTest {
 
 
     /**
-     * Helper method to create a minimal SupplierReadDto for testing purposes.
+     * Helper method to create a minimal SupplierDetailDto for testing purposes.
      *
-     * @return The created SupplierReadDto object.
+     * @return The created SupplierDetailDto object.
      */
-    private SupplierReadDto getMinimalSupplierDto() {
-        return new SupplierReadDto(
+    private SupplierDetailDto getMinimalSupplierDto() {
+        return new SupplierDetailDto(
                 null,
                 null,
                 null,
@@ -426,7 +426,7 @@ public class SupplierServiceTest {
         when(openBisClient.searchSamples(any(), any())).thenReturn(Collections.emptyList());
 
         // Act
-        List<SupplierReadDto> result = supplierService.getAllSuppliers();
+        List<SupplierDetailDto> result = supplierService.getAllSuppliers();
 
         // Assert
         assertThat(result).isEmpty();
@@ -458,7 +458,7 @@ public class SupplierServiceTest {
         when(supplierMapper.toApiDto(any(), any(), any())).thenReturn(getMinimalSupplierDto());
 
         // Act
-        List<SupplierReadDto> result = supplierService.getAllSuppliers();
+        List<SupplierDetailDto> result = supplierService.getAllSuppliers();
 
         // Assert
         // - Mapper call
@@ -510,7 +510,7 @@ public class SupplierServiceTest {
         when(supplierMapper.toApiDto(any(), any(), any())).thenReturn(getMinimalSupplierDto());
 
         // Act
-        List<SupplierReadDto> result = supplierService.getAllSuppliers();
+        List<SupplierDetailDto> result = supplierService.getAllSuppliers();
 
         // Assert
         // - Mapper call
@@ -536,7 +536,7 @@ public class SupplierServiceTest {
      * <ul>
      *      <li>The OpenBIS client is called to search for the sample.</li>
      *      <li>The mapper is called with the correct OpenBIS sample to convert it to a DTO.</li>
-     *      <li>The service returns exactly the mapped SupplierReadDto.</li>
+     *      <li>The service returns exactly the mapped SupplierDetailDto.</li>
      * </ul>
      * </p>
      */
@@ -549,7 +549,7 @@ public class SupplierServiceTest {
         when(supplierMapper.toApiDto(any(), any(), any())).thenReturn(getMinimalSupplierDto());
 
         // Act
-        SupplierReadDto result = supplierService.getSupplierById(DUMMY_SUPPLIER_PERM_ID);
+        SupplierDetailDto result = supplierService.getSupplierById(DUMMY_SUPPLIER_PERM_ID);
 
         // Assert
         // - Mapper call
@@ -605,7 +605,7 @@ public class SupplierServiceTest {
         when(supplierMapper.toApiDto(any(), any(), any())).thenReturn(getMinimalSupplierDto());
 
         // Act
-        SupplierReadDto result = supplierService.createSupplier(creationDto);
+        SupplierDetailDto result = supplierService.createSupplier(creationDto);
 
         // Assert & Verify
         // - Create call to openBisClient
@@ -645,13 +645,13 @@ public class SupplierServiceTest {
         SupplierUpdateDto updateDto = getSupplierUpdateDto();
         SampleUpdate sampleUpdate = getSupplierSampleUpdateDto(DUMMY_SUPPLIER_PERM_ID);
         OpenBisSample existingSample = createSupplier(DUMMY_SUPPLIER_PERM_ID, Collections.emptyList());
-        SupplierReadDto expectedResult = getMinimalSupplierDto();
+        SupplierDetailDto expectedResult = getMinimalSupplierDto();
         when(supplierMapper.toOpenBisUpdate(any(), any())).thenReturn(sampleUpdate);
         when(openBisClient.searchSamples(any(), any())).thenReturn(List.of(existingSample));
         when(supplierMapper.toApiDto(any(), any(), any())).thenReturn(expectedResult);
 
         // Act
-        SupplierReadDto result = supplierService.updateSupplier(DUMMY_SUPPLIER_PERM_ID, updateDto);
+        SupplierDetailDto result = supplierService.updateSupplier(DUMMY_SUPPLIER_PERM_ID, updateDto);
 
         // Assert & Verify
         // - Update call to openBisClient

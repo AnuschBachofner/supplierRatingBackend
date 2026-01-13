@@ -2,7 +2,7 @@ package io.github.supplierratingsoftware.supplierratingbackend.service;
 
 import io.github.supplierratingsoftware.supplierratingbackend.config.OpenBisProperties;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.api.RatingCreationDto;
-import io.github.supplierratingsoftware.supplierratingbackend.dto.api.RatingReadDto;
+import io.github.supplierratingsoftware.supplierratingbackend.dto.api.RatingDetailDto;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.creation.SampleCreation;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.fetchoptions.PropertyFetchOptions;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.fetchoptions.SampleFetchOptions;
@@ -51,9 +51,9 @@ public class RatingService {
      * </p>
      *
      * @param permId The unique PermID of the rating.
-     * @return An Optional containing the mapped {@link RatingReadDto} if found, or empty otherwise.
+     * @return An Optional containing the mapped {@link RatingDetailDto} if found, or empty otherwise.
      */
-    public Optional<RatingReadDto> getRatingById(String permId) {
+    public Optional<RatingDetailDto> getRatingById(String permId) {
         log.debug("Fetching rating with ID: {}", permId);
 
         // 1. Criteria: Must match PermID AND the configured Rating Type
@@ -82,7 +82,7 @@ public class RatingService {
      * @param creationDto The data for the new rating.
      * @return The created rating DTO (fetched fresh from openBIS to ensure consistency).
      */
-    public RatingReadDto createRating(RatingCreationDto creationDto) {
+    public RatingDetailDto createRating(RatingCreationDto creationDto) {
         log.info("Creating rating for order: {}", creationDto.orderId());
 
         // Check if Order Exists
@@ -154,7 +154,7 @@ public class RatingService {
      * @return The fetched rating DTO.
      * @throws OpenBisResourceNotFoundException if the rating with the given PermID is not found.
      */
-    private RatingReadDto fetchFreshRating(String permId) {
+    private RatingDetailDto fetchFreshRating(String permId) {
         SampleSearchCriteria criteria = SampleSearchCriteria.create().with(PermIdSearchCriteria.withId(permId));
 
         // Fetch options for deep rating retrieval

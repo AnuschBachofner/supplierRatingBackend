@@ -12,7 +12,7 @@ info:
     
     IDs in paths refer to the openBIS **PermID** (stable technical identifier).
     Codes in payloads refer to the openBIS **Code** (human readable business identifier).
-  version: 1.3.0
+  version: 1.4.0
 servers:
   - url: http://localhost:8080/api/v1
     description: Local Development Server
@@ -120,13 +120,13 @@ paths:
             type: string
       responses:
         '200':
-          description: 'List of orders [returns an array of OrderSummaryDTO]'
+          description: 'List of orders [returns an array of OrderDetailDTO]'
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/OrderSummaryDTO'
+                  $ref: '#/components/schemas/OrderDetailDTO'
     post:
       summary: Record new order
       description: Creates a new order (Type BESTELLUNG) and assigns it to a supplier. The code is generated automatically.
@@ -397,7 +397,7 @@ components:
               type: array
               description: List of all orders belonging to this supplier
               items:
-                $ref: '#/components/schemas/OrderSummaryDTO'
+                $ref: '#/components/schemas/OrderDetailDTO'
 
     # --- ORDER DTOS ---
     OrderBaseDTO:
@@ -501,8 +501,8 @@ components:
       title: OrderUpdateDTO
       $ref: '#/components/schemas/OrderBaseDTO'
 
-    OrderSummaryDTO:
-      title: OrderSummaryDTO
+    OrderDetailDTO:
+      title: OrderDetailDTO
       allOf:
         - $ref: '#/components/schemas/OrderBaseDTO'
         - type: object
@@ -520,13 +520,6 @@ components:
               type: string
               enum: [ RATED, PENDING ]
               description: Helps the frontend to show if already rated.
-
-    OrderDetailDTO:
-      title: OrderDetailDTO
-      allOf:
-        - $ref: '#/components/schemas/OrderSummaryDTO'
-        - type: object
-          properties:
             supplierId:
               type: string
               description: PermID of the parent supplier

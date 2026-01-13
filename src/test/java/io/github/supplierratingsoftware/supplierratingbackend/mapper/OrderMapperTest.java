@@ -3,7 +3,7 @@ package io.github.supplierratingsoftware.supplierratingbackend.mapper;
 import io.github.supplierratingsoftware.supplierratingbackend.config.OpenBisProperties;
 import io.github.supplierratingsoftware.supplierratingbackend.constant.openbis.OpenBisSchemaConstants;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.api.OrderCreationDto;
-import io.github.supplierratingsoftware.supplierratingbackend.dto.api.OrderReadDto;
+import io.github.supplierratingsoftware.supplierratingbackend.dto.api.OrderDetailDto;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.api.OrderUpdateDto;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.creation.SampleCreation;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.id.OpenBisEntityType;
@@ -398,7 +398,7 @@ public class OrderMapperTest {
         OpenBisSample sample = null;
 
         // Act
-        OrderReadDto result = orderMapper.toApiDto(sample);
+        OrderDetailDto result = orderMapper.toApiDto(sample);
 
         // Assert
         assertThat(result).isNull();
@@ -414,7 +414,7 @@ public class OrderMapperTest {
         OpenBisSample sample = getFullOpenBisOrderSample();
 
         // Act
-        OrderReadDto result = orderMapper.toApiDto(sample);
+        OrderDetailDto result = orderMapper.toApiDto(sample);
 
         // Assert
         assertThat(result.supplierId()).isEqualTo(DUMMY_SUPPLIER_ID);
@@ -431,7 +431,7 @@ public class OrderMapperTest {
         OpenBisSample sample = getOpenBisOrderSampleWithoutSupplier();
 
         // Act
-        OrderReadDto result = orderMapper.toApiDto(sample);
+        OrderDetailDto result = orderMapper.toApiDto(sample);
 
         // Assert
         assertThat(result.supplierId()).isNull();
@@ -448,7 +448,7 @@ public class OrderMapperTest {
         OpenBisSample sample = getOpenBisOrderSampleWithEmptySupplierList();
 
         // Act
-        OrderReadDto result = orderMapper.toApiDto(sample);
+        OrderDetailDto result = orderMapper.toApiDto(sample);
 
         // Assert
         assertThat(result.supplierId()).isNull();
@@ -465,7 +465,7 @@ public class OrderMapperTest {
         OpenBisSample sample = getOpenBisOrderSampleWithSupplierWithNullPermIdAndNullProperties();
 
         // Act
-        OrderReadDto result = orderMapper.toApiDto(sample);
+        OrderDetailDto result = orderMapper.toApiDto(sample);
 
         // Assert
         assertThat(result.supplierId()).isNull();
@@ -484,7 +484,7 @@ public class OrderMapperTest {
         OpenBisSample sample = getOpenBisOrderSampleWithoutSupplier();
 
         // Act
-        OrderReadDto result = orderMapper.toApiDto(sample, DUMMY_SUPPLIER_ID, DUMMY_SUPPLIER_NAME);
+        OrderDetailDto result = orderMapper.toApiDto(sample, DUMMY_SUPPLIER_ID, DUMMY_SUPPLIER_NAME);
 
         // Assert
         assertThat(result.mainCategory()).isEqualTo(VALID_EXAMPLE_MAIN_CATEGORY_LABEL);
@@ -501,7 +501,7 @@ public class OrderMapperTest {
         OpenBisSample sample = getFullOpenBisOrderSample();
 
         // Act
-        OrderReadDto result = orderMapper.toApiDto(sample, DUMMY_SUPPLIER_ID, DUMMY_SUPPLIER_NAME);
+        OrderDetailDto result = orderMapper.toApiDto(sample, DUMMY_SUPPLIER_ID, DUMMY_SUPPLIER_NAME);
 
         // Assert
         assertThat(result.ratingStatus()).isEqualTo(OpenBisSchemaConstants.RATING_STATUS_RATED_ORDER_PROPERTY);
@@ -518,7 +518,7 @@ public class OrderMapperTest {
         OpenBisSample sample = getOpenBisOrderSampleWithoutSupplierAndWithoutRating();
 
         // Act
-        OrderReadDto result = orderMapper.toApiDto(sample, DUMMY_SUPPLIER_ID, DUMMY_SUPPLIER_NAME);
+        OrderDetailDto result = orderMapper.toApiDto(sample, DUMMY_SUPPLIER_ID, DUMMY_SUPPLIER_NAME);
 
         // Assert
         assertThat(result.ratingStatus()).isEqualTo(OpenBisSchemaConstants.RATING_STATUS_PENDING_ORDER_PROPERTY);
@@ -535,7 +535,7 @@ public class OrderMapperTest {
         OpenBisSample sample = getOpenBisOrderSampleWithEmptyRatingList();
 
         // Act
-        OrderReadDto result = orderMapper.toApiDto(sample, DUMMY_SUPPLIER_ID, DUMMY_SUPPLIER_NAME);
+        OrderDetailDto result = orderMapper.toApiDto(sample, DUMMY_SUPPLIER_ID, DUMMY_SUPPLIER_NAME);
 
         // Assert
         assertThat(result.ratingStatus()).isEqualTo(OpenBisSchemaConstants.RATING_STATUS_PENDING_ORDER_PROPERTY);
@@ -552,7 +552,7 @@ public class OrderMapperTest {
         OpenBisSample sample = getOpenBisOrderSampleWithRatingWithNullPermId();
 
         // Act
-        OrderReadDto result = orderMapper.toApiDto(sample, DUMMY_SUPPLIER_ID, DUMMY_SUPPLIER_NAME);
+        OrderDetailDto result = orderMapper.toApiDto(sample, DUMMY_SUPPLIER_ID, DUMMY_SUPPLIER_NAME);
 
         // Assert
         assertThat(result.ratingStatus()).isEqualTo(OpenBisSchemaConstants.RATING_STATUS_RATED_ORDER_PROPERTY);
@@ -569,7 +569,7 @@ public class OrderMapperTest {
         OpenBisSample sample = getFullOpenBisOrderSample();
 
         // Act
-        OrderReadDto result = orderMapper.toApiDto(sample, DUMMY_SUPPLIER_ID, DUMMY_SUPPLIER_NAME);
+        OrderDetailDto result = orderMapper.toApiDto(sample, DUMMY_SUPPLIER_ID, DUMMY_SUPPLIER_NAME);
 
         // Assert
         assertThat(result.name()).isEqualTo(DUMMY_ORDER_NAME);

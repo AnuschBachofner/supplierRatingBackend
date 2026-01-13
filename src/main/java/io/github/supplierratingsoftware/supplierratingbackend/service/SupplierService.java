@@ -2,10 +2,10 @@ package io.github.supplierratingsoftware.supplierratingbackend.service;
 
 import io.github.supplierratingsoftware.supplierratingbackend.config.OpenBisProperties;
 import io.github.supplierratingsoftware.supplierratingbackend.constant.openbis.OpenBisSchemaConstants;
-import io.github.supplierratingsoftware.supplierratingbackend.dto.api.OrderReadDto;
+import io.github.supplierratingsoftware.supplierratingbackend.dto.api.OrderDetailDto;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.api.RatingStatsDto;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.api.SupplierCreationDto;
-import io.github.supplierratingsoftware.supplierratingbackend.dto.api.SupplierReadDto;
+import io.github.supplierratingsoftware.supplierratingbackend.dto.api.SupplierDetailDto;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.api.SupplierUpdateDto;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.creation.SampleCreation;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.fetchoptions.PropertyFetchOptions;
@@ -58,9 +58,9 @@ public class SupplierService {
      * including their child orders and ratings to calculate aggregates.
      * </p>
      *
-     * @return A list of {@link SupplierReadDto} objects representing all available suppliers.
+     * @return A list of {@link SupplierDetailDto} objects representing all available suppliers.
      */
-    public List<SupplierReadDto> getAllSuppliers() {
+    public List<SupplierDetailDto> getAllSuppliers() {
         // 1. Define Hierarchy Fetch Options (Recursive Fetching)
 
         // Level 2: Ratings (Children of Orders)
@@ -113,7 +113,7 @@ public class SupplierService {
      * @return The supplier details including orders.
      * @throws OpenBisResourceNotFoundException If the supplier with the given PermID is not found.
      */
-    public SupplierReadDto getSupplierById(String permId) {
+    public SupplierDetailDto getSupplierById(String permId) {
         // Criteria: Search by PermID
         SampleSearchCriteria criteria = SampleSearchCriteria.create()
                 .with(PermIdSearchCriteria.withId(permId))
@@ -164,7 +164,7 @@ public class SupplierService {
         RatingStatsDto stats = calculateStats(supplierSample);
 
         // Map Orders
-        List<OrderReadDto> orders = List.of();
+        List<OrderDetailDto> orders = List.of();
         if (supplierSample.children() != null) {
             orders = supplierSample.children().stream()
                     // Ensure we only process Orders
@@ -182,7 +182,7 @@ public class SupplierService {
      * @param creationDto The data for the new supplier.
      * @return The DTO of the newly created supplier (fetched fresh from openBIS to ensure consistency).
      */
-    public SupplierReadDto createSupplier(SupplierCreationDto creationDto) {
+    public SupplierDetailDto createSupplier(SupplierCreationDto creationDto) {
         log.info("Creating a new supplier {}", creationDto.name());
 
         // Map API DTO to openBIS Creation DTO
@@ -206,7 +206,7 @@ public class SupplierService {
      * @param updateDto The update data.
      * @return The updated supplier details.
      */
-    public SupplierReadDto updateSupplier(String permId, SupplierUpdateDto updateDto) {
+    public SupplierDetailDto updateSupplier(String permId, SupplierUpdateDto updateDto) {
         log.info("Updating supplier with PermID: {}", permId);
 
         // Validation: Check if the supplier exists AND is actually a supplier
@@ -370,9 +370,9 @@ public class SupplierService {
      * </p>
      *
      * @param permId The PermID of the supplier to fetch.
-     * @return The mapped SupplierReadDto with null stats.
+     * @return The mapped SupplierDetailDto with null stats.
      */
-    private SupplierReadDto fetchSupplierMetadataByPermId(String permId) {
+    private SupplierDetailDto fetchSupplierMetadataByPermId(String permId) {
         SampleSearchCriteria criteria = SampleSearchCriteria.create().with(PermIdSearchCriteria.withId(permId));
 
         // Optimized Fetch Options: Properties & Type only. No hierarchy.

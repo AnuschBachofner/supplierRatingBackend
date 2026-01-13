@@ -1,7 +1,7 @@
 package io.github.supplierratingsoftware.supplierratingbackend.controller;
 
 import io.github.supplierratingsoftware.supplierratingbackend.dto.api.SupplierCreationDto;
-import io.github.supplierratingsoftware.supplierratingbackend.dto.api.SupplierReadDto;
+import io.github.supplierratingsoftware.supplierratingbackend.dto.api.SupplierDetailDto;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.api.SupplierUpdateDto;
 import io.github.supplierratingsoftware.supplierratingbackend.service.SupplierService;
 import jakarta.validation.Valid;
@@ -27,10 +27,10 @@ public class SupplierController {
     /**
      * Retrieves a list of all registered suppliers.
      *
-     * @return ResponseEntity containing a list of SupplierReadDto objects.
+     * @return ResponseEntity containing a list of SupplierDetailDto objects.
      */
     @GetMapping
-    public ResponseEntity<List<SupplierReadDto>> getAllSuppliers() {
+    public ResponseEntity<List<SupplierDetailDto>> getAllSuppliers() {
         return ResponseEntity.ok(supplierService.getAllSuppliers());
     }
 
@@ -41,7 +41,7 @@ public class SupplierController {
      * @return ResponseEntity containing the detailed supplier information.
      */
     @GetMapping("/{id}")
-    public ResponseEntity<SupplierReadDto> getSupplierById(@PathVariable String id) {
+    public ResponseEntity<SupplierDetailDto> getSupplierById(@PathVariable String id) {
         return ResponseEntity.ok(supplierService.getSupplierById(id));
     }
 
@@ -50,11 +50,11 @@ public class SupplierController {
      * Validates the input DTO and ensures the necessary properties are set.
      *
      * @param creationDto The payload containing the new supplier's details.
-     * @return The created {@link SupplierReadDto} wrapped in a ResponseEntity with HTTP 201 Created.
+     * @return The created {@link SupplierDetailDto} wrapped in a ResponseEntity with HTTP 201 Created.
      */
     @PostMapping
-    public ResponseEntity<SupplierReadDto> createSupplier(@RequestBody @Valid SupplierCreationDto creationDto) {
-        SupplierReadDto createdSupplier = supplierService.createSupplier(creationDto);
+    public ResponseEntity<SupplierDetailDto> createSupplier(@RequestBody @Valid SupplierCreationDto creationDto) {
+        SupplierDetailDto createdSupplier = supplierService.createSupplier(creationDto);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(createdSupplier);
@@ -68,11 +68,11 @@ public class SupplierController {
      * @return The updated supplier details.
      */
     @PutMapping("/{id}")
-    public ResponseEntity<SupplierReadDto> updateSupplier(
+    public ResponseEntity<SupplierDetailDto> updateSupplier(
             @PathVariable String id,
             @RequestBody @Valid SupplierUpdateDto updateDto) {
 
-        SupplierReadDto updatedSupplier = supplierService.updateSupplier(id, updateDto);
+        SupplierDetailDto updatedSupplier = supplierService.updateSupplier(id, updateDto);
         return ResponseEntity.ok(updatedSupplier);
     }
 

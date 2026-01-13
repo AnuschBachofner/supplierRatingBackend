@@ -2,7 +2,7 @@ package io.github.supplierratingsoftware.supplierratingbackend.service;
 
 import io.github.supplierratingsoftware.supplierratingbackend.config.OpenBisProperties;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.api.OrderCreationDto;
-import io.github.supplierratingsoftware.supplierratingbackend.dto.api.OrderReadDto;
+import io.github.supplierratingsoftware.supplierratingbackend.dto.api.OrderDetailDto;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.api.OrderUpdateDto;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.creation.SampleCreation;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.fetchoptions.PropertyFetchOptions;
@@ -56,9 +56,9 @@ public class OrderService {
      * </p>
      *
      * @param supplierId (Optional) The PermID of the supplier to filter by. If null or blank, returns all orders.
-     * @return A list of {@link OrderReadDto} objects representing all orders.
+     * @return A list of {@link OrderDetailDto} objects representing all orders.
      */
-    public List<OrderReadDto> getAllOrders(String supplierId) {
+    public List<OrderDetailDto> getAllOrders(String supplierId) {
         SampleSearchCriteria criteria = SampleSearchCriteria.create()
                 .with(SpaceSearchCriteria.withCode(properties.defaultSpace()))
                 .with(ProjectSearchCriteria.withCode(properties.order().projectCode()))
@@ -96,14 +96,14 @@ public class OrderService {
      * <p>
      * Executes a search for the order sample with the given PermID and the configured
      * order sample type. It fetches the order's properties, its parent supplier sample,
-     * and its child rating samples, then maps the result to an {@link OrderReadDto}.
+     * and its child rating samples, then maps the result to an {@link OrderDetailDto}.
      * </p>
      *
      * @param permId The PermID of the order to retrieve.
-     * @return The {@link OrderReadDto} representing the order with the given PermID.
+     * @return The {@link OrderDetailDto} representing the order with the given PermID.
      * @throws OpenBisResourceNotFoundException if the order does not exist.
      */
-    public OrderReadDto getOrderById(String permId) {
+    public OrderDetailDto getOrderById(String permId) {
         SampleSearchCriteria criteria = SampleSearchCriteria.create()
                 .with(PermIdSearchCriteria.withId(permId))
                 .with(SampleTypeSearchCriteria.withCode(properties.order().typeCode()));
@@ -146,7 +146,7 @@ public class OrderService {
      * @param creationDto The data for the new order.
      * @return The created order DTO (fetched fresh from openBIS to ensure consistency).
      */
-    public OrderReadDto createOrder(OrderCreationDto creationDto) {
+    public OrderDetailDto createOrder(OrderCreationDto creationDto) {
         log.info("Creating a new order '{}' for supplier '{}'", creationDto.name(), creationDto.supplierId());
 
         // Validate Supplier Existence
@@ -174,7 +174,7 @@ public class OrderService {
      * @return The updated order details.
      * @throws OpenBisResourceNotFoundException if the order does not exist.
      */
-    public OrderReadDto updateOrder(String permId, OrderUpdateDto updateDto) {
+    public OrderDetailDto updateOrder(String permId, OrderUpdateDto updateDto) {
         log.info("Updating order with PermID: {}", permId);
 
         // Validate Order Existence
@@ -228,7 +228,7 @@ public class OrderService {
      * @param permID The PermID of the order to fetch.
      * @return The fetched order DTO.
      */
-    private OrderReadDto fetchFreshOrder(String permID) {
+    private OrderDetailDto fetchFreshOrder(String permID) {
         SampleSearchCriteria criteria = SampleSearchCriteria.create().with(PermIdSearchCriteria.withId(permID));
         SampleFetchOptions fetchOptions = new SampleFetchOptions(
                 new PropertyFetchOptions(),

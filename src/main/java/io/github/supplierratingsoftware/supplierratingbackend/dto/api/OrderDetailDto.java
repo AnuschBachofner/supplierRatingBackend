@@ -1,7 +1,7 @@
 package io.github.supplierratingsoftware.supplierratingbackend.dto.api;
 
 /**
- * Represents an order.
+ * Represents an Order Detail DTO.
  *
  * <p><strong>JSON Example:</strong></p>
  * <pre>
@@ -50,7 +50,7 @@ package io.github.supplierratingsoftware.supplierratingbackend.dto.api;
  * @param supplierName  The name of the supplier (Parent of the order).
  * @param ratingId      The openBIS permID of the rating (Children of the order).
  */
-public record OrderReadDto(
+public record OrderDetailDto(
         String name,
         String mainCategory,
         String subCategory,

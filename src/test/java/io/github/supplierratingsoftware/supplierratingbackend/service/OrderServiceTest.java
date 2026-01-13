@@ -3,7 +3,7 @@ package io.github.supplierratingsoftware.supplierratingbackend.service;
 import io.github.supplierratingsoftware.supplierratingbackend.config.OpenBisProperties;
 import io.github.supplierratingsoftware.supplierratingbackend.constant.openbis.OpenBisSchemaConstants;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.api.OrderCreationDto;
-import io.github.supplierratingsoftware.supplierratingbackend.dto.api.OrderReadDto;
+import io.github.supplierratingsoftware.supplierratingbackend.dto.api.OrderDetailDto;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.api.OrderUpdateDto;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.creation.SampleCreation;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.openbis.id.EntityTypePermId;
@@ -186,8 +186,8 @@ public class OrderServiceTest {
     /**
      * Dummy return object for mapper mocks (read).
      */
-    private OrderReadDto getMinimalOrderReadDto() {
-        return new OrderReadDto(
+    private OrderDetailDto getMinimalOrderDetailDto() {
+        return new OrderDetailDto(
                 DUMMY_ORDER_NAME,
                 DUMMY_MAIN_CATEGORY,
                 DUMMY_SUB_CATEGORY,
@@ -298,7 +298,7 @@ public class OrderServiceTest {
 
         // Arrange
         OpenBisSample orderSample = createOpenBisOrder(DUMMY_ORDER_PERM_ID, DUMMY_SUPPLIER_PERM_ID);
-        OrderReadDto expectedDto = getMinimalOrderReadDto();
+        OrderDetailDto expectedDto = getMinimalOrderDetailDto();
         when(openBisClient.searchSamples(any(), any())).thenReturn(List.of(orderSample));
         when(orderMapper.toApiDto(any())).thenReturn(expectedDto);
         SampleSearchCriteria expectedCriteria = SampleSearchCriteria.create()
@@ -307,7 +307,7 @@ public class OrderServiceTest {
                 .with(SampleTypeSearchCriteria.withCode(ORDER_TYPE_CODE));
 
         // Act
-        List<OrderReadDto> result = orderService.getAllOrders(null);
+        List<OrderDetailDto> result = orderService.getAllOrders(null);
 
         // Assert
         // - Result
@@ -336,7 +336,7 @@ public class OrderServiceTest {
 
         // Arrange
         OpenBisSample orderSample = createOpenBisOrder(DUMMY_ORDER_PERM_ID, DUMMY_SUPPLIER_PERM_ID);
-        OrderReadDto expectedDto = getMinimalOrderReadDto();
+        OrderDetailDto expectedDto = getMinimalOrderDetailDto();
         when(openBisClient.searchSamples(any(), any())).thenReturn(List.of(orderSample));
         when(orderMapper.toApiDto(any())).thenReturn(expectedDto);
         SampleSearchCriteria expectedCriteria = SampleSearchCriteria.create()
@@ -346,7 +346,7 @@ public class OrderServiceTest {
                 .with(SampleParentsSearchCriteria.withParentId(DUMMY_SUPPLIER_PERM_ID));
 
         // Act
-        List<OrderReadDto> result = orderService.getAllOrders(DUMMY_SUPPLIER_PERM_ID);
+        List<OrderDetailDto> result = orderService.getAllOrders(DUMMY_SUPPLIER_PERM_ID);
 
         // Assert
         // - Result
@@ -377,7 +377,7 @@ public class OrderServiceTest {
 
         // Arrange
         OpenBisSample orderSample = createOpenBisOrder(DUMMY_ORDER_PERM_ID, DUMMY_SUPPLIER_PERM_ID);
-        OrderReadDto expectedDto = getMinimalOrderReadDto();
+        OrderDetailDto expectedDto = getMinimalOrderDetailDto();
         when(openBisClient.searchSamples(any(), any())).thenReturn(List.of(orderSample));
         when(orderMapper.toApiDto(any())).thenReturn(expectedDto);
         SampleSearchCriteria expectedCriteria = SampleSearchCriteria.create()
@@ -386,7 +386,7 @@ public class OrderServiceTest {
 
 
         // Act
-        OrderReadDto result = orderService.getOrderById(DUMMY_ORDER_PERM_ID);
+        OrderDetailDto result = orderService.getOrderById(DUMMY_ORDER_PERM_ID);
 
         // Assert
         // - Result
@@ -444,7 +444,7 @@ public class OrderServiceTest {
         SampleCreation sampleCreation = getOrderSampleCreationDto();
         OpenBisSample supplierSample = createOpenBisSupplier(DUMMY_SUPPLIER_PERM_ID);
         OpenBisSample createdOrderSample = createOpenBisOrder(DUMMY_ORDER_PERM_ID, DUMMY_SUPPLIER_PERM_ID);
-        OrderReadDto expectedDto = getMinimalOrderReadDto();
+        OrderDetailDto expectedDto = getMinimalOrderDetailDto();
         when(openBisClient.searchSamples(any(), any()))
                 .thenReturn(List.of(supplierSample))
                 .thenReturn(List.of(createdOrderSample));
@@ -453,7 +453,7 @@ public class OrderServiceTest {
         when(orderMapper.toApiDto(any())).thenReturn(expectedDto);
 
         // Act
-        OrderReadDto result = orderService.createOrder(creationDto);
+        OrderDetailDto result = orderService.createOrder(creationDto);
 
         // Assert
         // - Result
@@ -517,13 +517,13 @@ public class OrderServiceTest {
         OrderUpdateDto updateDto = getOrderUpdateDto();
         SampleUpdate sampleUpdate = getOrderSampleUpdateDto(DUMMY_ORDER_PERM_ID);
         OpenBisSample existingOrder = createOpenBisOrder(DUMMY_ORDER_PERM_ID, DUMMY_SUPPLIER_PERM_ID);
-        OrderReadDto expectedDto = getMinimalOrderReadDto();
+        OrderDetailDto expectedDto = getMinimalOrderDetailDto();
         when(openBisClient.searchSamples(any(), any())).thenReturn(List.of(existingOrder));
         when(orderMapper.toOpenBisUpdate(any(), any())).thenReturn(sampleUpdate);
         when(orderMapper.toApiDto(any())).thenReturn(expectedDto);
 
         // Act
-        OrderReadDto result = orderService.updateOrder(DUMMY_ORDER_PERM_ID, updateDto);
+        OrderDetailDto result = orderService.updateOrder(DUMMY_ORDER_PERM_ID, updateDto);
 
         // Assert
         // - Result

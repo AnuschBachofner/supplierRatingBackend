@@ -20,7 +20,7 @@ package io.github.supplierratingsoftware.supplierratingbackend.dto.api;
  * @param avgAvailability  The average availability rating.
  * @param avgTotal         The average total rating.
  * @param totalRatingCount The total number of ratings.
- * @see SupplierReadDto
+ * @see SupplierDetailDto
  */
 public record RatingStatsDto(
         Double avgQuality,

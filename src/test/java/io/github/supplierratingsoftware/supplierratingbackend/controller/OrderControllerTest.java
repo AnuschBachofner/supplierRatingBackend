@@ -1,7 +1,7 @@
 package io.github.supplierratingsoftware.supplierratingbackend.controller;
 
 import io.github.supplierratingsoftware.supplierratingbackend.dto.api.OrderCreationDto;
-import io.github.supplierratingsoftware.supplierratingbackend.dto.api.OrderReadDto;
+import io.github.supplierratingsoftware.supplierratingbackend.dto.api.OrderDetailDto;
 import io.github.supplierratingsoftware.supplierratingbackend.dto.api.OrderUpdateDto;
 import io.github.supplierratingsoftware.supplierratingbackend.service.OrderService;
 import org.junit.jupiter.api.Test;
@@ -87,13 +87,13 @@ class OrderControllerTest {
     private static final String JSON_NAME_PATH = "$.name";
     private static final String JSON_ID_PATH = "$.id";
 
-    // --- Helper Methods - OrderReadDto ---
+    // --- Helper Methods - OrderDetailDto ---
 
     /**
-     * Creates a valid {@link OrderReadDto} as an expected response from the service.
+     * Creates a valid {@link OrderDetailDto} as an expected response from the service.
      */
-    private OrderReadDto createValidReadDto() {
-        return new OrderReadDto(
+    private OrderDetailDto createValidDetailDto() {
+        return new OrderDetailDto(
                 DUMMY_NAME,
                 VALID_MAIN_CATEGORY_LABEL,
                 VALID_SUB_CATEGORY_LABEL,
@@ -149,8 +149,8 @@ class OrderControllerTest {
      */
     @Test
     void getOrderById_shouldReturnOkAndOrder() throws Exception {
-        OrderReadDto readDto = createValidReadDto();
-        when(orderService.getOrderById(DUMMY_ID)).thenReturn(readDto);
+        OrderDetailDto detailDto = createValidDetailDto();
+        when(orderService.getOrderById(DUMMY_ID)).thenReturn(detailDto);
 
         mockMvc.perform(get(ORDER_ID_URL_TEMPLATE, DUMMY_ID))
                 .andExpect(status().isOk())
@@ -166,9 +166,9 @@ class OrderControllerTest {
     @Test
     void createOrder_shouldReturnCreated_whenDtoIsValid() throws Exception {
         OrderCreationDto validDto = new CreationBuilder().build();
-        OrderReadDto expectedReadDto = createValidReadDto();
+        OrderDetailDto expectedDetailDto = createValidDetailDto();
 
-        when(orderService.createOrder(any(OrderCreationDto.class))).thenReturn(expectedReadDto);
+        when(orderService.createOrder(any(OrderCreationDto.class))).thenReturn(expectedDetailDto);
 
         mockMvc.perform(post(ORDER_BASE_URL)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -201,9 +201,9 @@ class OrderControllerTest {
     @Test
     void updateOrder_shouldReturnOk_whenDtoIsValid() throws Exception {
         OrderUpdateDto validDto = new UpdateBuilder().build();
-        OrderReadDto expectedReadDto = createValidReadDto();
+        OrderDetailDto expectedDetailDto = createValidDetailDto();
 
-        when(orderService.updateOrder(eq(DUMMY_ID), any(OrderUpdateDto.class))).thenReturn(expectedReadDto);
+        when(orderService.updateOrder(eq(DUMMY_ID), any(OrderUpdateDto.class))).thenReturn(expectedDetailDto);
 
         mockMvc.perform(put(ORDER_ID_URL_TEMPLATE, DUMMY_ID)
                         .contentType(MediaType.APPLICATION_JSON)
