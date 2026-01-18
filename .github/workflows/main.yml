@@ -18,7 +18,7 @@ jobs:
       contents: read
       packages: write
 
-    steps:
+steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -28,11 +28,15 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
 
-      # Make Gradle executable and build JAR (skip tests for speed)
+      # Step 1: Install Gradle directly on the runner
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: '9.2.1' # Add the corresponding gradle version (from gradle.properties)
+
+      # Step 2: Build with systemwide gradle command not with "gradlew"
       - name: Build with Gradle
-        run: |
-          chmod +x gradlew
-          ./gradlew build -x test
+        run: gradle build -x test
 
       - name: Log in to the Container registry
         uses: docker/login-action@v3
@@ -59,3 +63,7 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+  
+
+
+
