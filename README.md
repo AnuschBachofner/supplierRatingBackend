@@ -415,6 +415,19 @@ To keep the codebase clean and maintainable, please keep the following in mind:
 
 Thank you for your support! ❤️
 
+### 🚧 Looking for a Challenge? (Priority: High)
+
+We currently use a static service account for openBIS authentication (defined in `application.yaml`). We want to migrate
+to a **User-Centric Authentication Flow**.
+
+**The Vision:** Users should log in via the Frontend using their openBIS Personal Access Token (PAT). The Backend
+validates this against openBIS, retrieves a SessionToken, and wraps it into a **JWT** sent back to the Frontend.
+Subsequent requests use this JWT, allowing the Backend to extract the SessionToken and execute requests on behalf of the
+actual user (including handling token refreshes).
+
+If you have experience with **Spring Security** and **JWT**, please check
+out [Issue #50](https://github.com/SupplierRatingSoftware/supplierRatingBackend/issues/50) and help us implement this!
+
 ## 9. License
 
 This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
