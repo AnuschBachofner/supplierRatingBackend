@@ -231,7 +231,7 @@ dependency integration communicating directly with the openBIS V3 API via JSON-R
 ### 7.1. How to configure openBIS
 
 For the backend to function correctly, the openBIS instance must be configured with a specific data model.
-You can import the required schema definitions using the `.csv` files provided in the `openbis-schema` folder via the
+You can import the required schema definitions using the `.xlsx` files provided in the `openbis-schema` folder via the
 openBIS Admin UI (Import Master Data).
 
 ### 7.2. Installation Instructions

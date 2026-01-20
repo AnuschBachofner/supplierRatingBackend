@@ -52,13 +52,13 @@ in these requests strictly adheres to a fixed structure containing exactly **thr
   "method": "searchSamples",
   "id": "unique-request-id",
   "params": [
-    "SESSION_TOKEN_STRING",       // 1. Authentication
-    {                             // 2. Criteria (Filter)
+    "SESSION_TOKEN_STRING",
+    {
       "@type": "as.dto.sample.search.SampleSearchCriteria",
       "operator": "AND",
       "criteria": [ ... ]
     },
-    {                             // 3. Fetch Options (Depth)
+    {
       "@type": "as.dto.sample.fetchoptions.SampleFetchOptions",
       "properties": { ... },
       "type": { ... },
@@ -315,8 +315,8 @@ only the credentials passed as a list of strings.
   "method": "login",
   "id": "req-login-01",
   "params": [
-    "username",       // 1. OpenBIS Username
-    "password"        // 2. OpenBIS Password
+    "username",
+    "password"
   ]
 }
 ```
@@ -335,7 +335,7 @@ String sessionToken = login(); // returns "admin-12345..."
 
 // Next request (e.g. searchSamples)
 List<Object> params = new ArrayList<>();
-params.add(sessionToken); // Index 0: Token
+params.add(sessionToken);
 params.add(searchCriteria);
 params.add(fetchOptions);
 ```
@@ -420,7 +420,7 @@ Orders (Children), and all associated Ratings (Grandchildren).
         "@type": "as.dto.sample.fetchoptions.SampleTypeFetchOptions"
       },
       "parents": null,
-      "children": {  // LEVEL 1: Fetch Orders
+      "children": {
         "@type": "as.dto.sample.fetchoptions.SampleFetchOptions",
         "properties": {
           "@type": "as.dto.property.fetchoptions.PropertyFetchOptions"
@@ -429,7 +429,7 @@ Orders (Children), and all associated Ratings (Grandchildren).
           "@type": "as.dto.sample.fetchoptions.SampleTypeFetchOptions"
         },
         "parents": null,
-        "children": { // LEVEL 2: Fetch Ratings
+        "children": {
           "@type": "as.dto.sample.fetchoptions.SampleFetchOptions",
           "properties": {
             "@type": "as.dto.property.fetchoptions.PropertyFetchOptions"
@@ -767,9 +767,9 @@ we do *not* need the parent's properties, only its Identity (PermId).
   },
   "parents": {
     "@type": "as.dto.sample.fetchoptions.SampleFetchOptions",
-    "properties": null, // Optimization: We don't need Order properties here
-    "type": null,       // Optimization: We don't need Order type here
-    "parents": null     // Stop recursion: We don't need the Supplier here
+    "properties": null,
+    "type": null,
+    "parents": null
   }
 }
 ```
@@ -808,9 +808,9 @@ The structure of these objects mirrors the requested Fetch Options.
   },
   "parents": [
     {
-      "permId": { "permId": "20231130-999" }, // The Order ID
+      "permId": { "permId": "20231130-999" },
       "code": "BESTELLUNG_999",
-      "properties": null // Null because we didn't request them
+      "properties": null
     }
   ]
 }
@@ -826,7 +826,7 @@ into API DTOs.
 2.  **Relationships:** Accessed via `sample.getParents()`.
     * Since our model enforces a strict hierarchy, we typically expect exactly **one** parent for
       Orders and Ratings.
-    * The Mapper extracts `parents.get(0).getPermId().getPermId()` to populate fields like
+    * The Mapper extracts `parents.getFirst().getPermId().getPermId()` to populate fields like
       `orderId` or `supplierId`.
 
 **Error Handling:**
@@ -846,7 +846,7 @@ public RatingDto mapToDto(OpenBisSample sample) {
     
     // Check if parents exist and list is not empty
     if (parents != null && !parents.isEmpty()) {
-        OpenBisSample parentOrder = parents.get(0);
+        OpenBisSample parentOrder = parents.getFirst();
         if (parentOrder.getPermId() != null) {
             orderId = parentOrder.getPermId().getPermId();
         }
@@ -1044,7 +1044,7 @@ example in the JSON payload below).
         "parentIds": [
            {
              "@type": "as.dto.sample.id.SamplePermId",
-             "permId": "20251215211254413-254"  // <--- LINK TO SUPPLIER
+             "permId": "20251215211254413-254" 
            }
         ],
         "properties": {
@@ -1139,7 +1139,7 @@ Creating a rating involves linking it to a parent **Order**.
         "parentIds": [
           {
             "@type": "as.dto.sample.id.SamplePermId",
-            "permId": "20260102115225220-324"  // <--- LINK TO ORDER
+            "permId": "20260102115225220-324"
           }
         ],
         "properties": {
@@ -1189,7 +1189,7 @@ This operation allows modifying specific properties without recreating the sampl
         "@type": "as.dto.sample.update.SampleUpdate",
         "sampleId": {
           "@type": "as.dto.sample.id.SamplePermId",
-          "permId": "20251215211254413-199" // Target Supplier PermID
+          "permId": "20251215211254413-199"
         },
         "properties": {
           "LIEFERANTEN_ORT": "Bern",
@@ -1226,7 +1226,7 @@ Updates specific properties of an Order (e.g. status, details, dates).
         "@type": "as.dto.sample.update.SampleUpdate",
         "sampleId": {
           "@type": "as.dto.sample.id.SamplePermId",
-          "permId": "20260102115225220-324" // Target Order PermID
+          "permId": "20260102115225220-324"
         },
         "properties": {
           "NAME": "Updated Order Name",

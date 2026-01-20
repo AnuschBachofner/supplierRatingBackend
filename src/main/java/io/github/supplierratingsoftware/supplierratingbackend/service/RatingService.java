@@ -73,7 +73,7 @@ public class RatingService {
         }
 
         // 4. Map & Return
-        return Optional.ofNullable(ratingMapper.toApiDto(samples.get(0)));
+        return Optional.ofNullable(ratingMapper.toApiDto(samples.getFirst()));
     }
 
     /**
