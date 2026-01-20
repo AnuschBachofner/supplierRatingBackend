@@ -230,9 +230,44 @@ dependency integration communicating directly with the openBIS V3 API via JSON-R
 
 ### 7.1. How to configure openBIS
 
-For the backend to function correctly, the openBIS instance must be configured with a specific data model.
-You can import the required schema definitions using the `.xlsx` files provided in the `openbis-schema` folder via the
-openBIS Admin UI (Import Master Data).
+For the backend to function correctly, the openBIS instance requires a specific data model (Types) and a specific
+storage structure (Hierarchy).
+
+#### Step 1: Import Object Types (Schema)
+
+The Entity Types (Sample Types) and Controlled Vocabularies are defined in the `.xlsx` files located in the
+[openbis-schema](openbis-schema) folder of this repository.
+
+Log in to the openBIS **Admin Dashboard** (ELN-LIMS UI) and go to the **TOOLS** tab.
+Then navigate to **Import -> All**, click **CHOOSE FILE** to select the `.xlsx` files, and finally click **IMPORT**.
+
+#### Step 2: Create Storage Hierarchy
+
+Switch to the **Lab Notebook & Inventory Manager** (you might need to log out and then log in again if you were in the
+admin dashboard) and manually create the specific Space, Projects, and Collections (Experiments) where the data will be
+stored.
+
+1. Go to the **INVENTORY** tab and click **+ Space** to create a new Space.
+2. Inside that Space, click **+ Project** for each project to create them with the required Codes (see below).
+3. Inside each Project, click **+ Other** and select **Collection** from the dropdown menu.
+4. Fill out the form with the required Collection Code (see below) and select the **Default object type**
+   corresponding to the table below.
+
+The application expects exactly the following identifiers:
+
+**1. Create a Space:**
+
+* **Code:** `LIEFERANTENBEWERTUNG`
+
+**2. Create Projects and Collections inside that Space:**
+
+| Project Code   | Collection (Experiment) Code | Objects to store (Default Type) |
+|:---------------|:-----------------------------|:--------------------------------|
+| `LIEFERANTEN`  | `LIEFERANTEN`                | `LIEFERANT` (Supplier)          |
+| `BESTELLUNGEN` | `BESTELLUNGEN`               | `BESTELLUNG` (Order)            |
+| `BEWERTUNGEN`  | `BEWERTUNGEN`                | `BESTELLBEWERTUNG` (Rating)     |
+
+> **Note:** Ensure that the created Collections are configured to accept the corresponding Object Types listed above.
 
 ### 7.2. Installation Instructions
 
