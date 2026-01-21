@@ -269,6 +269,9 @@ The application expects exactly the following identifiers:
 
 > **Note:** Ensure that the created Collections are configured to accept the corresponding Object Types listed above.
 
+> **Note:** Consult the official [openBIS documentation](https://openbis.readthedocs.io/en/6.x/) for more information
+> on how to configure openBIS properly.
+
 ### 7.2. Installation Instructions
 
 To install the application, you can choose between three different ways: From source, as a Docker
