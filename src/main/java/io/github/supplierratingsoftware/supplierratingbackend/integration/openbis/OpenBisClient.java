@@ -114,6 +114,48 @@ public class OpenBisClient {
     }
 
     /**
+     * Meldet einen Benutzer mit individuellen Zugangsdaten bei openBIS an.
+     * @param username Der vom Frontend gesendete Benutzername.
+     * @param password Das vom Frontend gesendete Passwort.
+     * @return Ein Session-Token (Eintrittskarte), wenn der Login erfolgreich war.
+     */
+    public String authenticate(String username, String password) {
+        log.info("Versuche Benutzer '{}' bei openBIS anzumelden...", username);
+
+        // 1. Wir erstellen das Paket für openBIS (die JSON-RPC Anfrage).
+        // openBIS erwartet beim Login eine Liste mit zwei Einträgen: [Username, Passwort].
+        JsonRpcRequest request = new JsonRpcRequest(
+                OpenBisJsonConstants.LOGIN_METHOD_NAME,
+                List.of(username, password)
+        );
+
+        // 2. Wir definieren, dass wir als Antwort einen String (den Token) erwarten.
+        ParameterizedTypeReference<JsonRpcResponse<String>> responseType = new ParameterizedTypeReference<>() {};
+
+        try {
+            // 3. Wir schicken die Anfrage ab.
+            JsonRpcResponse<String> response = restClient.post()
+                    .body(request)
+                    .retrieve()
+                    .body(responseType);
+
+            // 4. Wir prüfen, ob die Antwort gültig ist.
+            validateResponse(response, "Login fehlgeschlagen");
+
+            if (response.result() == null) {
+                throw new OpenBisIntegrationException("Kein Session-Token von openBIS erhalten.");
+            }
+
+            log.info("Benutzer '{}' erfolgreich angemeldet.", username);
+            return response.result(); // Das ist unser Token!
+
+        } catch (Exception e) {
+            log.error("Fehler beim openBIS-Login für '{}': {}", username, e.getMessage());
+            throw new OpenBisIntegrationException("Authentifizierung fehlgeschlagen: " + e.getMessage());
+        }
+    }
+
+    /**
      * Searches in openBIS for samples based on the specified criteria and fetch options.
      *
      * @param criteria     The search criteria to use for the search.
