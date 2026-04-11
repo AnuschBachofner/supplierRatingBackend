@@ -2,8 +2,14 @@
 services:
   backend:
     build: .
+    networks:
+      - openbis-network # Das Backend MUSS in dieses Netzwerk
     container_name: backend
     ports:
       - "8080:8080"
     env_file:
       - .env.development
+networks:
+  openbis-network:
+    name: openbis-shared-network
+    external: true # WICHTIG: Sagt Docker, dass dieses Netzwerk schon existiert
