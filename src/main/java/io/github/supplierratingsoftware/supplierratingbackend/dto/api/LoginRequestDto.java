@@ -11,6 +11,6 @@ public record LoginRequestDto(
         @NotBlank(message = "Benutzername darf nicht leer sein")
         String username,
 
-        @NotBlank(message = "Passwort darf nicht leer sein")
-        String password
+        @NotBlank(message = "Bitte geben Sie Ihren Personal Access Token ein")
+        String password  // Dies wird im Frontend als PAT eingegeben
 ) {}
