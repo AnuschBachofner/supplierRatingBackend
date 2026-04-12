@@ -11,5 +11,5 @@ services:
       - .env.development
 networks:
   openbis-network:
-    name: openbis-shared-network
-    external: true # WICHTIG: Sagt Docker, dass dieses Netzwerk schon existiert
+    name: openbis-shared-network # backend communicates with openbis via openbis-shared-network (container to container communication)
+    external: true
