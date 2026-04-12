@@ -418,18 +418,21 @@ To keep the codebase clean and maintainable, please keep the following in mind:
 
 Thank you for your support! ❤️
 
-### 🚧 Looking for a Challenge? (Priority: High)
+### ✅ Authentication: PAT-based Login (implemented)
 
-We currently use a static service account for openBIS authentication (defined in `application.yaml`). We want to migrate
-to a **User-Centric Authentication Flow**.
+The application uses a **User-Centric Authentication Flow** based on openBIS **Personal Access Tokens (PAT)**.
 
-**The Vision:** Users should log in via the Frontend using their openBIS Personal Access Token (PAT). The Backend
-validates this against openBIS, retrieves a SessionToken, and wraps it into a **JWT** sent back to the Frontend.
-Subsequent requests use this JWT, allowing the Backend to extract the SessionToken and execute requests on behalf of the
-actual user (including handling token refreshes).
+**How it works:**
+1. The user enters their openBIS username and PAT in the Frontend login form.
+2. The Backend validates the PAT against openBIS using the `getSessionInformation` V3 API call.
+3. If valid, the Backend verifies that the PAT belongs to the entered username.
+4. The PAT is returned to the Frontend and stored as a Bearer token.
+5. All subsequent API requests include the PAT in the `Authorization: Bearer` header, which the Backend uses directly as the openBIS session token.
 
-If you have experience with **Spring Security** and **JWT**, please check
-out [Issue #50](https://github.com/SupplierRatingSoftware/supplierRatingBackend/issues/50) and help us implement this!
+**Requirements:**
+- openBIS version **20.10.5 or later** (PAT support was introduced in this version)
+- PATs must be enabled on the openBIS instance (`personal-access-tokens-enabled = true`)
+- Users must create their PAT in the openBIS UI under their profile settings before logging in
 
 ## 9. License
 
