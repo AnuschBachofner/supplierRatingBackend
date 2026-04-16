@@ -1,10 +1,10 @@
 # This docker-compose file is used for local development.
 services:
-  backend:
+  srs-backend-service:
     build: .
     networks:
-      - openbis-network # Das Backend MUSS in dieses Netzwerk
-    container_name: backend
+      - openbis-network
+    container_name: srs-backend-service
     ports:
       - "8080:8080"
     env_file:
